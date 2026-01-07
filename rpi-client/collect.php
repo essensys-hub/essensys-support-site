@@ -7,7 +7,7 @@
  */
 
 // --- Configuration ---
-$serverUrl = 'https://essensys.fr/api/serverinfos/index.php'; // Adjust if needed
+$serverUrl = 'http://essensys.fr/api/serverinfos/index.php'; // Adjust if needed
 $user = 'raspberry_pi_client'; // Default user
 $key = 'secret_key';           // Default key, should be changed or passed as arg
 $version = '1.0.0';            // Client version
