@@ -1,4 +1,8 @@
 import React from 'react';
+import iosHome from '../assets/ios-app-home.png';
+import iosLighting from '../assets/ios-app-lighting.png';
+import android1 from '../assets/app_android_001.png';
+import android2 from '../assets/app_android_002.png';
 
 const Home = () => {
     return (
@@ -19,7 +23,10 @@ const Home = () => {
                     <h3>Open Source</h3>
                     <p>Contrôle total sur vos données et votre matériel.</p>
                 </div>
-                <div className="feature-card">
+                <div
+                    className="feature-card clickable"
+                    onClick={() => document.getElementById('apps').scrollIntoView({ behavior: 'smooth' })}
+                >
                     <h3>Apps Modernes</h3>
                     <p>Contrôlez votre maison depuis iOS et Android.</p>
                 </div>
@@ -40,6 +47,28 @@ const Home = () => {
                         Grâce à la libération du code source sous licence MIT, l'esprit d'Essensys perdure. Ce projet communautaire assure non seulement la maintenance
                         des installations existantes, mais modernize également l'écosystème avec des technologies actuelles (Raspberry Pi, React, Apps natives).
                     </p>
+                </div>
+            </section>
+
+            <section id="apps" className="content-section">
+                <h2>Applications Mobiles</h2>
+                <div className="apps-showcase">
+                    <div className="app-platform">
+                        <h3>iOS</h3>
+                        <div className="app-images">
+                            <img src={iosHome} alt="iOS Home" />
+                            <img src={iosLighting} alt="iOS Lighting" />
+                        </div>
+                        <button className="secondary" onClick={() => window.location.href = '/ios'}>Télécharger pour iOS</button>
+                    </div>
+                    <div className="app-platform">
+                        <h3>Android</h3>
+                        <div className="app-images">
+                            <img src={android1} alt="Android Home" />
+                            <img src={android2} alt="Android Lighting" />
+                        </div>
+                        <button className="secondary" onClick={() => window.location.href = '/android'}>Télécharger pour Android</button>
+                    </div>
                 </div>
             </section>
 

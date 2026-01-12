@@ -97,3 +97,43 @@
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.1);
 }
+/* Append styles for App Showcase */
+.apps-showcase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.app-platform {
+    flex: 1;
+    min-width: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.app-platform h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #4CAF50;
+}
+
+.app-images {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.app-images img {
+    height: 300px;
+    width: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.3s;
+}
+
+.app-images img:hover {
+    transform: scale(1.05);
+}
