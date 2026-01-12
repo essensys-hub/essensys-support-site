@@ -19,8 +19,8 @@ function App() {
             element={
               <DownloadPage
                 platform="iOS"
-                title="Essensys for iOS"
-                instructions="Download the .ipa file or install via TestFlight (link coming soon)."
+                title="Essensys pour iOS"
+                instructions="Téléchargez le fichier .ipa ou installez via TestFlight (lien bientôt disponible)."
               />
             }
           />
@@ -29,8 +29,8 @@ function App() {
             element={
               <DownloadPage
                 platform="Android"
-                title="Essensys for Android"
-                instructions="Download the .apk file and allow installation from unknown sources."
+                title="Essensys pour Android"
+                instructions="Téléchargez le fichier .apk et autorisez l'installation depuis des sources inconnues."
               />
             }
           />
@@ -39,8 +39,8 @@ function App() {
             element={
               <DownloadPage
                 platform="Raspberry Pi"
-                title="Essensys Hub Server"
-                instructions="Run the install script on your Raspberry Pi: curl -sL https://essensys.fr/install.sh | bash"
+                title="Serveur Hub Essensys"
+                instructions="Lancez le script d'installation sur votre Raspberry Pi : curl -sL https://essensys.fr/install.sh | bash"
                 downloadUrl="https://essensys-hub.github.io/essensys-raspberry-install/"
               />
             }

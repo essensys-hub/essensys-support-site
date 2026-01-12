@@ -6,10 +6,10 @@ const Layout = () => {
     return (
         <div className="layout-container">
             <header className="main-header">
-                <div className="logo">Essensys Support</div>
+                <div className="logo">Support Essensys</div>
                 <nav>
                     <ul>
-                        <li><Link to="/">Home</Link></li>
+                        <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
                         <li><Link to="/admin">Admin</Link></li>
                         <li><Link to="/ios">iOS</Link></li>
@@ -22,7 +22,7 @@ const Layout = () => {
                 <Outlet />
             </main>
             <footer className="main-footer">
-                <p>© 2026 Essensys Community Project</p>
+                <p>© 2026 Projet Communautaire Essensys</p>
             </footer>
         </div>
     );
