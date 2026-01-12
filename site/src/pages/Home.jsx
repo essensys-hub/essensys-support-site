@@ -12,7 +12,10 @@ const Home = () => {
             </div>
 
             <section className="features">
-                <div className="feature-card">
+                <div
+                    className="feature-card clickable"
+                    onClick={() => document.getElementById('history').scrollIntoView({ behavior: 'smooth' })}
+                >
                     <h3>Open Source</h3>
                     <p>Contrôle total sur vos données et votre matériel.</p>
                 </div>
@@ -26,7 +29,7 @@ const Home = () => {
                 </div>
             </section>
 
-            <section className="content-section">
+            <section id="history" className="content-section">
                 <h2>Historique & Philosophie</h2>
                 <div className="history-content">
                     <p>

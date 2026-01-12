@@ -87,3 +87,13 @@
   margin-top: 2rem;
   text-align: center;
 }
+
+.feature-card.clickable {
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.feature-card.clickable:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
