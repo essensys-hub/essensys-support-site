@@ -14,10 +14,10 @@ const Layout = () => {
                     <ul>
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
+                        <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
                         <li><Link to="/admin">Admin</Link></li>
                         <li><Link to="/ios">iOS</Link></li>
                         <li><Link to="/android">Android</Link></li>
-                        <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
                     </ul>
                 </nav>
             </header>
