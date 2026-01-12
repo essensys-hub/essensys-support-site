@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DownloadPage = ({ platform, title, instructions, downloadUrl }) => {
+const DownloadPage = ({ platform, title, instructions, downloadUrl, buttonText }) => {
     return (
         <div className="page-content download-page">
             <h1>{title}</h1>
@@ -10,8 +10,9 @@ const DownloadPage = ({ platform, title, instructions, downloadUrl }) => {
                 <button
                     className="download-btn"
                     onClick={() => downloadUrl ? window.open(downloadUrl, '_blank') : alert('Lien de téléchargement bientôt disponible !')}
+                    style={buttonText ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
                 >
-                    {downloadUrl ? `Aller au guide ${platform}` : `Télécharger pour ${platform}`}
+                    {buttonText || (downloadUrl ? `Aller au guide ${platform}` : `Télécharger pour ${platform}`)}
                 </button>
             </div>
 

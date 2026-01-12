@@ -21,6 +21,7 @@ function App() {
                 platform="iOS"
                 title="Essensys pour iOS"
                 instructions="Téléchargez le fichier .ipa ou installez via TestFlight (lien bientôt disponible)."
+                buttonText="En cours de test (Pas encore publié)"
               />
             }
           />
@@ -31,6 +32,7 @@ function App() {
                 platform="Android"
                 title="Essensys pour Android"
                 instructions="Téléchargez le fichier .apk et autorisez l'installation depuis des sources inconnues."
+                buttonText="En cours de test (Pas encore publié)"
               />
             }
           />
