@@ -9,16 +9,16 @@ const Support = () => {
             <div className="doc-section">
                 <h2>Installation</h2>
                 <ul>
-                    <li><a href="#">Installer le Serveur sur Raspberry Pi</a></li>
-                    <li><a href="#">Connecter le Matériel</a></li>
+                    <li><a href="https://essensys-hub.github.io/essensys-raspberry-install/installation/">Installer le Serveur sur Raspberry Pi</a></li>
+                    <li><a href="https://essensys-hub.github.io/essensys-raspberry-install/installation/preparation/">Connecter le Matériel</a></li>
                 </ul>
             </div>
 
             <div className="doc-section">
                 <h2>Dépannage</h2>
                 <ul>
-                    <li><a href="#">Problèmes Courants</a></li>
-                    <li><a href="#">Outils de Diagnostic</a></li>
+                    <li><a href="https://essensys-hub.github.io/essensys-raspberry-install/maintenance/">Problèmes Courants</a></li>
+                    <li><a href="https://essensys-hub.github.io/essensys-raspberry-install/logs/">Outils de Diagnostic</a></li>
                 </ul>
             </div>
         </div>
