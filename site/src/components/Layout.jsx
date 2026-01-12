@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import './Layout.css';
+import logo from '../assets/logosml.png';
 
 const Layout = () => {
     return (
         <div className="layout-container">
             <header className="main-header">
-                <div className="logo">Support Essensys</div>
+                <div className="logo">
+                    <img src={logo} alt="Essensys" />
+                </div>
                 <nav>
                     <ul>
                         <li><Link to="/">Accueil</Link></li>
