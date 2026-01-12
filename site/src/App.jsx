@@ -41,6 +41,7 @@ function App() {
                 platform="Raspberry Pi"
                 title="Essensys Hub Server"
                 instructions="Run the install script on your Raspberry Pi: curl -sL https://essensys.fr/install.sh | bash"
+                downloadUrl="https://essensys-hub.github.io/essensys-raspberry-install/"
               />
             }
           />
