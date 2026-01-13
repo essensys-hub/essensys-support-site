@@ -1,0 +1,18 @@
+server {
+    listen 80;
+    server_name vps-22806d02.vps.ovh.net test.essensys.fr mon.essensys.fr;
+
+    # Frontend (React)
+    location / {
+        root /home/ubuntu/essensys-frontend;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Backend API Proxy
+    location /api/ {
+        proxy_pass http://localhost:8080/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
