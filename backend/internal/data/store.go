@@ -22,6 +22,7 @@ type Store interface {
     GetStats() (*models.AdminStatsResponse, error)
     GetMachines() ([]*models.MachineDetail, error)
     UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string)
+    RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
 }
 
 // MemoryStore implementation for rapid dev / testing
@@ -60,6 +61,38 @@ func (s *MemoryStore) GetMachineByHashedPkey(hashedPkey string) (*models.Machine
         return m, nil
     }
     return nil, fmt.Errorf("machine not found")
+}
+
+func (s *MemoryStore) RegisterUnknownMachine(hashedPkey string) (*models.Machine, error) {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+
+    // Check if exists again to be safe
+    if m, ok := s.machines[hashedPkey]; ok {
+        return m, nil
+    }
+
+    // Auto-create ID
+    newID := len(s.machines) + 1
+    noSerie := fmt.Sprintf("UNKNOWN-%s", hashedPkey[:8])
+
+    m := &models.Machine{
+        ID:         newID,
+        NoSerie:    noSerie,
+        IsActive:   false, // Requires approval
+        HashedPkey: hashedPkey,
+    }
+
+    s.machines[hashedPkey] = m
+    s.details[hashedPkey] = &models.MachineDetail{
+        ID:      m.ID,
+        NoSerie: m.NoSerie,
+        IP:      "-",
+        LastSeen: time.Now(),
+    }
+    
+    log.Printf("[STORE] Registered Unknown Machine: %s (Hash: %s)", noSerie, hashedPkey[:10])
+    return m, nil
 }
 
 func (s *MemoryStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string) {
@@ -122,6 +155,11 @@ func (s *DatabaseStore) GetMachineByHashedPkey(hashedPkey string) (*models.Machi
 		return nil, err
 	}
 	return &machine, nil
+}
+
+func (s *DatabaseStore) RegisterUnknownMachine(hashedPkey string) (*models.Machine, error) {
+    // Stub
+    return nil, fmt.Errorf("not implemented in database store")
 }
 
 func (s *DatabaseStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string) {

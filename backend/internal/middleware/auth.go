@@ -74,24 +74,48 @@ func BasicAuthMiddleware(store data.Store, strict bool) func(http.Handler) http.
 			// 4. Validate against Store
 			machine, err := store.GetMachineByHashedPkey(hashedPkey)
 			if err != nil || machine == nil {
-                if !strict {
-                     // Lax mode: Failed auth is ignored, treated as anonymous
-                     log.Printf("BasicAuth (Lax): Auth failed regarding store for hash %s, proceeding as anonymous", hashedPkey[:10])
-                     ctx := context.WithValue(r.Context(), ClientIDKey, "anonymous")
-                     next.ServeHTTP(w, r.WithContext(ctx))
+                // AUTO-REGISTER if unknown
+                log.Printf("BasicAuth: Unknown Machine Hash %s... Registering...", hashedPkey[:10])
+                m, errReg := store.RegisterUnknownMachine(hashedPkey)
+                if errReg == nil {
+                    machine = m
+                } else {
+                     // Fallback if registration fails (db error)
+                     if !strict {
+                         log.Printf("BasicAuth (Lax): Auth failed & Reg failed, proceeding as anonymous")
+                         ctx := context.WithValue(r.Context(), ClientIDKey, "anonymous")
+                         next.ServeHTTP(w, r.WithContext(ctx))
+                         return
+                     }
+                     unauthorized(w)
                      return
                 }
-				log.Printf("BasicAuth: Auth failed for hash %s... (%v)", hashedPkey[:10], err)
-				unauthorized(w)
-				return
 			}
+
+            // At this point, 'machine' exists (either found or just registered)
+            
+            // Capture Connection Details (RealIP middleware ensures RemoteAddr is correct)
+            // We capture detail BEFORE enforcing IsActive, so Admins can see the attempt/IP
+            store.UpdateMachineStatus(hashedPkey, r.RemoteAddr, encodedCredentials, credentials)
+
+            // 5. Check Active Status
+            if !machine.IsActive {
+                if !strict {
+                    // Lax mode: Inactive machine treated as anonymous
+                    log.Printf("BasicAuth (Lax): Machine %s is INACTIVE, proceeding as anonymous", machine.NoSerie)
+                    ctx := context.WithValue(r.Context(), ClientIDKey, "anonymous")
+                    next.ServeHTTP(w, r.WithContext(ctx))
+                    return
+                }
+                
+                log.Printf("BasicAuth: Machine %s is INACTIVE", machine.NoSerie)
+                http.Error(w, "Machine inactive", http.StatusForbidden)
+                return
+            }
 
 			// Auth Success - Inject Client ID context
 			log.Printf("BasicAuth: Success for machine %s (ID: %d)", machine.NoSerie, machine.ID)
             
-            // Capture Connection Details (RealIP middleware ensures RemoteAddr is correct)
-            store.UpdateMachineStatus(hashedPkey, r.RemoteAddr, encodedCredentials, credentials)
-
 			ctx := context.WithValue(r.Context(), ClientIDKey, machine.NoSerie)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
