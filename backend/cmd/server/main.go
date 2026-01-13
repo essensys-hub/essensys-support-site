@@ -37,6 +37,7 @@ func main() {
 
 	// 2. Init Router
 	r := chi.NewRouter()
+    r.Use(chimiddleware.RealIP) // Must be before Logger to fix IP in logs
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
 

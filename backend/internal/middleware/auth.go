@@ -89,14 +89,8 @@ func BasicAuthMiddleware(store data.Store, strict bool) func(http.Handler) http.
 			// Auth Success - Inject Client ID context
 			log.Printf("BasicAuth: Success for machine %s (ID: %d)", machine.NoSerie, machine.ID)
             
-            // Determine Real IP (Nginx Proxy)
-            clientIP := r.Header.Get("X-Real-IP")
-            if clientIP == "" {
-                clientIP = r.RemoteAddr
-            }
-
-            // Capture Connection Details
-            store.UpdateMachineStatus(hashedPkey, clientIP, encodedCredentials, credentials)
+            // Capture Connection Details (RealIP middleware ensures RemoteAddr is correct)
+            store.UpdateMachineStatus(hashedPkey, r.RemoteAddr, encodedCredentials, credentials)
 
 			ctx := context.WithValue(r.Context(), ClientIDKey, machine.NoSerie)
 			next.ServeHTTP(w, r.WithContext(ctx))
