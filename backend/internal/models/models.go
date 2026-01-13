@@ -61,4 +61,14 @@ type MachineDetail struct {
 	LastSeen   time.Time `json:"last_seen"`
 	RawAuth    string    `json:"raw_auth"`
 	RawDecoded string    `json:"raw_decoded"` // user:pass
+	GeoLocation string   `json:"geo_location"`
+}
+
+// GeoAPIResponse for parsing ip-api.com
+type GeoAPIResponse struct {
+    Status      string  `json:"status"`
+    Country     string  `json:"country"`
+    City        string  `json:"city"`
+    ISP         string  `json:"isp"`
+    Query       string  `json:"query"`
 }
