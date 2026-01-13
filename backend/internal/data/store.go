@@ -1,8 +1,10 @@
 package data
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"sync"
 	"time"
 
@@ -100,10 +102,47 @@ func (s *MemoryStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded st
     defer s.mu.Unlock()
     
     if detail, ok := s.details[hashedPkey]; ok {
+        // Check if IP changed or Geo is empty to trigger fetch
+        triggerGeo := (detail.IP != ip && ip != "" && ip != "127.0.0.1") || (detail.GeoLocation == "" && ip != "" && ip != "127.0.0.1")
+
         detail.IP = ip
         detail.RawAuth = rawAuth
         detail.RawDecoded = rawDecoded
         detail.LastSeen = time.Now()
+        
+        if triggerGeo {
+            go s.fetchGeoLocation(hashedPkey, ip)
+        }
+    }
+}
+
+func (s *MemoryStore) fetchGeoLocation(hashedPkey, ip string) {
+    // Avoid bombing the API
+    time.Sleep(1 * time.Second) 
+    
+    url := fmt.Sprintf("http://ip-api.com/json/%s", ip)
+    resp, err := http.Get(url)
+    if err != nil {
+        log.Printf("Geo Fetch Error: %v", err)
+        return
+    }
+    defer resp.Body.Close()
+    
+    var geo models.GeoAPIResponse
+    if err := json.NewDecoder(resp.Body).Decode(&geo); err != nil {
+        log.Printf("Geo Decode Error: %v", err)
+        return
+    }
+    
+    if geo.Status == "success" {
+        location := fmt.Sprintf("%s, %s (%s)", geo.City, geo.Country, geo.ISP)
+        
+        s.mu.Lock()
+        if detail, ok := s.details[hashedPkey]; ok {
+            detail.GeoLocation = location
+        }
+        s.mu.Unlock()
+        log.Printf("Geo Update for %s: %s", ip, location)
     }
 }
 
