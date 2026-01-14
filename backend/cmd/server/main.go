@@ -20,20 +20,7 @@ func main() {
 	// 1. Init Store (File-based persistence)
 	store := data.NewMemoryStore("./data/machines.json")
     
-    // Seed a test machine for development
-    // User: "testuser" -> MD5("testuser") -> ... wait, client logic is reverse.
-    // Client has KEY (16 bytes). 
-    // Let's create a known HashedPkey for testing.
-    // user: aaaaaaaaaaaaaaaa (16 'a')
-    // pass: bbbbbbbbbbbbbbbb (16 'b')
-    // hashedPkey: aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb
-	store.AddTestMachine(&models.Machine{
-		ID: 1,
-		NoSerie: "TEST-CLIENT-01",
-		IsActive: true,
-		HashedPkey: "aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb",
-	})
-    log.Println("Seeded Test Machine: User='aaaaaaaaaaaaaaaa', Pass='bbbbbbbbbbbbbbbb' (Basic YWFhYWFhYWFhYWFhYWFhYTpiYmJiYmJiYmJiYmJiYmJi)")
+
 
 	// 2. Init Router
 	r := chi.NewRouter()
