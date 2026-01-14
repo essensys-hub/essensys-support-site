@@ -14,6 +14,21 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Store defines the data access interface
+type Store interface {
+    // Auth
+    GetMachineByHashedPkey(hashedPkey string) (*models.Machine, error)
+    
+    // Data Capture
+    SaveClientData(clientID string, data []models.ExchangeKeyValue) error
+    
+    // Admin
+    GetStats() (*models.AdminStatsResponse, error)
+    GetMachines() ([]*models.MachineDetail, error)
+    UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string)
+    RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
+}
+
 // PersistenceData wraps the data we want to save
 type PersistenceData struct {
     Machines map[string]*models.Machine       `json:"machines"`
