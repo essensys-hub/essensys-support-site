@@ -243,6 +243,34 @@ const Admin = () => {
                     )}
                 </div>
             )}
+
+            {(isAuthenticated && subscribers) && (
+                <div style={{ marginTop: '40px', padding: '0 20px 20px 20px' }}>
+                    <h3>Abonnés Newsletter ({subscribers.length})</h3>
+                    {subscribers.length > 0 ? (
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
+                                <thead>
+                                    <tr style={{ background: '#333', color: '#fff' }}>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>Email</th>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>Date d'inscription</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {subscribers.map((s, i) => (
+                                        <tr key={i} style={{ borderBottom: '1px solid #444' }}>
+                                            <td style={{ padding: '10px' }}>{s.email}</td>
+                                            <td style={{ padding: '10px' }}>{new Date(s.date_joined).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p style={{ color: '#888' }}>Aucun abonné pour le moment.</p>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
