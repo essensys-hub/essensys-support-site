@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Support from './pages/Support';
 import Admin from './pages/Admin';
 import DownloadPage from './pages/DownloadPage';
+import RaspberryPi from './pages/RaspberryPi';
 import './App.css';
 
 function App() {
@@ -38,14 +39,7 @@ function App() {
           />
           <Route
             path="raspberrypi"
-            element={
-              <DownloadPage
-                platform="Raspberry Pi"
-                title="Serveur Hub Essensys"
-                instructions="Lancez le script d'installation sur votre Raspberry Pi : curl -sL https://essensys.fr/install.sh | bash"
-                downloadUrl="https://essensys-hub.github.io/essensys-raspberry-install/"
-              />
-            }
+            element={<RaspberryPi />}
           />
         </Route>
       </Routes>
