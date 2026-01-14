@@ -31,6 +31,12 @@ type Store interface {
     // Newsletter
     AddSubscriber(email string) error
     GetSubscribers() ([]models.Subscriber, error)
+    
+    // Newsletter Management
+    GetNewsletters() ([]models.Newsletter, error)
+    GetNewsletter(id string) (*models.Newsletter, error)
+    SaveNewsletter(n models.Newsletter) error
+    DeleteNewsletter(id string) error
 }
 
 // PersistenceData wraps the data we want to save
@@ -38,6 +44,7 @@ type PersistenceData struct {
     Machines    map[string]*models.Machine       `json:"machines"`
     Details     map[string]*models.MachineDetail `json:"details"`
     Subscribers []models.Subscriber              `json:"subscribers"`
+    Newsletters []models.Newsletter              `json:"newsletters"`
 }
 
 // MemoryStore implementation with File Persistence
@@ -47,6 +54,7 @@ type MemoryStore struct {
     data        map[string][]models.ExchangeKeyValue // clientID -> last data
     details     map[string]*models.MachineDetail // hashedPkey -> Connection Details
     subscribers []models.Subscriber
+    newsletters map[string]models.Newsletter // id -> Newsletter
     filePath    string
 }
 
@@ -58,10 +66,11 @@ func NewMemoryStore(storagePath string) *MemoryStore {
     }
 
     store := &MemoryStore{
-        machines: make(map[string]*models.Machine),
-        data:     make(map[string][]models.ExchangeKeyValue),
-        details:  make(map[string]*models.MachineDetail),
-        filePath: storagePath,
+        machines:    make(map[string]*models.Machine),
+        data:        make(map[string][]models.ExchangeKeyValue),
+        details:     make(map[string]*models.MachineDetail),
+        newsletters: make(map[string]models.Newsletter),
+        filePath:    storagePath,
     }
     
     store.load()
@@ -89,14 +98,28 @@ func (s *MemoryStore) load() {
     s.machines = pd.Machines
     s.details = pd.Details
     s.subscribers = pd.Subscribers
-    log.Printf("Loaded %d machines and %d subscribers from storage.", len(s.machines), len(s.subscribers))
+    
+    // Load Newsletters list into map
+    s.newsletters = make(map[string]models.Newsletter)
+    for _, n := range pd.Newsletters {
+        s.newsletters[n.ID] = n
+    }
+    
+    log.Printf("Loaded %d machines, %d subscribers, %d newsletters.", len(s.machines), len(s.subscribers), len(s.newsletters))
 }
 
 func (s *MemoryStore) save() {
+    // Convert newsletters map to slice
+    nlList := make([]models.Newsletter, 0, len(s.newsletters))
+    for _, n := range s.newsletters {
+        nlList = append(nlList, n)
+    }
+
     pd := PersistenceData{
         Machines:    s.machines,
         Details:     s.details,
         Subscribers: s.subscribers,
+        Newsletters: nlList,
     }
 
     file, err := os.Create(s.filePath)
@@ -270,11 +293,52 @@ func (s *MemoryStore) AddSubscriber(email string) error {
     return nil
 }
 
-func (s *MemoryStore) GetSubscribers() ([]models.Subscriber, error) {
-    s.mu.RLock()
-    defer s.mu.RUnlock()
     // Return copy
     return append([]models.Subscriber(nil), s.subscribers...), nil
+}
+
+// Newsletter Management Implementation
+func (s *MemoryStore) GetNewsletters() ([]models.Newsletter, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    list := make([]models.Newsletter, 0, len(s.newsletters))
+    for _, n := range s.newsletters {
+        list = append(list, n)
+    }
+    return list, nil
+}
+
+func (s *MemoryStore) GetNewsletter(id string) (*models.Newsletter, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    if n, ok := s.newsletters[id]; ok {
+        return &n, nil
+    }
+    return nil, fmt.Errorf("newsletter not found")
+}
+
+func (s *MemoryStore) SaveNewsletter(n models.Newsletter) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    s.newsletters[n.ID] = n
+    s.save()
+    return nil
+}
+
+func (s *MemoryStore) DeleteNewsletter(id string) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    if _, ok := s.newsletters[id]; !ok {
+        return fmt.Errorf("newsletter not found")
+    }
+    
+    delete(s.newsletters, id)
+    s.save()
+    return nil
 }
 
 // DatabaseStore implementation (Future / Production)
@@ -331,4 +395,20 @@ func (s *DatabaseStore) AddSubscriber(email string) error {
 
 func (s *DatabaseStore) GetSubscribers() ([]models.Subscriber, error) {
     return []models.Subscriber{}, nil
+}
+
+func (s *DatabaseStore) GetNewsletters() ([]models.Newsletter, error) {
+    return []models.Newsletter{}, nil
+}
+
+func (s *DatabaseStore) GetNewsletter(id string) (*models.Newsletter, error) {
+    return nil, fmt.Errorf("not implemented")
+}
+
+func (s *DatabaseStore) SaveNewsletter(n models.Newsletter) error {
+    return nil
+}
+
+func (s *DatabaseStore) DeleteNewsletter(id string) error {
+    return nil
 }

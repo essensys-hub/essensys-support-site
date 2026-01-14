@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import NewsletterManager from './NewsletterManager';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -16,10 +17,11 @@ const Admin = () => {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [stats, setStats] = React.useState(null);
     const [machines, setMachines] = React.useState([]);
-    const [subscribers, setSubscribers] = React.useState([]); // New State
+    const [subscribers, setSubscribers] = React.useState([]);
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
+    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'newsletters'
 
     // Initial check
     React.useEffect(() => {
@@ -162,117 +164,155 @@ const Admin = () => {
                 </div>
             ) : (
                 <div className="admin-dashboard">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h2>Tableau de Bord</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                                onClick={() => setActiveTab('dashboard')}
+                                style={activeTab === 'dashboard' ? activeTabStyle : inactiveTabStyle}
+                            >
+                                Tableau de Bord
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('newsletters')}
+                                style={activeTab === 'newsletters' ? activeTabStyle : inactiveTabStyle}
+                            >
+                                Newsletters
+                            </button>
+                        </div>
                         <button onClick={handleLogout} style={{ padding: '5px 10px', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                             Déconnexion
                         </button>
                     </div>
 
-                    {stats && (
-                        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '20px' }}>
-                            <div className="stat-card" style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
-                                <h3>Clients Connectés</h3>
-                                <p style={{ fontSize: '2em', color: '#00C9FF' }}>{stats.connected_clients}</p>
-                            </div>
-                            <div
-                                className="stat-card clickable"
-                                onClick={fetchMachines}
-                                style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid #444' }}
-                            >
-                                <h3>Total Machines (Voir liste)</h3>
-                                <p style={{ fontSize: '2em', color: '#92FE9D' }}>{stats.total_machines}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {showMachineList && (
+                    {activeTab === 'dashboard' ? (
                         <>
-                            <div style={{ marginTop: '20px', overflowX: 'auto' }}>
-                                <h3>Liste des Machines</h3>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
-                                    <thead>
-                                        <tr style={{ background: '#333', color: '#fff' }}>
-                                            <th style={{ padding: '10px', textAlign: 'left' }}>Machine ID</th>
-                                            <th style={{ padding: '10px', textAlign: 'left' }}>User / Pass</th>
-                                            <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
-                                            <th style={{ padding: '10px', textAlign: 'left' }}>Raw Auth (Base64)</th>
-                                            <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {machines.map(m => (
-                                            <tr key={m.id} style={{ borderBottom: '1px solid #444' }}>
-                                                <td style={{ padding: '10px' }}>{m.no_serie}</td>
-                                                <td style={{ padding: '10px', fontFamily: 'monospace' }}>{m.raw_decoded || '-'}</td>
-                                                <td style={{ padding: '10px' }}>
-                                                    <div>{m.ip || '-'}</div>
-                                                    <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{m.geo_location || ''}</div>
-                                                </td>
-                                                <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.raw_auth || '-'}</td>
-                                                <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div style={{ marginTop: '40px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
-                                <h3>Géolocalisation des Clients</h3>
-                                <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
-                                    <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                                        <TileLayer
-                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                        />
-                                        {machines.map(m => (
-                                            (m.lat && m.lon) && (
-                                                <Marker key={m.id} position={[m.lat, m.lon]}>
-                                                    <Popup>
-                                                        <strong>{m.no_serie}</strong><br />
-                                                        {m.geo_location}<br />
-                                                        {m.ip}
-                                                    </Popup>
-                                                </Marker>
-                                            )
-                                        ))}
-                                    </MapContainer>
+                            {stats && (
+                                <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '20px' }}>
+                                    <div className="stat-card" style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
+                                        <h3>Clients Connectés</h3>
+                                        <p style={{ fontSize: '2em', color: '#00C9FF' }}>{stats.connected_clients}</p>
+                                    </div>
+                                    <div
+                                        className="stat-card clickable"
+                                        onClick={fetchMachines}
+                                        style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid #444' }}
+                                    >
+                                        <h3>Total Machines (Voir liste)</h3>
+                                        <p style={{ fontSize: '2em', color: '#92FE9D' }}>{stats.total_machines}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </>
-                    )}
-                </div>
-            )}
+                            )}
 
-            {(isAuthenticated && subscribers) && (
-                <div style={{ marginTop: '40px', padding: '0 20px 20px 20px' }}>
-                    <h3>Abonnés Newsletter ({subscribers.length})</h3>
-                    {subscribers.length > 0 ? (
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
-                                <thead>
-                                    <tr style={{ background: '#333', color: '#fff' }}>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>Email</th>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>Date d'inscription</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {subscribers.map((s, i) => (
-                                        <tr key={i} style={{ borderBottom: '1px solid #444' }}>
-                                            <td style={{ padding: '10px' }}>{s.email}</td>
-                                            <td style={{ padding: '10px' }}>{new Date(s.date_joined).toLocaleString()}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                            {showMachineList && (
+                                <>
+                                    <div style={{ marginTop: '20px', overflowX: 'auto' }}>
+                                        <h3>Liste des Machines</h3>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
+                                            <thead>
+                                                <tr style={{ background: '#333', color: '#fff' }}>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Machine ID</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>User / Pass</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Raw Auth (Base64)</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {machines.map(m => (
+                                                    <tr key={m.id} style={{ borderBottom: '1px solid #444' }}>
+                                                        <td style={{ padding: '10px' }}>{m.no_serie}</td>
+                                                        <td style={{ padding: '10px', fontFamily: 'monospace' }}>{m.raw_decoded || '-'}</td>
+                                                        <td style={{ padding: '10px' }}>
+                                                            <div>{m.ip || '-'}</div>
+                                                            <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{m.geo_location || ''}</div>
+                                                        </td>
+                                                        <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.raw_auth || '-'}</td>
+                                                        <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div style={{ marginTop: '40px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
+                                        <h3>Géolocalisation des Clients</h3>
+                                        <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                                                <TileLayer
+                                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                />
+                                                {machines.map(m => (
+                                                    (m.lat && m.lon) && (
+                                                        <Marker key={m.id} position={[m.lat, m.lon]}>
+                                                            <Popup>
+                                                                <strong>{m.no_serie}</strong><br />
+                                                                {m.geo_location}<br />
+                                                                {m.ip}
+                                                            </Popup>
+                                                        </Marker>
+                                                    )
+                                                ))}
+                                            </MapContainer>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {(isAuthenticated && subscribers) && (
+                                <div style={{ marginTop: '40px', padding: '0 20px 20px 20px' }}>
+                                    <h3>Abonnés Newsletter ({subscribers.length})</h3>
+                                    {subscribers.length > 0 ? (
+                                        <div style={{ overflowX: 'auto' }}>
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
+                                                <thead>
+                                                    <tr style={{ background: '#333', color: '#fff' }}>
+                                                        <th style={{ padding: '10px', textAlign: 'left' }}>Email</th>
+                                                        <th style={{ padding: '10px', textAlign: 'left' }}>Date d'inscription</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {subscribers.map((s, i) => (
+                                                        <tr key={i} style={{ borderBottom: '1px solid #444' }}>
+                                                            <td style={{ padding: '10px' }}>{s.email}</td>
+                                                            <td style={{ padding: '10px' }}>{new Date(s.date_joined).toLocaleString()}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p style={{ color: '#888' }}>Aucun abonné pour le moment.</p>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     ) : (
-                        <p style={{ color: '#888' }}>Aucun abonné pour le moment.</p>
+                        <NewsletterManager token={token} />
                     )}
                 </div>
             )}
         </div>
     );
+};
+
+const activeTabStyle = {
+    padding: '10px 20px',
+    background: '#00C9FF',
+    color: 'black',
+    border: 'none',
+    borderRadius: '4px',
+    fontWeight: 'bold',
+    cursor: 'pointer'
+};
+
+const inactiveTabStyle = {
+    padding: '10px 20px',
+    background: '#333',
+    color: '#ccc',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer'
 };
 
 export default Admin;

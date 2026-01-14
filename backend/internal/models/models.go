@@ -81,3 +81,14 @@ type Subscriber struct {
     Email      string    `json:"email"`
     DateJoined time.Time `json:"date_joined"`
 }
+
+type Newsletter struct {
+    ID        string     `json:"id"`
+    Subject   string     `json:"subject"`
+    Content   string     `json:"content"`
+    Status    string     `json:"status"` // "draft", "ready", "sent"
+    Version   int        `json:"version"`
+    CreatedAt time.Time  `json:"created_at"`
+    UpdatedAt time.Time  `json:"updated_at"`
+    SentAt    *time.Time `json:"sent_at,omitempty"`
+}
