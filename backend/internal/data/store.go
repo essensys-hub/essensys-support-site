@@ -27,19 +27,81 @@ type Store interface {
     RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
 }
 
-// MemoryStore implementation for rapid dev / testing
+	"os"
+    "path/filepath"
+)
+
+// PersistenceData wraps the data we want to save
+type PersistenceData struct {
+    Machines map[string]*models.Machine       `json:"machines"`
+    Details  map[string]*models.MachineDetail `json:"details"`
+}
+
+// MemoryStore implementation with File Persistence
 type MemoryStore struct {
     mu       sync.RWMutex
     machines map[string]*models.Machine // hashedPkey -> Machine
     data     map[string][]models.ExchangeKeyValue // clientID -> last data
     details  map[string]*models.MachineDetail // hashedPkey -> Connection Details
+    filePath string
 }
 
-func NewMemoryStore() *MemoryStore {
-    return &MemoryStore{
+func NewMemoryStore(storagePath string) *MemoryStore {
+    // Ensure directory exists
+    dir := filepath.Dir(storagePath)
+    if err := os.MkdirAll(dir, 0755); err != nil {
+        log.Printf("Failed to create storage dir: %v", err)
+    }
+
+    store := &MemoryStore{
         machines: make(map[string]*models.Machine),
         data:     make(map[string][]models.ExchangeKeyValue),
         details:  make(map[string]*models.MachineDetail),
+        filePath: storagePath,
+    }
+    
+    store.load()
+    return store
+}
+
+func (s *MemoryStore) load() {
+    file, err := os.Open(s.filePath)
+    if err != nil {
+        if os.IsNotExist(err) {
+            log.Println("No existing storage file, starting fresh.")
+            return
+        }
+        log.Printf("Failed to open storage file: %v", err)
+        return
+    }
+    defer file.Close()
+
+    var pd PersistenceData
+    if err := json.NewDecoder(file).Decode(&pd); err != nil {
+        log.Printf("Failed to decode storage file: %v", err)
+        return
+    }
+
+    s.machines = pd.Machines
+    s.details = pd.Details
+    log.Printf("Loaded %d machines from storage.", len(s.machines))
+}
+
+func (s *MemoryStore) save() {
+    pd := PersistenceData{
+        Machines: s.machines,
+        Details:  s.details,
+    }
+
+    file, err := os.Create(s.filePath)
+    if err != nil {
+        log.Printf("Failed to create storage file: %v", err)
+        return
+    }
+    defer file.Close()
+
+    if err := json.NewEncoder(file).Encode(pd); err != nil {
+        log.Printf("Failed to encode storage file: %v", err)
     }
 }
 
@@ -47,11 +109,14 @@ func NewMemoryStore() *MemoryStore {
 func (s *MemoryStore) AddTestMachine(m *models.Machine) {
     s.mu.Lock()
     defer s.mu.Unlock()
-    s.machines[m.HashedPkey] = m
-    // Init detail
-    s.details[m.HashedPkey] = &models.MachineDetail{
-        ID:      m.ID,
-        NoSerie: m.NoSerie,
+    // Only add if not exists (to respect persistence)
+    if _, ok := s.machines[m.HashedPkey]; !ok {
+        s.machines[m.HashedPkey] = m
+        s.details[m.HashedPkey] = &models.MachineDetail{
+            ID:      m.ID,
+            NoSerie: m.NoSerie,
+        }
+        s.save()
     }
 }
 
@@ -69,19 +134,17 @@ func (s *MemoryStore) RegisterUnknownMachine(hashedPkey string) (*models.Machine
     s.mu.Lock()
     defer s.mu.Unlock()
 
-    // Check if exists again to be safe
     if m, ok := s.machines[hashedPkey]; ok {
         return m, nil
     }
 
-    // Auto-create ID
     newID := len(s.machines) + 1
     noSerie := fmt.Sprintf("UNKNOWN-%s", hashedPkey[:8])
 
     m := &models.Machine{
         ID:         newID,
         NoSerie:    noSerie,
-        IsActive:   false, // Requires approval
+        IsActive:   false,
         HashedPkey: hashedPkey,
     }
 
@@ -93,7 +156,8 @@ func (s *MemoryStore) RegisterUnknownMachine(hashedPkey string) (*models.Machine
         LastSeen: time.Now(),
     }
     
-    log.Printf("[STORE] Registered Unknown Machine: %s (Hash: %s)", noSerie, hashedPkey[:10])
+    s.save()
+    log.Printf("[STORE] Registered Unknown Machine: %s", noSerie)
     return m, nil
 }
 
@@ -102,13 +166,14 @@ func (s *MemoryStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded st
     defer s.mu.Unlock()
     
     if detail, ok := s.details[hashedPkey]; ok {
-        // Check if IP changed or Geo is empty to trigger fetch
         triggerGeo := (detail.IP != ip && ip != "" && ip != "127.0.0.1") || (detail.GeoLocation == "" && ip != "" && ip != "127.0.0.1")
 
         detail.IP = ip
         detail.RawAuth = rawAuth
         detail.RawDecoded = rawDecoded
         detail.LastSeen = time.Now()
+        
+        s.save() // Persist updates (IP/LastSeen)
         
         if triggerGeo {
             go s.fetchGeoLocation(hashedPkey, ip)
@@ -117,7 +182,6 @@ func (s *MemoryStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded st
 }
 
 func (s *MemoryStore) fetchGeoLocation(hashedPkey, ip string) {
-    // Avoid bombing the API
     time.Sleep(1 * time.Second) 
     
     url := fmt.Sprintf("http://ip-api.com/json/%s", ip)
@@ -142,9 +206,10 @@ func (s *MemoryStore) fetchGeoLocation(hashedPkey, ip string) {
             detail.GeoLocation = location
             detail.Lat = geo.Lat
             detail.Lon = geo.Lon
+            s.save() // Persist Geo data
         }
         s.mu.Unlock()
-        log.Printf("Geo Update for %s: %s (Lat: %f, Lon: %f)", ip, location, geo.Lat, geo.Lon)
+        log.Printf("Geo Update for %s: %s", ip, location)
     }
 }
 

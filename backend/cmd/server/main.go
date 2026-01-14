@@ -17,8 +17,8 @@ import (
 func main() {
 	log.Println("Starting Essensys Passive Monitoring Server...")
 
-	// 1. Init Store (Memory for now)
-	store := data.NewMemoryStore()
+	// 1. Init Store (File-based persistence)
+	store := data.NewMemoryStore("./data/machines.json")
     
     // Seed a test machine for development
     // User: "testuser" -> MD5("testuser") -> ... wait, client logic is reverse.

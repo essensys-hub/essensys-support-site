@@ -27,7 +27,9 @@ rm -rf "$TARGET_DIR"/*
 cp -r dist/* "$TARGET_DIR"/
 cd ..
 
-echo ">>> 4. Restarting Backend Service..."
+echo ">>> 4. Updating Service Config..."
+sudo cp backend/essensys-passive.service /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl restart essensys-passive.service
 
 echo ">>> Update Complete! (Backend restarted & Frontend deployed)"
