@@ -8,7 +8,7 @@ import (
 	"github.com/essensys-hub/essensys-support-site/backend/internal/api"
 	"github.com/essensys-hub/essensys-support-site/backend/internal/data"
 	"github.com/essensys-hub/essensys-support-site/backend/internal/middleware"
-	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
+
 	
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
