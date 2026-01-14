@@ -1,6 +1,9 @@
+# =============================================================================
+# BLOCK 1: Main App (Test & VPS Hostname) - React + API
+# =============================================================================
 server {
     listen 80;
-    server_name vps-22806d02.vps.ovh.net test.essensys.fr mon.essensys.fr;
+    server_name vps-22806d02.vps.ovh.net test.essensys.fr;
     
     # Disable automatic redirects
     port_in_redirect off;
@@ -103,20 +106,33 @@ server {
         add_header X-Content-Type-Options "nosniff" always;
     }
     
-    # Security - Deny hidden files
     location ~ /\. {
         deny all;
         access_log off;
         log_not_found off;
     }
+}
+
+# =============================================================================
+# BLOCK 2: Maintenance Site (mon.essensys.fr, www.essensys.fr)
+# =============================================================================
+server {
+    listen 80;
+    server_name mon.essensys.fr www.essensys.fr;
     
-    location = /favicon.ico {
-        log_not_found off;
-        access_log off;
+    root /home/ubuntu/essensys-maintenance;
+    index index.html;
+    
+    charset utf-8;
+    access_log /var/log/nginx/essensys-maint-access.log;
+    error_log /var/log/nginx/essensys-maint-error.log;
+
+    location / {
+        try_files $uri $uri/ /index.html;
     }
     
-    location = /robots.txt {
-        log_not_found off;
-        access_log off;
+    location ~* \.(png|jpg|jpeg|gif|ico)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
     }
 }
