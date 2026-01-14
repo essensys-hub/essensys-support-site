@@ -5,30 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
 	"github.com/jmoiron/sqlx"
-)
-
-// Store defines the data access interface
-type Store interface {
-    // Auth
-    GetMachineByHashedPkey(hashedPkey string) (*models.Machine, error)
-    
-    // Data Capture
-    SaveClientData(clientID string, data []models.ExchangeKeyValue) error
-    
-    // Admin
-    GetStats() (*models.AdminStatsResponse, error)
-    GetMachines() ([]*models.MachineDetail, error)
-    UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string)
-    RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
-}
-
-	"os"
-    "path/filepath"
 )
 
 // PersistenceData wraps the data we want to save
