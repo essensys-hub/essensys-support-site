@@ -34,8 +34,14 @@ func sendEmail(to []string, subject, body string) error {
         return fmt.Errorf("invalid SMTP port: %v", err)
     }
 
+    // Determine Sender (From)
+    from := os.Getenv("SMTP_FROM")
+    if from == "" {
+        from = "no_reply@essensys.fr"
+    }
+
     m := gomail.NewMessage()
-    m.SetHeader("From", user)
+    m.SetHeader("From", from)
     m.SetHeader("To", to...)
     m.SetHeader("Subject", subject)
     // Send as HTML if body contains HTML tags, otherwise text
