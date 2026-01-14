@@ -16,6 +16,7 @@ const Admin = () => {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [stats, setStats] = React.useState(null);
     const [machines, setMachines] = React.useState([]);
+    const [subscribers, setSubscribers] = React.useState([]); // New State
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
@@ -39,12 +40,27 @@ const Admin = () => {
                 setIsAuthenticated(true);
                 // Also fetch machines immediately to populate map if authenticated
                 fetchMachinesInternal(authToken);
+                fetchSubscribers(authToken); // Fetch subs too
             } else {
                 // Token invalid
                 handleLogout();
             }
         } catch (err) {
             console.error("Failed to fetch stats", err);
+        }
+    };
+
+    const fetchSubscribers = async (authToken) => {
+        try {
+            const res = await fetch('/api/admin/subscribers', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setSubscribers(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch subscribers", err);
         }
     };
 

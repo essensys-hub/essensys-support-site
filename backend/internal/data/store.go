@@ -27,21 +27,27 @@ type Store interface {
     GetMachines() ([]*models.MachineDetail, error)
     UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string)
     RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
+    
+    // Newsletter
+    AddSubscriber(email string) error
+    GetSubscribers() ([]models.Subscriber, error)
 }
 
 // PersistenceData wraps the data we want to save
 type PersistenceData struct {
-    Machines map[string]*models.Machine       `json:"machines"`
-    Details  map[string]*models.MachineDetail `json:"details"`
+    Machines    map[string]*models.Machine       `json:"machines"`
+    Details     map[string]*models.MachineDetail `json:"details"`
+    Subscribers []models.Subscriber              `json:"subscribers"`
 }
 
 // MemoryStore implementation with File Persistence
 type MemoryStore struct {
-    mu       sync.RWMutex
-    machines map[string]*models.Machine // hashedPkey -> Machine
-    data     map[string][]models.ExchangeKeyValue // clientID -> last data
-    details  map[string]*models.MachineDetail // hashedPkey -> Connection Details
-    filePath string
+    mu          sync.RWMutex
+    machines    map[string]*models.Machine // hashedPkey -> Machine
+    data        map[string][]models.ExchangeKeyValue // clientID -> last data
+    details     map[string]*models.MachineDetail // hashedPkey -> Connection Details
+    subscribers []models.Subscriber
+    filePath    string
 }
 
 func NewMemoryStore(storagePath string) *MemoryStore {
@@ -82,13 +88,15 @@ func (s *MemoryStore) load() {
 
     s.machines = pd.Machines
     s.details = pd.Details
-    log.Printf("Loaded %d machines from storage.", len(s.machines))
+    s.subscribers = pd.Subscribers
+    log.Printf("Loaded %d machines and %d subscribers from storage.", len(s.machines), len(s.subscribers))
 }
 
 func (s *MemoryStore) save() {
     pd := PersistenceData{
-        Machines: s.machines,
-        Details:  s.details,
+        Machines:    s.machines,
+        Details:     s.details,
+        Subscribers: s.subscribers,
     }
 
     file, err := os.Create(s.filePath)
@@ -241,6 +249,34 @@ func (s *MemoryStore) GetMachines() ([]*models.MachineDetail, error) {
     return list, nil
 }
 
+func (s *MemoryStore) AddSubscriber(email string) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+
+    // Simple de-dupe
+    for _, sub := range s.subscribers {
+        if sub.Email == email {
+            return nil // Already subscribed
+        }
+    }
+
+    s.subscribers = append(s.subscribers, models.Subscriber{
+        Email:      email,
+        DateJoined: time.Now(),
+    })
+    
+    s.save()
+    log.Printf("[STORE] New Subscriber: %s", email)
+    return nil
+}
+
+func (s *MemoryStore) GetSubscribers() ([]models.Subscriber, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    // Return copy
+    return append([]models.Subscriber(nil), s.subscribers...), nil
+}
+
 // DatabaseStore implementation (Future / Production)
 type DatabaseStore struct {
     db *sqlx.DB
@@ -287,4 +323,12 @@ func (s *DatabaseStore) GetStats() (*models.AdminStatsResponse, error) {
 
 func (s *DatabaseStore) GetMachines() ([]*models.MachineDetail, error) {
     return []*models.MachineDetail{}, nil
+}
+
+func (s *DatabaseStore) AddSubscriber(email string) error {
+    return nil
+}
+
+func (s *DatabaseStore) GetSubscribers() ([]models.Subscriber, error) {
+    return []models.Subscriber{}, nil
 }

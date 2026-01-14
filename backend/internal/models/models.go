@@ -76,3 +76,8 @@ type GeoAPIResponse struct {
     Lat         float64 `json:"lat"`
     Lon         float64 `json:"lon"`
 }
+
+type Subscriber struct {
+    Email      string    `json:"email"`
+    DateJoined time.Time `json:"date_joined"`
+}

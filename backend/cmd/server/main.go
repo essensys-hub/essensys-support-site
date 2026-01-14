@@ -45,6 +45,9 @@ func main() {
 		    r.Get("/serverinfos", apiRouter.HandleServerInfos)
         })
         
+        // 3. Newsletter (Public)
+        r.Post("/newsletter/subscribe", apiRouter.HandleSubscribe)
+        
         // 2. Admin Routes (Token Auth)
         r.Group(func(r chi.Router) {
             // Public Login endpoint (checks token in body)
@@ -55,6 +58,7 @@ func main() {
                 r.Use(middleware.AdminTokenMiddleware)
                 r.Get("/admin/stats", apiRouter.HandleAdminStats)
                 r.Get("/admin/machines", apiRouter.HandleAdminMachines)
+                r.Get("/admin/subscribers", apiRouter.HandleAdminSubscribers)
             })
         })
 	})
