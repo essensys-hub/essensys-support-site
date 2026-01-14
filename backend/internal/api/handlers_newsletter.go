@@ -5,6 +5,8 @@ import (
     "fmt"
     "log"
     "net/http"
+    "net/smtp"
+    "os"
     "time"
 
     "github.com/essensys-hub/essensys-support-site/backend/internal/models"
@@ -13,6 +15,33 @@ import (
 
 type SubscribeRequest struct {
     Email string `json:"email"`
+}
+
+// Helper to send email via SMTP
+func sendEmail(to []string, subject, body string) error {
+    host := os.Getenv("SMTP_HOST")
+    port := os.Getenv("SMTP_PORT")
+    user := os.Getenv("SMTP_USER")
+    pass := os.Getenv("SMTP_PASS")
+
+    if host == "" || port == "" || user == "" || pass == "" {
+        return fmt.Errorf("SMTP configuration missing in environment variables")
+    }
+
+    auth := smtp.PlainAuth("", user, pass, host)
+    addr := fmt.Sprintf("%s:%s", host, port)
+
+    msg := []byte("To: " + to[0] + "\r\n" +
+        "Subject: " + subject + "\r\n" +
+        "MIME-Version: 1.0\r\n" +
+        "Content-Type: text/plain; charset=\"utf-8\"\r\n" +
+        "\r\n" +
+        body + "\r\n")
+
+    if err := smtp.SendMail(addr, auth, user, to, msg); err != nil {
+        return err
+    }
+    return nil
 }
 
 // POST /api/newsletter/subscribe
@@ -150,17 +179,36 @@ func (rt *Router) HandleSendNewsletter(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    // Simulate Sending
+    // Real Sending Logic
     subs, _ := rt.Store.GetSubscribers()
-    log.Printf("[NEWSLETTER] Sending '%s' to %d subscribers...", n.Subject, len(subs))
+    log.Printf("[NEWSLETTER] Starting send for '%s' to %d subscribers...", n.Subject, len(subs))
+    
+    successCount := 0
+    failCount := 0
+    
     for _, s := range subs {
         log.Printf("[NEWSLETTER] -> Sending to %s", s.Email)
+        err := sendEmail([]string{s.Email}, n.Subject, n.Content)
+        if err != nil {
+            log.Printf("[NEWSLETTER] Failed to send to %s: %v", s.Email, err)
+            failCount++
+        } else {
+            successCount++
+        }
     }
+    
+    log.Printf("[NEWSLETTER] Finished. Success: %d, Failed: %d", successCount, failCount)
     
     now := time.Now()
     n.Status = "sent"
     n.SentAt = &now
     n.UpdatedAt = now
+    
+    // Check if configuration was missing
+    if successCount == 0 && failCount > 0 && os.Getenv("SMTP_HOST") == "" {
+        http.Error(w, "SMTP Configuration Missing", http.StatusInternalServerError)
+        return 
+    }
     
     if err := rt.Store.SaveNewsletter(*n); err != nil {
         http.Error(w, "Failed to save status", http.StatusInternalServerError)

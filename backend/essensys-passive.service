@@ -9,6 +9,7 @@ WorkingDirectory=/home/ubuntu
 ExecStart=/usr/local/bin/essensys-passive-backend
 Restart=always
 Environment=PORT=8080
+EnvironmentFile=/home/ubuntu/.env
 
 [Install]
 WantedBy=multi-user.target
