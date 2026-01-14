@@ -293,6 +293,9 @@ func (s *MemoryStore) AddSubscriber(email string) error {
     return nil
 }
 
+func (s *MemoryStore) GetSubscribers() ([]models.Subscriber, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
     // Return copy
     return append([]models.Subscriber(nil), s.subscribers...), nil
 }
