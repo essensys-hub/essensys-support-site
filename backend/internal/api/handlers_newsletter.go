@@ -5,40 +5,48 @@ import (
     "fmt"
     "log"
     "net/http"
-    "net/smtp"
     "os"
+    "strconv"
     "time"
 
     "github.com/essensys-hub/essensys-support-site/backend/internal/models"
     "github.com/go-chi/chi/v5"
+    "gopkg.in/gomail.v2"
 )
 
 type SubscribeRequest struct {
     Email string `json:"email"`
 }
 
-// Helper to send email via SMTP
+// Helper to send email via SMTP using Gomail
 func sendEmail(to []string, subject, body string) error {
     host := os.Getenv("SMTP_HOST")
-    port := os.Getenv("SMTP_PORT")
+    portStr := os.Getenv("SMTP_PORT")
     user := os.Getenv("SMTP_USER")
     pass := os.Getenv("SMTP_PASS")
 
-    if host == "" || port == "" || user == "" || pass == "" {
+    if host == "" || portStr == "" || user == "" || pass == "" {
         return fmt.Errorf("SMTP configuration missing in environment variables")
     }
+    
+    port, err := strconv.Atoi(portStr)
+    if err != nil {
+        return fmt.Errorf("invalid SMTP port: %v", err)
+    }
 
-    auth := smtp.PlainAuth("", user, pass, host)
-    addr := fmt.Sprintf("%s:%s", host, port)
+    m := gomail.NewMessage()
+    m.SetHeader("From", user)
+    m.SetHeader("To", to...)
+    m.SetHeader("Subject", subject)
+    // Send as HTML if body contains HTML tags, otherwise text
+    m.SetBody("text/html", body) // Assuming we might send markdown rendered as html later, or just text
 
-    msg := []byte("To: " + to[0] + "\r\n" +
-        "Subject: " + subject + "\r\n" +
-        "MIME-Version: 1.0\r\n" +
-        "Content-Type: text/plain; charset=\"utf-8\"\r\n" +
-        "\r\n" +
-        body + "\r\n")
+    d := gomail.NewDialer(host, port, user, pass)
 
-    if err := smtp.SendMail(addr, auth, user, to, msg); err != nil {
+    // Optional: If you encounter specific TLS issues, you can customize TLSConfig here
+    // d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+    if err := d.DialAndSend(m); err != nil {
         return err
     }
     return nil
