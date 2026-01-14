@@ -30,6 +30,7 @@ type Store interface {
     
     // Newsletter
     AddSubscriber(email string) error
+    DeleteSubscriber(email string) error
     GetSubscribers() ([]models.Subscriber, error)
     
     // Newsletter Management
@@ -272,32 +273,61 @@ func (s *MemoryStore) GetMachines() ([]*models.MachineDetail, error) {
     return list, nil
 }
 
+// AddSubscriber adds a new email to the list
 func (s *MemoryStore) AddSubscriber(email string) error {
     s.mu.Lock()
     defer s.mu.Unlock()
-
-    // Simple de-dupe
+    
+    // Check duplicates
     for _, sub := range s.subscribers {
         if sub.Email == email {
-            return nil // Already subscribed
+            return nil // Already exists
         }
     }
-
+    
     s.subscribers = append(s.subscribers, models.Subscriber{
         Email:      email,
         DateJoined: time.Now(),
     })
     
     s.save()
-    log.Printf("[STORE] New Subscriber: %s", email)
+    return nil
+}
+
+// DeleteSubscriber removes an email from the list
+func (s *MemoryStore) DeleteSubscriber(email string) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    newSubs := make([]models.Subscriber, 0, len(s.subscribers))
+    found := false
+    
+    for _, sub := range s.subscribers {
+        if sub.Email == email {
+            found = true
+            continue
+        }
+        newSubs = append(newSubs, sub)
+    }
+    
+    if !found {
+        return fmt.Errorf("subscriber not found")
+    }
+    
+    s.subscribers = newSubs
+    s.save()
     return nil
 }
 
 func (s *MemoryStore) GetSubscribers() ([]models.Subscriber, error) {
     s.mu.RLock()
     defer s.mu.RUnlock()
+    
     // Return copy
-    return append([]models.Subscriber(nil), s.subscribers...), nil
+    list := make([]models.Subscriber, len(s.subscribers))
+    copy(list, s.subscribers)
+    
+    return list, nil
 }
 
 // Newsletter Management Implementation

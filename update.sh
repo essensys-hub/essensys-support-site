@@ -42,5 +42,6 @@ sudo nginx -t && sudo systemctl reload nginx
 sudo cp backend/essensys-passive.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl restart essensys-passive.service
+echo "✅ Backend restarted."
 
-echo ">>> Update Complete! (Backend restarted & Frontend deployed)"
+echo "🎉 Update Complete!"

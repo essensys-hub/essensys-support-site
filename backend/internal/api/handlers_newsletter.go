@@ -232,3 +232,39 @@ func (rt *Router) HandleSendNewsletter(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(n)
 }
+
+// POST /api/admin/subscribers (Manual Add)
+func (rt *Router) HandleAdminAddSubscriber(w http.ResponseWriter, r *http.Request) {
+    var req SubscribeRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Bad Request", http.StatusBadRequest)
+        return
+    }
+    if req.Email == "" {
+        http.Error(w, "Email required", http.StatusBadRequest)
+        return
+    }
+    
+    if err := rt.Store.AddSubscriber(req.Email); err != nil {
+        log.Printf("[ADMIN] Failed to add subscriber: %v", err)
+        http.Error(w, "Failed to add", http.StatusInternalServerError)
+        return
+    }
+    w.WriteHeader(http.StatusOK)
+}
+
+// DELETE /api/admin/subscribers?email=...
+func (rt *Router) HandleDeleteSubscriber(w http.ResponseWriter, r *http.Request) {
+    email := r.URL.Query().Get("email")
+    if email == "" {
+        http.Error(w, "Email query param required", http.StatusBadRequest)
+        return
+    }
+    
+    if err := rt.Store.DeleteSubscriber(email); err != nil {
+        http.Error(w, "Failed to delete: " + err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    w.WriteHeader(http.StatusOK)
+}

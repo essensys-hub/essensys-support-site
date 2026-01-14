@@ -59,6 +59,8 @@ func main() {
                 r.Get("/admin/stats", apiRouter.HandleAdminStats)
                 r.Get("/admin/machines", apiRouter.HandleAdminMachines)
                 r.Get("/admin/subscribers", apiRouter.HandleAdminSubscribers)
+                r.Post("/admin/subscribers", apiRouter.HandleAdminAddSubscriber)
+                r.Delete("/admin/subscribers", apiRouter.HandleDeleteSubscriber)
                 
                 // Newsletter Manager
                 r.Get("/admin/newsletters", apiRouter.HandleGetNewsletters)
