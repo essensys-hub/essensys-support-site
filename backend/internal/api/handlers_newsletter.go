@@ -37,7 +37,7 @@ func sendEmail(to []string, subject, body string) error {
     // Determine Sender (From)
     from := os.Getenv("SMTP_FROM")
     if from == "" {
-        from = "no_reply@essensys.fr"
+        from = user // Default to authenticated user to avoid "Sender mismatch"
     }
 
     m := gomail.NewMessage()
