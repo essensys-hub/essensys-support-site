@@ -1,6 +1,6 @@
 import React from 'react';
 import diagramImage from '../assets/raspberry_pi_diagram.png';
-import { Cpu, ArrowRight } from 'lucide-react';
+import { Cpu, ArrowRight, BookOpen } from 'lucide-react';
 
 const RaspberryPi = () => {
     return (
@@ -83,6 +83,32 @@ const RaspberryPi = () => {
                     display: 'inline-block'
                 }}>
                     curl -sL https://essensys.fr/install.sh | bash
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                    <a
+                        href="https://essensys-hub.github.io/essensys-raspberry-install/installation/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            background: '#333',
+                            color: 'white',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            textDecoration: 'none',
+                            fontSize: '0.9em',
+                            border: '1px solid #555',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = '#00C9FF'}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = '#555'}
+                    >
+                        <BookOpen size={16} />
+                        Voir le guide d'installation complet
+                    </a>
                 </div>
             </div>
         </div>
