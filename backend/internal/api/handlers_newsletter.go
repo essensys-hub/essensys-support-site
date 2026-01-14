@@ -174,8 +174,8 @@ func (rt *Router) HandleSendNewsletter(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    if n.Status != "ready" {
-        http.Error(w, "Newsletter must be 'ready' to send", http.StatusBadRequest)
+    if n.Status != "ready" && n.Status != "sent" {
+        http.Error(w, "Newsletter must be 'ready' or 'sent' to send", http.StatusBadRequest)
         return
     }
     

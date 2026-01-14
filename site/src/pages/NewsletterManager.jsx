@@ -165,6 +165,11 @@ const NewsletterManager = ({ token }) => {
                                     Envoyer
                                 </button>
                             )}
+                            {selectedNewsletter.status === 'sent' && (
+                                <button onClick={() => { if (window.confirm('Renvoyer la newsletter ?')) handleStatusChange('sent') }} style={btnStyle('#FFD700', '#000')}>
+                                    Renvoyer
+                                </button>
+                            )}
                             {selectedNewsletter.status !== 'sent' && (
                                 <button onClick={handleSave} disabled={loading} style={btnStyle('#00C9FF')}>
                                     Sauvegarder
