@@ -140,9 +140,11 @@ func (s *MemoryStore) fetchGeoLocation(hashedPkey, ip string) {
         s.mu.Lock()
         if detail, ok := s.details[hashedPkey]; ok {
             detail.GeoLocation = location
+            detail.Lat = geo.Lat
+            detail.Lon = geo.Lon
         }
         s.mu.Unlock()
-        log.Printf("Geo Update for %s: %s", ip, location)
+        log.Printf("Geo Update for %s: %s (Lat: %f, Lon: %f)", ip, location, geo.Lat, geo.Lon)
     }
 }
 

@@ -62,6 +62,8 @@ type MachineDetail struct {
 	RawAuth    string    `json:"raw_auth"`
 	RawDecoded string    `json:"raw_decoded"` // user:pass
 	GeoLocation string   `json:"geo_location"`
+	Lat         float64  `json:"lat"`
+	Lon         float64  `json:"lon"`
 }
 
 // GeoAPIResponse for parsing ip-api.com
@@ -71,4 +73,6 @@ type GeoAPIResponse struct {
     City        string  `json:"city"`
     ISP         string  `json:"isp"`
     Query       string  `json:"query"`
+    Lat         float64 `json:"lat"`
+    Lon         float64 `json:"lon"`
 }

@@ -1,4 +1,15 @@
 import React from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet Icon
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const Admin = () => {
     const [token, setToken] = React.useState(localStorage.getItem('adminToken') || '');
@@ -26,6 +37,8 @@ const Admin = () => {
                 const data = await res.json();
                 setStats(data);
                 setIsAuthenticated(true);
+                // Also fetch machines immediately to populate map if authenticated
+                fetchMachinesInternal(authToken);
             } else {
                 // Token invalid
                 handleLogout();
@@ -35,19 +48,23 @@ const Admin = () => {
         }
     };
 
-    const fetchMachines = async () => {
+    const fetchMachinesInternal = async (authToken) => {
         try {
             const res = await fetch('/api/admin/machines', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (res.ok) {
                 const data = await res.json();
                 setMachines(data);
-                setShowMachineList(true);
+                setShowMachineList(true); // Auto-show list/map
             }
         } catch (err) {
             console.error("Failed to fetch machines", err);
         }
+    };
+
+    const fetchMachines = () => {
+        fetchMachinesInternal(token);
     };
 
     const handleLogin = async (e) => {
@@ -154,42 +171,60 @@ const Admin = () => {
                     )}
 
                     {showMachineList && (
-                        <div style={{ marginTop: '20px', overflowX: 'auto' }}>
-                            <h3>Liste des Machines</h3>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
-                                <thead>
-                                    <tr style={{ background: '#333', color: '#fff' }}>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>Machine ID</th>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>User / Pass</th>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>Raw Auth (Base64)</th>
-                                        <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {machines.map(m => (
-                                        <tr key={m.id} style={{ borderBottom: '1px solid #444' }}>
-                                            <td style={{ padding: '10px' }}>{m.no_serie}</td>
-                                            <td style={{ padding: '10px', fontFamily: 'monospace' }}>{m.raw_decoded || '-'}</td>
-                                            <td style={{ padding: '10px' }}>
-                                                <div>{m.ip || '-'}</div>
-                                                <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{m.geo_location || ''}</div>
-                                            </td>
-                                            <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.raw_auth || '-'}</td>
-                                            <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
+                        <>
+                            <div style={{ marginTop: '20px', overflowX: 'auto' }}>
+                                <h3>Liste des Machines</h3>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
+                                    <thead>
+                                        <tr style={{ background: '#333', color: '#fff' }}>
+                                            <th style={{ padding: '10px', textAlign: 'left' }}>Machine ID</th>
+                                            <th style={{ padding: '10px', textAlign: 'left' }}>User / Pass</th>
+                                            <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
+                                            <th style={{ padding: '10px', textAlign: 'left' }}>Raw Auth (Base64)</th>
+                                            <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                    </thead>
+                                    <tbody>
+                                        {machines.map(m => (
+                                            <tr key={m.id} style={{ borderBottom: '1px solid #444' }}>
+                                                <td style={{ padding: '10px' }}>{m.no_serie}</td>
+                                                <td style={{ padding: '10px', fontFamily: 'monospace' }}>{m.raw_decoded || '-'}</td>
+                                                <td style={{ padding: '10px' }}>
+                                                    <div>{m.ip || '-'}</div>
+                                                    <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{m.geo_location || ''}</div>
+                                                </td>
+                                                <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.raw_auth || '-'}</td>
+                                                <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
 
-                    <div style={{ marginTop: '40px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
-                        <h3>Carte de France (Mockup)</h3>
-                        <div style={{ height: '300px', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}>
-                            <p style={{ color: '#888' }}>[La carte sera intégrée ici]</p>
-                        </div>
-                    </div>
+                            <div style={{ marginTop: '40px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
+                                <h3>Géolocalisation des Clients</h3>
+                                <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                                        <TileLayer
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                        />
+                                        {machines.map(m => (
+                                            (m.lat && m.lon) && (
+                                                <Marker key={m.id} position={[m.lat, m.lon]}>
+                                                    <Popup>
+                                                        <strong>{m.no_serie}</strong><br />
+                                                        {m.geo_location}<br />
+                                                        {m.ip}
+                                                    </Popup>
+                                                </Marker>
+                                            )
+                                        ))}
+                                    </MapContainer>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
         </div>
