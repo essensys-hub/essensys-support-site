@@ -25,8 +25,10 @@ type Store interface {
     // Admin
     GetStats() (*models.AdminStatsResponse, error)
     GetMachines() ([]*models.MachineDetail, error)
+    GetGateways() ([]*models.GatewayStatus, error) // Added
     UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string)
     RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
+    SaveGateway(gw *models.GatewayStatus) error // Added
     
     // Newsletter
     AddSubscriber(email string) error
@@ -44,6 +46,7 @@ type Store interface {
 type PersistenceData struct {
     Machines    map[string]*models.Machine       `json:"machines"`
     Details     map[string]*models.MachineDetail `json:"details"`
+    Gateways    map[string]*models.GatewayStatus `json:"gateways"` // Added
     Subscribers []models.Subscriber              `json:"subscribers"`
     Newsletters []models.Newsletter              `json:"newsletters"`
 }
@@ -54,6 +57,7 @@ type MemoryStore struct {
     machines    map[string]*models.Machine // hashedPkey -> Machine
     data        map[string][]models.ExchangeKeyValue // clientID -> last data
     details     map[string]*models.MachineDetail // hashedPkey -> Connection Details
+    gateways    map[string]*models.GatewayStatus // hostname -> GatewayStatus (Added)
     subscribers []models.Subscriber
     newsletters map[string]models.Newsletter // id -> Newsletter
     filePath    string
@@ -70,6 +74,7 @@ func NewMemoryStore(storagePath string) *MemoryStore {
         machines:    make(map[string]*models.Machine),
         data:        make(map[string][]models.ExchangeKeyValue),
         details:     make(map[string]*models.MachineDetail),
+        gateways:    make(map[string]*models.GatewayStatus), // Init
         newsletters: make(map[string]models.Newsletter),
         filePath:    storagePath,
     }
@@ -98,6 +103,12 @@ func (s *MemoryStore) load() {
 
     s.machines = pd.Machines
     s.details = pd.Details
+    // Load Gateways with check
+    if pd.Gateways != nil {
+        s.gateways = pd.Gateways
+    } else {
+        s.gateways = make(map[string]*models.GatewayStatus)
+    }
     s.subscribers = pd.Subscribers
     
     // Load Newsletters list into map
@@ -106,7 +117,7 @@ func (s *MemoryStore) load() {
         s.newsletters[n.ID] = n
     }
     
-    log.Printf("Loaded %d machines, %d subscribers, %d newsletters.", len(s.machines), len(s.subscribers), len(s.newsletters))
+    log.Printf("Loaded %d machines, %d gateways, %d subscribers, %d newsletters.", len(s.machines), len(s.gateways), len(s.subscribers), len(s.newsletters))
 }
 
 func (s *MemoryStore) save() {
@@ -119,6 +130,7 @@ func (s *MemoryStore) save() {
     pd := PersistenceData{
         Machines:    s.machines,
         Details:     s.details,
+        Gateways:    s.gateways, // Save Gateways
         Subscribers: s.subscribers,
         Newsletters: nlList,
     }
@@ -206,12 +218,13 @@ func (s *MemoryStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded st
         s.save() // Persist updates (IP/LastSeen)
         
         if triggerGeo {
-            go s.fetchGeoLocation(hashedPkey, ip)
+            go s.fetchGeoLocation(hashedPkey, ip, false)
         }
     }
 }
 
-func (s *MemoryStore) fetchGeoLocation(hashedPkey, ip string) {
+// fetchGeoLocation updates geo info for machine (isGateway=false) or gateway (isGateway=true)
+func (s *MemoryStore) fetchGeoLocation(key, ip string, isGateway bool) {
     time.Sleep(1 * time.Second) 
     
     url := fmt.Sprintf("http://ip-api.com/json/%s", ip)
@@ -232,14 +245,23 @@ func (s *MemoryStore) fetchGeoLocation(hashedPkey, ip string) {
         location := fmt.Sprintf("%s, %s (%s)", geo.City, geo.Country, geo.ISP)
         
         s.mu.Lock()
-        if detail, ok := s.details[hashedPkey]; ok {
-            detail.GeoLocation = location
-            detail.Lat = geo.Lat
-            detail.Lon = geo.Lon
-            s.save() // Persist Geo data
+        if isGateway {
+            if gw, ok := s.gateways[key]; ok {
+                gw.GeoLocation = location
+                gw.Lat = geo.Lat
+                gw.Lon = geo.Lon
+                s.save()
+            }
+        } else {
+            if detail, ok := s.details[key]; ok {
+                detail.GeoLocation = location
+                detail.Lat = geo.Lat
+                detail.Lon = geo.Lon
+                s.save()
+            }
         }
         s.mu.Unlock()
-        log.Printf("Geo Update for %s: %s", ip, location)
+        log.Printf("Geo Update for %s (%s): %s", key, ip, location)
     }
 }
 
@@ -252,6 +274,44 @@ func (s *MemoryStore) SaveClientData(clientID string, data []models.ExchangeKeyV
     return nil
 }
 
+func (s *MemoryStore) SaveGateway(gw *models.GatewayStatus) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    // Check if existing to handle Geo trigger
+    existing, exists := s.gateways[gw.Hostname]
+    triggerGeo := false
+    
+    if exists {
+        // preserve old geo if ip same, or trigger new if ip changed
+        if gw.IP != existing.IP && gw.IP != "" && gw.IP != "127.0.0.1" {
+            triggerGeo = true
+        } else {
+            // Keep existing geo data
+            gw.GeoLocation = existing.GeoLocation
+            gw.Lat = existing.Lat
+            gw.Lon = existing.Lon
+        }
+        // If geo was missing
+        if gw.GeoLocation == "" && gw.IP != "" && gw.IP != "127.0.0.1" {
+            triggerGeo = true
+        }
+    } else {
+         if gw.IP != "" && gw.IP != "127.0.0.1" {
+            triggerGeo = true
+         }
+    }
+    
+    s.gateways[gw.Hostname] = gw
+    s.save()
+    
+    if triggerGeo {
+        go s.fetchGeoLocation(gw.Hostname, gw.IP, true)
+    }
+    
+    return nil
+}
+
 func (s *MemoryStore) GetStats() (*models.AdminStatsResponse, error) {
     s.mu.RLock()
     defer s.mu.RUnlock()
@@ -259,6 +319,7 @@ func (s *MemoryStore) GetStats() (*models.AdminStatsResponse, error) {
     return &models.AdminStatsResponse{
         ConnectedClients: len(s.data),
         TotalMachines:    len(s.machines),
+        TotalGateways:    len(s.gateways),
     }, nil
 }
 
@@ -269,6 +330,17 @@ func (s *MemoryStore) GetMachines() ([]*models.MachineDetail, error) {
     list := make([]*models.MachineDetail, 0, len(s.details))
     for _, d := range s.details {
         list = append(list, d)
+    }
+    return list, nil
+}
+
+func (s *MemoryStore) GetGateways() ([]*models.GatewayStatus, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    list := make([]*models.GatewayStatus, 0, len(s.gateways))
+    for _, g := range s.gateways {
+        list = append(list, g)
     }
     return list, nil
 }
@@ -410,11 +482,20 @@ func (s *DatabaseStore) SaveClientData(clientID string, data []models.ExchangeKe
     return nil
 }
 
+func (s *DatabaseStore) SaveGateway(gw *models.GatewayStatus) error {
+    return nil
+}
+
+func (s *DatabaseStore) GetGateways() ([]*models.GatewayStatus, error) {
+    return []*models.GatewayStatus{}, nil
+}
+
 func (s *DatabaseStore) GetStats() (*models.AdminStatsResponse, error) {
     // Mock implementation for now as we don't have full DB setup in this file context yet
     return &models.AdminStatsResponse{
         ConnectedClients: 0,
         TotalMachines:    0,
+        TotalGateways:    0,
     }, nil
 }
 

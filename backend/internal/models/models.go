@@ -49,9 +49,28 @@ type AdminLoginRequest struct {
 	Token string `json:"token"`
 }
 
+// GatewayStatus represents the payload from push_status.py
+type GatewayStatus struct {
+	Hostname   string                 `json:"hostname"`
+	Timestamp  float64                `json:"timestamp"`
+	CPU        float64                `json:"cpu_usage_percent"`
+	Memory     map[string]interface{} `json:"memory"`
+	Disk       map[string]interface{} `json:"disk"`
+	Services   map[string]bool        `json:"services"`
+	ClientCount int                   `json:"client_count"`
+    
+    // Server-added fields
+    IP          string    `json:"ip"`
+    LastSeen    time.Time `json:"last_seen"`
+    GeoLocation string    `json:"geo_location"`
+    Lat         float64   `json:"lat"`
+    Lon         float64   `json:"lon"`
+}
+
 type AdminStatsResponse struct {
 	ConnectedClients int `json:"connected_clients"`
 	TotalMachines    int `json:"total_machines"`
+    TotalGateways    int `json:"total_gateways"`
 }
 
 type MachineDetail struct {

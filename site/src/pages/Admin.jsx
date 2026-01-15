@@ -17,11 +17,22 @@ const Admin = () => {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [stats, setStats] = React.useState(null);
     const [machines, setMachines] = React.useState([]);
+    const [gateways, setGateways] = React.useState([]); // Added
     const [subscribers, setSubscribers] = React.useState([]);
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'newsletters'
+
+    // Gateway Icon
+    const gatewayIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
 
     // Initial check
     React.useEffect(() => {
@@ -40,9 +51,10 @@ const Admin = () => {
                 const data = await res.json();
                 setStats(data);
                 setIsAuthenticated(true);
-                // Also fetch machines immediately to populate map if authenticated
+                // Also fetch lists immediately
                 fetchMachinesInternal(authToken);
-                fetchSubscribers(authToken); // Fetch subs too
+                fetchGatewaysInternal(authToken); // Added
+                fetchSubscribers(authToken);
             } else {
                 // Token invalid
                 handleLogout();
@@ -81,8 +93,23 @@ const Admin = () => {
         }
     };
 
-    const fetchMachines = () => {
+    const fetchGatewaysInternal = async (authToken) => {
+        try {
+            const res = await fetch('/api/admin/gateways', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setGateways(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch gateways", err);
+        }
+    };
+
+    const fetchLists = () => {
         fetchMachinesInternal(token);
+        fetchGatewaysInternal(token);
     };
 
     const handleLogin = async (e) => {
@@ -117,6 +144,7 @@ const Admin = () => {
         setIsAuthenticated(false);
         setStats(null);
         setMachines([]);
+        setGateways([]);
         setShowMachineList(false);
     };
 
@@ -194,11 +222,19 @@ const Admin = () => {
                                     </div>
                                     <div
                                         className="stat-card clickable"
-                                        onClick={fetchMachines}
+                                        onClick={fetchLists}
                                         style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid #444' }}
                                     >
                                         <h3>Total Machines (Voir liste)</h3>
                                         <p style={{ fontSize: '2em', color: '#92FE9D' }}>{stats.total_machines}</p>
+                                    </div>
+                                    <div
+                                        className="stat-card clickable"
+                                        onClick={fetchLists}
+                                        style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ff4444' }}
+                                    >
+                                        <h3>Total Gateways Active</h3>
+                                        <p style={{ fontSize: '2em', color: '#ff7777' }}>{stats.total_gateways}</p>
                                     </div>
                                 </div>
                             )}
@@ -206,7 +242,48 @@ const Admin = () => {
                             {showMachineList && (
                                 <>
                                     <div style={{ marginTop: '20px', overflowX: 'auto' }}>
-                                        <h3>Liste des Machines</h3>
+                                        <h3>Liste des Gateways ({gateways.length})</h3>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
+                                            <thead>
+                                                <tr style={{ background: '#442222', color: '#fff' }}>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Hostname</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>CPU / RAM</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Services</th>
+                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {gateways.map((g, i) => (
+                                                    <tr key={i} style={{ borderBottom: '1px solid #444' }}>
+                                                        <td style={{ padding: '10px' }}>{g.hostname}</td>
+                                                        <td style={{ padding: '10px' }}>
+                                                            <div>{g.ip || '-'}</div>
+                                                            <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{g.geo_location || ''}</div>
+                                                        </td>
+                                                        <td style={{ padding: '10px' }}>
+                                                            CPU: {g.cpu_usage_percent}%<br />
+                                                            RAM: {g.memory?.percent?.toFixed(1)}%
+                                                        </td>
+                                                        <td style={{ padding: '10px' }}>
+                                                            {g.services && Object.entries(g.services).map(([svc, status]) => (
+                                                                <span key={svc} style={{ color: status ? '#92FE9D' : '#ff4444', marginRight: '5px', fontSize: '0.8em' }}>
+                                                                    {svc}: {status ? 'OK' : 'ERR'}
+                                                                </span>
+                                                            ))}
+                                                        </td>
+                                                        <td style={{ padding: '10px' }}>{g.last_seen ? new Date(g.last_seen).toLocaleString() : '-'}</td>
+                                                    </tr>
+                                                ))}
+                                                {gateways.length === 0 && (
+                                                    <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Aucune gateway détectée.</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div style={{ marginTop: '20px', overflowX: 'auto' }}>
+                                        <h3>Liste des Machines ({machines.length})</h3>
                                         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
                                             <thead>
                                                 <tr style={{ background: '#333', color: '#fff' }}>
@@ -230,25 +307,42 @@ const Admin = () => {
                                                         <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
                                                     </tr>
                                                 ))}
+                                                {machines.length === 0 && (
+                                                    <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Aucune machine détectée.</td></tr>
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
 
                                     <div style={{ marginTop: '40px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
-                                        <h3>Géolocalisation des Clients</h3>
+                                        <h3>Géolocalisation Globale</h3>
                                         <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
                                             <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                                                 <TileLayer
                                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                                 />
+                                                {/* Machines */}
                                                 {machines.map(m => (
                                                     (m.lat && m.lon) && (
                                                         <Marker key={m.id} position={[m.lat, m.lon]}>
                                                             <Popup>
-                                                                <strong>{m.no_serie}</strong><br />
+                                                                <strong>Machine: {m.no_serie}</strong><br />
                                                                 {m.geo_location}<br />
                                                                 {m.ip}
+                                                            </Popup>
+                                                        </Marker>
+                                                    )
+                                                ))}
+                                                {/* Gateways - Red Icon */}
+                                                {gateways.map((g, i) => (
+                                                    (g.lat && g.lon) && (
+                                                        <Marker key={`gw-${i}`} position={[g.lat, g.lon]} icon={gatewayIcon}>
+                                                            <Popup>
+                                                                <strong>Gateway: {g.hostname}</strong><br />
+                                                                {g.geo_location}<br />
+                                                                {g.ip}<br />
+                                                                CPU: {g.cpu_usage_percent}%
                                                             </Popup>
                                                         </Marker>
                                                     )

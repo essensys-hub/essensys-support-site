@@ -2,8 +2,10 @@ package api
 
 import (
 	"encoding/json"
+    "net"
 	"log"
 	"net/http"
+    "time"
 
 	"github.com/essensys-hub/essensys-support-site/backend/internal/data"
 	"github.com/essensys-hub/essensys-support-site/backend/internal/middleware"
@@ -70,17 +72,51 @@ func (rt *Router) HandleMyActions(w http.ResponseWriter, r *http.Request) {
 
 // POST /api/infos
 func (rt *Router) HandleGatewayInfos(w http.ResponseWriter, r *http.Request) {
-	// Decode Payload (Generic JSON)
-	var payload interface{}
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		log.Printf("[API] Gateway Infos Bad Request: %v", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
+    // Decode Payload
+    var payload models.GatewayStatus
+    if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+        log.Printf("[API] Gateway Infos Bad Request: %v", err)
+        http.Error(w, "Bad Request", http.StatusBadRequest)
+        return
+    }
 
-	// Capture Data (Log for now)
-	log.Printf("[API] Gateway Infos received: %+v", payload)
-	
-	// Return 200 OK
-	w.WriteHeader(http.StatusOK)
+    // Capture Server-side Info
+    payload.IP = r.RemoteAddr
+    // If behind proxy, use RealIP from middleware if available or header
+    // In main.go we use RealIP middleware, so RemoteAddr should be correct or we check headers if needed.
+    // However, r.RemoteAddr from http.Request usually contains port. RealIP middleware places IP in RemoteAddr without port? 
+    // Actually chi middleware.RealIP puts it in X-Real-IP or X-Forwarded-For and updates RemoteAddr.
+    
+    // RemoteAddr usually includes port "ip:port". We strip it.
+    host, _, err := net.SplitHostPort(r.RemoteAddr)
+    if err == nil {
+        payload.IP = host
+    } else {
+        payload.IP = r.RemoteAddr // Fallback
+    }
+    
+    payload.LastSeen = time.Now()
+
+    // Save to Store
+    if err := rt.Store.SaveGateway(&payload); err != nil {
+        log.Printf("[API] Failed to save gateway: %v", err)
+    } else {
+        log.Printf("[API] Gateway Update: %s (%s)", payload.Hostname, payload.IP)
+    }
+    
+    // Return 200 OK
+    w.WriteHeader(http.StatusOK)
+}
+
+// GET /api/admin/gateways
+func (rt *Router) HandleAdminGateways(w http.ResponseWriter, r *http.Request) {
+    gws, err := rt.Store.GetGateways()
+    if err != nil {
+        log.Printf("[API] Failed to get gateways: %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(gws)
 }

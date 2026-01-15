@@ -59,6 +59,7 @@ func main() {
                 r.Use(middleware.AdminTokenMiddleware)
                 r.Get("/admin/stats", apiRouter.HandleAdminStats)
                 r.Get("/admin/machines", apiRouter.HandleAdminMachines)
+                r.Get("/admin/gateways", apiRouter.HandleAdminGateways) // Added
                 r.Get("/admin/subscribers", apiRouter.HandleAdminSubscribers)
                 r.Post("/admin/subscribers", apiRouter.HandleAdminAddSubscriber)
                 r.Delete("/admin/subscribers", apiRouter.HandleDeleteSubscriber)
