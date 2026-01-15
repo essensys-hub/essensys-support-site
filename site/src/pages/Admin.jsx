@@ -241,7 +241,44 @@ const Admin = () => {
 
                             {showMachineList && (
                                 <>
-                                    <div style={{ marginTop: '20px', overflowX: 'auto' }}>
+                                    <div style={{ marginTop: '20px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
+                                        <h3>Géolocalisation Globale</h3>
+                                        <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                                                <TileLayer
+                                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                />
+                                                {/* Machines */}
+                                                {machines.map(m => (
+                                                    (m.lat && m.lon) && (
+                                                        <Marker key={m.id} position={[m.lat, m.lon]}>
+                                                            <Popup>
+                                                                <strong>Machine: {m.no_serie}</strong><br />
+                                                                {m.geo_location}<br />
+                                                                {m.ip}
+                                                            </Popup>
+                                                        </Marker>
+                                                    )
+                                                ))}
+                                                {/* Gateways - Red Icon */}
+                                                {gateways.map((g, i) => (
+                                                    (g.lat && g.lon) && (
+                                                        <Marker key={`gw-${i}`} position={[g.lat, g.lon]} icon={gatewayIcon}>
+                                                            <Popup>
+                                                                <strong>Gateway: {g.hostname}</strong><br />
+                                                                {g.geo_location}<br />
+                                                                {g.ip}<br />
+                                                                CPU: {g.cpu_usage_percent}%
+                                                            </Popup>
+                                                        </Marker>
+                                                    )
+                                                ))}
+                                            </MapContainer>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '40px', overflowX: 'auto' }}>
                                         <h3>Liste des Gateways ({gateways.length})</h3>
                                         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
                                             <thead>
@@ -282,7 +319,7 @@ const Admin = () => {
                                         </table>
                                     </div>
 
-                                    <div style={{ marginTop: '20px', overflowX: 'auto' }}>
+                                    <div style={{ marginTop: '40px', overflowX: 'auto' }}>
                                         <h3>Liste des Machines ({machines.length})</h3>
                                         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
                                             <thead>
@@ -312,43 +349,6 @@ const Admin = () => {
                                                 )}
                                             </tbody>
                                         </table>
-                                    </div>
-
-                                    <div style={{ marginTop: '40px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
-                                        <h3>Géolocalisation Globale</h3>
-                                        <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
-                                            <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                                                <TileLayer
-                                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                                />
-                                                {/* Machines */}
-                                                {machines.map(m => (
-                                                    (m.lat && m.lon) && (
-                                                        <Marker key={m.id} position={[m.lat, m.lon]}>
-                                                            <Popup>
-                                                                <strong>Machine: {m.no_serie}</strong><br />
-                                                                {m.geo_location}<br />
-                                                                {m.ip}
-                                                            </Popup>
-                                                        </Marker>
-                                                    )
-                                                ))}
-                                                {/* Gateways - Red Icon */}
-                                                {gateways.map((g, i) => (
-                                                    (g.lat && g.lon) && (
-                                                        <Marker key={`gw-${i}`} position={[g.lat, g.lon]} icon={gatewayIcon}>
-                                                            <Popup>
-                                                                <strong>Gateway: {g.hostname}</strong><br />
-                                                                {g.geo_location}<br />
-                                                                {g.ip}<br />
-                                                                CPU: {g.cpu_usage_percent}%
-                                                            </Popup>
-                                                        </Marker>
-                                                    )
-                                                ))}
-                                            </MapContainer>
-                                        </div>
                                     </div>
                                 </>
                             )}
