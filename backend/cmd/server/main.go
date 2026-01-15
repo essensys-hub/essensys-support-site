@@ -43,6 +43,7 @@ func main() {
         r.Group(func(r chi.Router) {
             r.Use(middleware.BasicAuthMiddleware(store, false))
 		    r.Get("/serverinfos", apiRouter.HandleServerInfos)
+		    r.Post("/infos", apiRouter.HandleGatewayInfos)
         })
         
         // 3. Newsletter (Public)

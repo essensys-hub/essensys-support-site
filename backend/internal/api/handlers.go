@@ -67,3 +67,20 @@ func (rt *Router) HandleMyActions(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     w.Write([]byte("{}")) 
 }
+
+// POST /api/infos
+func (rt *Router) HandleGatewayInfos(w http.ResponseWriter, r *http.Request) {
+	// Decode Payload (Generic JSON)
+	var payload interface{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		log.Printf("[API] Gateway Infos Bad Request: %v", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Capture Data (Log for now)
+	log.Printf("[API] Gateway Infos received: %+v", payload)
+	
+	// Return 200 OK
+	w.WriteHeader(http.StatusOK)
+}
