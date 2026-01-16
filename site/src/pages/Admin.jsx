@@ -36,7 +36,16 @@ const Admin = () => {
 
     // Initial check
     React.useEffect(() => {
-        if (token) {
+        // 1. Check URL for token (Google Auth Callback)
+        const params = new URLSearchParams(window.location.search);
+        const urlToken = params.get('token');
+        if (urlToken) {
+            localStorage.setItem('adminToken', urlToken);
+            setToken(urlToken);
+            // Clear URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            fetchStats(urlToken);
+        } else if (token) {
             // Verify token by fetching stats
             fetchStats(token);
         }
@@ -189,6 +198,26 @@ const Admin = () => {
                             {loading ? 'Connexion...' : 'Accéder'}
                         </button>
                     </form>
+
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                        <p style={{ color: '#888', marginBottom: '10px' }}>Ou connectez-vous avec Google (Admin)</p>
+                        <a
+                            href="/api/auth/google/login"
+                            style={{
+                                display: 'inline-block',
+                                padding: '10px 20px',
+                                background: '#fff',
+                                color: '#333',
+                                borderRadius: '4px',
+                                textDecoration: 'none',
+                                fontWeight: 'bold',
+                                border: '1px solid #ccc'
+                            }}
+                        >
+                            <span role="img" aria-label="google" style={{ marginRight: '8px' }}>G</span>
+                            Se connecter avec Google
+                        </a>
+                    </div>
                 </div>
             ) : (
                 <div className="admin-dashboard">
