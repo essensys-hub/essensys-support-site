@@ -217,6 +217,25 @@ const Admin = () => {
                             <span role="img" aria-label="google" style={{ marginRight: '8px' }}>G</span>
                             Se connecter avec Google
                         </a>
+
+                        <div style={{ marginTop: '10px' }}></div>
+
+                        <a
+                            href="/api/auth/apple/login"
+                            style={{
+                                display: 'inline-block',
+                                padding: '10px 20px',
+                                background: '#000',
+                                color: '#fff',
+                                borderRadius: '4px',
+                                textDecoration: 'none',
+                                fontWeight: 'bold',
+                                border: '1px solid #333'
+                            }}
+                        >
+                            <span role="img" aria-label="apple" style={{ marginRight: '8px' }}>🍎</span>
+                            Connexion avec Apple
+                        </a>
                     </div>
                 </div>
             ) : (

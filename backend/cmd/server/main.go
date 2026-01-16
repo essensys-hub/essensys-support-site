@@ -54,6 +54,10 @@ func main() {
             // OAuth Endpoints (Public)
             r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
             r.Get("/auth/google/callback", apiRouter.HandleGoogleCallback)
+            
+            // Apple OAuth
+            r.Get("/auth/apple/login", apiRouter.HandleAppleLogin)
+            r.Post("/auth/apple/callback", apiRouter.HandleAppleCallback) // Note: Apple uses POST for callback
 
             // Public Login endpoint (checks token in body - Legacy)
             r.Post("/admin/login", apiRouter.HandleAdminLogin)

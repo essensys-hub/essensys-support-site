@@ -3,6 +3,8 @@ package api
 import (
     "context"
     "crypto/rand"
+    "crypto/x509"
+    "encoding/pem"
     "encoding/base64"
     "encoding/json"
     "fmt"
@@ -12,6 +14,7 @@ import (
     "os"
     "strings"
     "time"
+    "net/url"
 
     "golang.org/x/oauth2"
     "golang.org/x/oauth2/google"
@@ -174,4 +177,190 @@ func generateStateOauthCookie(w http.ResponseWriter) string {
     cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration, HttpOnly: true}
     http.SetCookie(w, &cookie)
     return state
+}
+
+// ---------------------------------------------------------------------
+// APPLE SIGN-IN
+// ---------------------------------------------------------------------
+
+func getAppleOAuthConfig() *oauth2.Config {
+    return &oauth2.Config{
+        ClientID:     os.Getenv("APPLE_CLIENT_ID"), // The Service ID (e.g. fr.essensys.web)
+        RedirectURL:  os.Getenv("APPLE_REDIRECT_URL"),
+        Scopes:       []string{"name", "email"},
+        Endpoint: oauth2.Endpoint{
+            AuthURL:  "https://appleid.apple.com/auth/authorize",
+            TokenURL: "https://appleid.apple.com/auth/token",
+        },
+    }
+}
+
+// GenerateClientSecret generates a JWT signed with the P8 key for Apple Auth
+func generateAppleClientSecret() (string, error) {
+    teamID := os.Getenv("APPLE_TEAM_ID")
+    clientID := os.Getenv("APPLE_CLIENT_ID")
+    keyID := os.Getenv("APPLE_KEY_ID")
+    keyFile := os.Getenv("APPLE_KEY_FILE")
+
+    // Read P8 file
+    keyBytes, err := os.ReadFile(keyFile)
+    if err != nil {
+        return "", fmt.Errorf("could not read private key file: %v", err)
+    }
+
+    block, _ := pem.Decode(keyBytes)
+    if block == nil {
+        return "", fmt.Errorf("failed to decode PEM block containing private key")
+    }
+
+    privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+    if err != nil {
+        return "", fmt.Errorf("could not parse private key: %v", err)
+    }
+
+    // Create JWT
+    token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+        "iss": teamID,
+        "iat": time.Now().Unix(),
+        "exp": time.Now().Add(5 * time.Minute).Unix(), // Max 6 months, but 5 mins is enough for a token request
+        "aud": "https://appleid.apple.com",
+        "sub": clientID,
+    })
+
+    token.Header["kid"] = keyID
+    
+    return token.SignedString(privateKey)
+}
+
+func (r *Router) HandleAppleLogin(w http.ResponseWriter, req *http.Request) {
+    oauthState := generateStateOauthCookie(w)
+    // response_mode=form_post is required/default for Apple scope email/name
+    authURL := getAppleOAuthConfig().AuthCodeURL(oauthState, oauth2.SetAuthURLParam("response_mode", "form_post"))
+    http.Redirect(w, req, authURL, http.StatusTemporaryRedirect)
+}
+
+// Apple sends a POST request to the callback URL
+func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
+    // 1. Verify State
+    oauthState, _ := req.Cookie("oauthstate")
+    if req.FormValue("state") != oauthState.Value {
+        log.Println("Invalid oauth apple state")
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
+    }
+
+    code := req.FormValue("code")
+    if code == "" {
+        http.Error(w, "No code returned from Apple", http.StatusBadRequest)
+        return
+    }
+
+    // 2. Generate Client Secret (JWT)
+    clientSecret, err := generateAppleClientSecret()
+    if err != nil {
+        log.Printf("Failed to generate apple client secret: %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    // 3. Exchange Code for Token
+    // We must manually add client_secret because it's dynamic
+    ctx := context.Background()
+    conf := getAppleOAuthConfig()
+    
+    // Custom Token Exchange to inject dynamic client_secret
+    values := url.Values{}
+    values.Set("client_id", conf.ClientID)
+    values.Set("client_secret", clientSecret)
+    values.Set("code", code)
+    values.Set("grant_type", "authorization_code")
+    values.Set("redirect_uri", conf.RedirectURL)
+
+    resp, err := http.PostForm(conf.Endpoint.TokenURL, values)
+    if err != nil {
+        log.Printf("Failed to exchange token with Apple: %v", err)
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
+    }
+    defer resp.Body.Close()
+
+    var tokenResp struct {
+        AccessToken string `json:"access_token"`
+        IDToken     string `json:"id_token"`
+        ExpiresIn   int    `json:"expires_in"`
+    }
+    
+    if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+        log.Printf("Failed to decode Apple token response: %v", err)
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
+    }
+
+    // 4. Parse ID Token to get Email
+    // Note: Apple only returns "user" object (name/email) on the FIRST login. 
+    // Subsequent logins only have email in ID Token.
+    
+    // We parse ID Token (JWT) without verification for now (or verify generic signature)
+    // In strict prod, we should verify against Apple public keys.
+    parser := jwt.Parser{SkipClaimsValidation: true}
+    idToken, _, err := parser.ParseUnverified(tokenResp.IDToken, jwt.MapClaims{})
+    if err != nil {
+        log.Printf("Failed to parse ID Token: %v", err)
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
+    }
+
+    claims, ok := idToken.Claims.(jwt.MapClaims)
+    if !ok {
+         log.Println("Invalid ID Token claims")
+         http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+         return
+    }
+
+    email, _ := claims["email"].(string) // Apple guarantees email in ID Token
+    // sub, _ := claims["sub"].(string)
+
+    // 5. Check Allowlist
+    allowedEmails := os.Getenv("ADMIN_EMAILS")
+    isAllowed := false
+    if allowedEmails != "" {
+        parts := strings.Split(allowedEmails, ",")
+        for _, e := range parts {
+            if strings.TrimSpace(e) == email {
+                isAllowed = true
+                break
+            }
+        }
+    }
+
+    if !isAllowed {
+        log.Printf("Unauthorized Apple Login attempt: %s", email)
+         // Since it's a POST callback, we can't easily http.Error text page for UX.
+         // Better redirect to frontend with error param
+        http.Redirect(w, req, "/?error=unauthorized_email", http.StatusSeeOther)
+        return
+    }
+
+    // 6. Generate Session JWT
+    expirationTime := time.Now().Add(24 * time.Hour)
+    sessionClaims := &jwt.RegisteredClaims{
+        Subject:   email,
+        ExpiresAt: jwt.NewNumericDate(expirationTime),
+        Issuer:    "essensys-backend",
+    }
+    sessionToken := jwt.NewWithClaims(jwt.SigningMethodHS256, sessionClaims)
+    tokenString, err := sessionToken.SignedString(getJWTKey())
+    if err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    // 7. Redirect to Frontend
+    frontendURL := os.Getenv("FRONTEND_URL")
+    if frontendURL == "" {
+        frontendURL = "/" 
+    }
+    
+    // Important: Apple callback is a POST, so we must redirect with 303 See Other to turn it into a GET
+    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString, http.StatusSeeOther)
 }
