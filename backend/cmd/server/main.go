@@ -49,9 +49,13 @@ func main() {
         // 3. Newsletter (Public)
         r.Post("/newsletter/subscribe", apiRouter.HandleSubscribe)
         
-        // 2. Admin Routes (Token Auth)
+        // 2. Admin Routes (Token Auth & OAuth)
         r.Group(func(r chi.Router) {
-            // Public Login endpoint (checks token in body)
+            // OAuth Endpoints (Public)
+            r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
+            r.Get("/auth/google/callback", apiRouter.HandleGoogleCallback)
+
+            // Public Login endpoint (checks token in body - Legacy)
             r.Post("/admin/login", apiRouter.HandleAdminLogin)
             
             // Protected Admin endpoints

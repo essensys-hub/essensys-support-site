@@ -3,11 +3,13 @@ package middleware
 import (
 	"context"
 	"encoding/base64"
+    "fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+    "github.com/golang-jwt/jwt/v4"
 	"github.com/essensys-hub/essensys-support-site/backend/internal/data"
 )
 
@@ -128,23 +130,61 @@ func unauthorized(w http.ResponseWriter) {
 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }
 
-// AdminTokenMiddleware validates the admin token
+// JWTKeyFunc returns the signing key
+func JWTKeyFunc(token *jwt.Token) (interface{}, error) {
+    if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+        return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+    }
+    key := os.Getenv("JWT_SECRET")
+    if key == "" {
+        key = "default-insecure-jwt-secret-change-me"
+    }
+    return []byte(key), nil
+}
+
+// AdminTokenMiddleware validates the admin token (Static or JWT)
 func AdminTokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
+		tokenStr := r.Header.Get("Authorization")
 		// Support "Bearer <token>"
-		token = strings.TrimPrefix(token, "Bearer ")
+		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
 		
+		// 1. Check Static Token (Legacy/Script access)
 		expectedToken := os.Getenv("ADMIN_TOKEN")
 		if expectedToken == "" {
 			expectedToken = "essensys-admin-secret"
 		}
 
-		if token != expectedToken {
-			http.Error(w, "Unauthorized Admin Access", http.StatusUnauthorized)
-			return
+		if tokenStr == expectedToken {
+            // Valid Static Token
+			next.ServeHTTP(w, r)
+            return
 		}
+        
+        // 2. Check JWT (Google Auth)
+        if tokenStr != "" {
+            token, err := jwt.Parse(tokenStr, JWTKeyFunc)
+            if err == nil && token.Valid {
+                // Valid JWT
+                // Optional: Extract claims and put in context
+                if claims, ok := token.Claims.(jwt.MapClaims); ok {
+                    if sub, ok := claims["sub"].(string); ok {
+                        ctx := context.WithValue(r.Context(), "user_email", sub)
+                        next.ServeHTTP(w, r.WithContext(ctx))
+                        return
+                    }
+                }
+                next.ServeHTTP(w, r)
+                return
+            }
+        }
 
-		next.ServeHTTP(w, r)
+        log.Printf("Unauthorized Admin Access Attempt. Token: %s...", tokenStr[:min(10, len(tokenStr))])
+		http.Error(w, "Unauthorized Admin Access", http.StatusUnauthorized)
 	})
+}
+
+func min(a, b int) int {
+    if a < b { return a }
+    return b
 }
