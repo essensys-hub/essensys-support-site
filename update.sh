@@ -35,9 +35,9 @@ cp site/src/assets/fond-inprogress.png "$MAINT_DIR/assets/"
 
 echo ">>> 4. Updating Service Config & Nginx..."
 sudo cp backend/essensys-passive.service /etc/systemd/system/
-sudo cp essensys.nginx /etc/nginx/sites-available/essensys
-# Ensure symlink exists (usually done by install, but good to ensure)
-[ ! -L /etc/nginx/sites-enabled/essensys ] && sudo ln -s /etc/nginx/sites-available/essensys /etc/nginx/sites-enabled/
+# Skip overwriting Nginx config to preserve SSL settings
+# sudo cp essensys.nginx /etc/nginx/sites-available/essensys
+# [ ! -L /etc/nginx/sites-enabled/essensys ] && sudo ln -s /etc/nginx/sites-available/essensys /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 sudo cp backend/essensys-passive.service /etc/systemd/system/
 sudo systemctl daemon-reload
