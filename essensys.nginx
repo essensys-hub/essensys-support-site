@@ -48,8 +48,8 @@ server {
         gzip off;
     }
     
-    # Certbot Challenge Path (kept for future use)
-    location ^~ /.well-known/acme-challenge/ {
+    # Certbot & Apple Verification
+    location ^~ /.well-known/ {
         allow all;
         root /var/www/certbot;
     }
@@ -89,8 +89,8 @@ server {
         expires 1y;
     }
 
-    # Certbot Challenge Path (kept for future use)
-    location ^~ /.well-known/acme-challenge/ {
+    # Certbot & Apple Verification
+    location ^~ /.well-known/ {
         allow all;
         root /var/www/certbot;
     }
