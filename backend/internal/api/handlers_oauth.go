@@ -265,7 +265,6 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
 
     // 3. Exchange Code for Token
     // We must manually add client_secret because it's dynamic
-    ctx := context.Background()
     conf := getAppleOAuthConfig()
     
     // Custom Token Exchange to inject dynamic client_secret
