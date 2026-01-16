@@ -12,6 +12,7 @@ git pull
 
 echo ">>> 2. Building Backend..."
 cd backend
+go mod tidy
 go build -o essensys-passive-backend ./cmd/server
 sudo mv essensys-passive-backend /usr/local/bin/
 cd ..
