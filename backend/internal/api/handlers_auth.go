@@ -9,7 +9,6 @@ import (
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
     "github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
-    "os"
 )
 
 // HandleRegister handles email/password registration
