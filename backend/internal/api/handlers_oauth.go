@@ -173,7 +173,7 @@ func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) 
     })
     
     // Redirect to Admin Dashboard
-    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString, http.StatusTemporaryRedirect)
+    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString + "&role=" + role, http.StatusTemporaryRedirect)
 }
 
 func getUserDataFromGoogle(code string) ([]byte, error) {
@@ -424,5 +424,5 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     }
     
     // Important: Apple callback is a POST, so we must redirect with 303 See Other to turn it into a GET
-    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString, http.StatusSeeOther)
+    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString + "&role=" + role, http.StatusSeeOther)
 }

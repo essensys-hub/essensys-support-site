@@ -25,6 +25,7 @@ const Login = () => {
 
             if (res.ok) {
                 localStorage.setItem('adminToken', data.token);
+                localStorage.setItem('adminRole', data.user.role);
                 // Redirect to admin
                 navigate('/admin');
             } else {

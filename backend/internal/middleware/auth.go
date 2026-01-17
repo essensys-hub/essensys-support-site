@@ -150,32 +150,39 @@ func AdminTokenMiddleware(next http.Handler) http.Handler {
 		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
 		
 		// 1. Check Static Token (Legacy/Script access)
+		// TODO: Eventually deprecate this in favor of Service Accounts with JWTs
 		expectedToken := os.Getenv("ADMIN_TOKEN")
 		if expectedToken == "" {
 			expectedToken = "essensys-admin-secret"
 		}
 
 		if tokenStr == expectedToken {
-            // Valid Static Token
+            // Valid Static Token -> Assumed Admin (System)
 			next.ServeHTTP(w, r)
             return
 		}
         
-        // 2. Check JWT (Google Auth)
+        // 2. Check JWT (User Auth)
         if tokenStr != "" {
             token, err := jwt.Parse(tokenStr, JWTKeyFunc)
             if err == nil && token.Valid {
-                // Valid JWT
-                // Optional: Extract claims and put in context
+                // Valid JWT - Check Role
                 if claims, ok := token.Claims.(jwt.MapClaims); ok {
-                    if sub, ok := claims["sub"].(string); ok {
-                        ctx := context.WithValue(r.Context(), "user_email", sub)
-                        next.ServeHTTP(w, r.WithContext(ctx))
-                        return
-                    }
+                    role, _ := claims["role"].(string)
+					// Normalize role check
+					if role == "admin" || role == "support" {
+						// Authorized
+						if sub, ok := claims["sub"].(string); ok {
+							ctx := context.WithValue(r.Context(), "user_email", sub)
+							r = r.WithContext(ctx)
+						}
+						next.ServeHTTP(w, r)
+						return
+					}
+					log.Printf("Forbidden: User role '%s' attempted admin access", role)
+					http.Error(w, "Forbidden: Insufficient Permissions", http.StatusForbidden)
+					return
                 }
-                next.ServeHTTP(w, r)
-                return
             }
         }
 

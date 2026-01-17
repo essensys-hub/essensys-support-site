@@ -41,20 +41,34 @@ const Admin = () => {
         // 1. Check URL for token (Google Auth Callback)
         const params = new URLSearchParams(window.location.search);
         const urlToken = params.get('token');
+        const urlRole = params.get('role');
+
         if (urlToken) {
             localStorage.setItem('adminToken', urlToken);
+            if (urlRole) localStorage.setItem('adminRole', urlRole);
+
             setToken(urlToken);
             // Clear URL
             window.history.replaceState({}, document.title, window.location.pathname);
-            fetchStats(urlToken);
+            checkRoleAndFetch(urlToken, urlRole);
         } else if (token) {
             // Verify token by fetching stats
-            fetchStats(token);
+            const storedRole = localStorage.getItem('adminRole');
+            checkRoleAndFetch(token, storedRole);
         } else {
             // Not authenticated, redirect to Login
             navigate('/login');
         }
     }, [token, navigate]);
+
+    const checkRoleAndFetch = (authToken, role) => {
+        // Frontend Role Check (Fast fail)
+        if (role && role !== 'admin' && role !== 'support') {
+            setError("Accès refusé. Vous n'avez pas les droits d'administrateur.");
+            return;
+        }
+        fetchStats(authToken);
+    };
 
     const fetchStats = async (authToken) => {
         try {
@@ -132,6 +146,7 @@ const Admin = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRole');
         setToken('');
         setIsAuthenticated(false);
         setStats(null);
