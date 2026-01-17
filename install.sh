@@ -99,8 +99,8 @@ FILENAME="\$BACKUP_DIR/essensys_db_\$TIMESTAMP.sql.gz"
 # Dump and compress
 pg_dump -U postgres essensys | gzip > "\$FILENAME"
 
-# Cleanup > 7 days
-find "\$BACKUP_DIR" -type f -name "essensys_db_*.sql.gz" -mtime +7 -delete
+# Cleanup > 200 days
+find "\$BACKUP_DIR" -type f -name "essensys_db_*.sql.gz" -mtime +200 -delete
 EOF
 sudo chmod +x /usr/local/bin/essensys-backup-db.sh
 
