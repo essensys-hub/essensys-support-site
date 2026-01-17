@@ -18,3 +18,5 @@ backend/bin/
 
 # Clients (Privacy)
 clients.txt
+
+.env

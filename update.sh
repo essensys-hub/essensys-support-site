@@ -17,6 +17,7 @@ go build -o server ./cmd/server
 # Move binary to runtime location
 sudo cp server /opt/essensys/backend/server
 sudo chmod +x /opt/essensys/backend/server
+sudo chown essensys:essensys /opt/essensys/backend/server
 cd ..
 
 echo ">>> 3. Building Frontend..."
@@ -28,6 +29,7 @@ TARGET_DIR="/opt/essensys/frontend/dist"
 sudo mkdir -p "$TARGET_DIR"
 sudo rm -rf "$TARGET_DIR"/*
 sudo cp -r dist/* "$TARGET_DIR"/
+sudo chown -R essensys:essensys /opt/essensys/frontend
 cd ..
 
 echo ">>> 3b. Deploying Maintenance Site..."
@@ -35,6 +37,7 @@ MAINT_DIR="/opt/essensys/maintenance"
 sudo mkdir -p "$MAINT_DIR/assets"
 sudo cp maintenance/index.html "$MAINT_DIR/"
 sudo cp site/src/assets/fond-inprogress.png "$MAINT_DIR/assets/"
+sudo chown -R essensys:essensys /opt/essensys/maintenance
 
 echo ">>> 4. Updating Service Config & Nginx..."
 sudo cp backend/essensys-backend.service /etc/systemd/system/essensys-backend.service

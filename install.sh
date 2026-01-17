@@ -34,14 +34,23 @@ else
     echo ">>> Node.js is already installed."
 fi
 
-# 2. Setup Directories
+# 2. Setup System User
+echo ">>> Creating essensys system user..."
+if ! id -u essensys > /dev/null 2>&1; then
+    sudo useradd -r -s /bin/false essensys
+    echo "User 'essensys' created."
+else
+    echo "User 'essensys' already exists."
+fi
+
+# 3. Setup Directories
 echo ">>> Setting up /opt/essensys..."
 sudo mkdir -p /opt/essensys/backend
 sudo mkdir -p /opt/essensys/frontend/dist
 sudo mkdir -p /opt/essensys/maintenance
-sudo chown -R $USER:$USER /opt/essensys
+sudo chown -R essensys:essensys /opt/essensys
 
-# 3. Setup PostgreSQL
+# 4. Setup PostgreSQL
 echo ">>> Configuring PostgreSQL..."
 if systemctl is-active --quiet postgresql; then
     # Create User
@@ -64,7 +73,7 @@ else
     echo "WARNING: PostgreSQL is not active. Skipping DB setup."
 fi
 
-# 4. Setup Service
+# 5. Setup Service
 echo ">>> Configuring Systemd Service..."
 sudo cp backend/essensys-backend.service /etc/systemd/system/essensys-backend.service
 # Modify service to point to EnvironmentFile if not already there
@@ -92,14 +101,14 @@ sudo sed -i '/\[Service\]/a EnvironmentFile=/opt/essensys/backend/.env' /etc/sys
 sudo systemctl daemon-reload
 sudo systemctl enable essensys-backend.service
 
-# 5. Setup Nginx
+# 6. Setup Nginx
 echo ">>> Configuring Nginx..."
 sudo cp essensys.nginx /etc/nginx/sites-available/essensys
 sudo ln -sf /etc/nginx/sites-available/essensys /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 
-# 6. Initial Build & Start
+# 7. Initial Build & Start
 echo ">>> Running initial Update/Build..."
 chmod +x update.sh
 ./update.sh
