@@ -13,11 +13,15 @@ import (
 )
 
 type Router struct {
-	Store data.Store
+	Store     data.Store
+	UserStore data.UserStore
 }
 
-func NewRouter(store data.Store) *Router {
-	return &Router{Store: store}
+func NewRouter(store data.Store, userStore data.UserStore) *Router {
+	return &Router{
+		Store:     store,
+		UserStore: userStore,
+	}
 }
 
 // GET /api/serverinfos

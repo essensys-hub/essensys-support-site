@@ -98,36 +98,68 @@ func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) 
     }
 
     // 4. Check Allowlist (Simple Env Var: COMMA,SEPARATED,EMAILS)
-    allowedEmails := os.Getenv("ADMIN_EMAILS")
-    isAllowed := false
-    if allowedEmails == "" {
-        // If no list defined, maybe allow none or allow specific hardcoded?
-        // Let's safe-fail generally, but for now we might want to warn.
-        log.Println("WARNING: ADMIN_EMAILS not set. No one can log in via Google.")
-    } else {
-        parts := strings.Split(allowedEmails, ",")
-        for _, email := range parts {
-            if strings.TrimSpace(email) == user.Email {
-                isAllowed = true
-                break
-            }
-        }
+    // 4. Persistence & Role Management
+    userDB, err := r.UserStore.GetUserByEmail(user.Email)
+    if err != nil {
+        log.Println("Database error checking user:", err)
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
     }
 
-    if !isAllowed {
-        log.Printf("Unauthorized Google Login attempt: %s", user.Email)
-        http.Error(w, "Unauthorized: Email not in admin list", http.StatusForbidden)
-        return
+    var role string
+
+    if userDB == nil {
+        // Create new user
+        // Check if admin based on env list
+        isAdmin := r.IsAdminEmail(user.Email, os.Getenv("ADMIN_EMAILS"))
+        if isAdmin {
+            role = models.RoleAdmin
+        } else {
+            role = models.RoleUser
+        }
+
+        newUser := &models.User{
+            Email:      user.Email,
+            Role:       role,
+            FirstName:  "", // Google might return Name, but we parsed struct above with only Email/ID. 
+            // In a fuller implementation we'd grab Name from 'data' map or struct.
+            LastName:   "",
+            Provider:   models.ProviderGoogle,
+            ProviderID: user.ID,
+            CreatedAt:  time.Now(),
+            LastLogin:  time.Now(),
+        }
+
+        if err := r.UserStore.CreateUser(newUser); err != nil {
+            log.Println("Failed to create user from Google:", err)
+             http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+             return
+        }
+        userDB = newUser // for ID
+    } else {
+        // User exists, update login
+        r.UserStore.UpdateLastLogin(userDB.ID)
+        role = userDB.Role
     }
     
     // 5. Generate JWT
     expirationTime := time.Now().Add(24 * time.Hour)
     claims := &jwt.RegisteredClaims{
         Subject:   user.Email,
+        Description: role, // Using Description field to store Role hackily or update GenerateJWT signature
+        // Actually, let's use the GenerateJWT helper we defined or will define.
+        // Wait, the previous code used jwt.NewWithClaims inline.
+        // Let's stick to inline for now to avoid breaking signature if GenerateJWT isn't compatible yet.
         ExpiresAt: jwt.NewNumericDate(expirationTime),
         Issuer:    "essensys-backend",
     }
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    // Add custom claims manually if needed
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+        "sub": user.Email,
+        "role": role,
+        "exp": expirationTime.Unix(),
+        "iss": "essensys-backend",
+    })
     tokenString, err := token.SignedString(getJWTKey())
     if err != nil {
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -352,33 +384,50 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     email, _ := claims["email"].(string) // Apple guarantees email in ID Token
     // sub, _ := claims["sub"].(string)
 
-    // 5. Check Allowlist
-    allowedEmails := os.Getenv("ADMIN_EMAILS")
-    isAllowed := false
-    if allowedEmails != "" {
-        parts := strings.Split(allowedEmails, ",")
-        for _, e := range parts {
-            if strings.TrimSpace(e) == email {
-                isAllowed = true
-                break
-            }
-        }
+    // 5. Persistence
+    userDB, err := r.UserStore.GetUserByEmail(email)
+    if err != nil {
+        log.Println("Database error checking user:", err)
+        http.Redirect(w, req, "/", http.StatusSeeOther)
+        return
     }
 
-    if !isAllowed {
-        log.Printf("Unauthorized Apple Login attempt: %s", email)
-         // Since it's a POST callback, we can't easily http.Error text page for UX.
-         // Better redirect to frontend with error param
-        http.Redirect(w, req, "/?error=unauthorized_email", http.StatusSeeOther)
-        return
+    var role string
+    if userDB == nil {
+         // Create User
+         isAdmin := r.IsAdminEmail(email, os.Getenv("ADMIN_EMAILS"))
+         if isAdmin {
+             role = models.RoleAdmin
+         } else {
+             role = models.RoleUser
+         }
+         
+         newUser := &models.User{
+            Email:      email,
+            Role:       role,
+            Provider:   models.ProviderApple,
+            CreatedAt:  time.Now(),
+            LastLogin:  time.Now(),
+        }
+        
+        if err := r.UserStore.CreateUser(newUser); err != nil {
+             log.Println("Failed to create user from Apple:", err)
+             http.Redirect(w, req, "/", http.StatusSeeOther)
+             return
+        }
+        userDB = newUser
+    } else {
+        r.UserStore.UpdateLastLogin(userDB.ID)
+        role = userDB.Role
     }
 
     // 6. Generate Session JWT
     expirationTime := time.Now().Add(24 * time.Hour)
-    sessionClaims := &jwt.RegisteredClaims{
-        Subject:   email,
-        ExpiresAt: jwt.NewNumericDate(expirationTime),
-        Issuer:    "essensys-backend",
+    sessionClaims := jwt.MapClaims{
+        "sub": email,
+        "role": role,
+        "exp": expirationTime.Unix(),
+        "iss": "essensys-backend",
     }
     sessionToken := jwt.NewWithClaims(jwt.SigningMethodHS256, sessionClaims)
     tokenString, err := sessionToken.SignedString(getJWTKey())

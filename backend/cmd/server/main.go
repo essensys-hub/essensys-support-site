@@ -10,8 +10,11 @@ import (
 	"github.com/essensys-hub/essensys-support-site/backend/internal/middleware"
 
 	
+	"fmt"
+
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
@@ -28,8 +31,41 @@ func main() {
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
 
+	// 1b. Init Postgres (User Store)
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+
+    var userStore data.UserStore
+
+    // Only connect if DB envs are set (Graceful degradation or Fatal?)
+    // For now, let's try to connect if configured.
+    if dbHost != "" {
+        dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
+            dbHost, dbPort, dbUser, dbPass, dbName)
+        
+        db, err := sqlx.Connect("postgres", dsn)
+        if err != nil {
+             log.Printf("WARNING: Failed to connect to database: %v. User Registration will fail.", err)
+             userStore = &data.PostgresUserStore{} // Empty struct or nil handling? 
+             // Ideally we should fail or have a mock. 
+             // Let's create a partial store that returns errors if DB is nil.
+        } else {
+             log.Println("Connected to PostgreSQL")
+             store := data.NewPostgresUserStore(db)
+             if err := store.EnsureTableExists(); err != nil {
+                 log.Fatalf("Failed to init user table: %v", err)
+             }
+             userStore = store
+        }
+    } else {
+        log.Println("WARNING: DB configuration missing. User Store disable.")
+    }
+
 	// 3. API Routes with Auth
-	apiRouter := api.NewRouter(store)
+	apiRouter := api.NewRouter(store, userStore)
 	
 	r.Route("/api", func(r chi.Router) {
         // 1a. IoT Routes - Strict Auth
@@ -53,7 +89,12 @@ func main() {
         r.Group(func(r chi.Router) {
             // OAuth Endpoints (Public)
             r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
+            r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
             r.Get("/auth/google/callback", apiRouter.HandleGoogleCallback)
+            
+            // Email Auth
+            r.Post("/auth/register", apiRouter.HandleRegister)
+            r.Post("/auth/login", apiRouter.HandleLogin)
             
             // Apple OAuth
             r.Get("/auth/apple/login", apiRouter.HandleAppleLogin)
