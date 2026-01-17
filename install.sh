@@ -10,7 +10,7 @@ echo ">>> Starting Installation..."
 # 1. Update System & Install Dependencies
 echo ">>> Installing Dependencies (Git, Nginx, Go, Node.js)..."
 sudo apt-get update
-sudo apt-get install -y git nginx curl
+sudo apt-get install -y git nginx curl postgresql postgresql-contrib
 
 # Install Go (if not present)
 if ! command -v go &> /dev/null; then
@@ -56,6 +56,83 @@ echo ">>> Configuring Systemd Service..."
 sudo cp backend/essensys-passive.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable essensys-passive.service
+
+# 3b. Setup PostgreSQL & Backups
+echo ">>> Configuring PostgreSQL..."
+if systemctl is-active --quiet postgresql; then
+    # Create User
+    if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='essensys'" | grep -q 1; then
+        echo "Creating PostgreSQL user 'essensys'..."
+        sudo -u postgres psql -c "CREATE USER essensys WITH PASSWORD 'essensys_db_pass';"
+    else
+        echo "PostgreSQL user 'essensys' already exists."
+    fi
+
+    # Create DB
+    if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='essensys'" | grep -q 1; then
+        echo "Creating database 'essensys'..."
+        sudo -u postgres psql -c "CREATE DATABASE essensys OWNER essensys;"
+    else
+        echo "Database 'essensys' already exists."
+    fi
+else
+    echo "WARNING: PostgreSQL is not active. Skipping DB setup."
+fi
+
+echo ">>> Configuring Daily Backups..."
+BACKUP_DIR="/var/backups/essensys"
+if [ ! -d "$BACKUP_DIR" ]; then
+    sudo mkdir -p "$BACKUP_DIR"
+    sudo chown postgres:postgres "$BACKUP_DIR"
+    sudo chmod 700 "$BACKUP_DIR"
+fi
+
+# Create Backup Script
+sudo tee /usr/local/bin/essensys-backup-db.sh > /dev/null <<EOF
+#!/bin/bash
+set -e
+
+BACKUP_DIR="/var/backups/essensys"
+TIMESTAMP=\$(date +%Y%m%d_%H%M%S)
+FILENAME="\$BACKUP_DIR/essensys_db_\$TIMESTAMP.sql.gz"
+
+# Dump and compress
+pg_dump -U postgres essensys | gzip > "\$FILENAME"
+
+# Cleanup > 7 days
+find "\$BACKUP_DIR" -type f -name "essensys_db_*.sql.gz" -mtime +7 -delete
+EOF
+sudo chmod +x /usr/local/bin/essensys-backup-db.sh
+
+# Create Service
+sudo tee /etc/systemd/system/essensys-backup.service > /dev/null <<EOF
+[Unit]
+Description=Essensys Database Backup
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/bin/essensys-backup-db.sh
+EOF
+
+# Create Timer
+sudo tee /etc/systemd/system/essensys-backup.timer > /dev/null <<EOF
+[Unit]
+Description=Run Essensys Database Backup daily
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable essensys-backup.timer
+sudo systemctl start essensys-backup.timer
+echo ">>> Backup timer configured."
 
 # 4. Initial Build & Start
 echo ">>> Running initial Update/Build..."
