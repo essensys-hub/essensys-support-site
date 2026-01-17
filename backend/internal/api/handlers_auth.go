@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
+    "github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
+    "os"
 )
 
 // HandleRegister handles email/password registration
@@ -123,6 +125,19 @@ func (router *Router) HandleLogin(w http.ResponseWriter, r *http.Request) {
     })
 }
 
+
+// GenerateJWT creates a new token for the given user
+func GenerateJWT(email, role string, expirationTime time.Time) (string, error) {
+	claims := jwt.MapClaims{
+		"sub":  email,
+		"role": role,
+		"exp":  expirationTime.Unix(),
+		"iss":  "essensys-backend",
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(getJWTKey())
+}
+
 // Helper to determine if an email is admin (matches .env list)
 func (router *Router) IsAdminEmail(email string, adminList string) bool {
     parts := strings.Split(adminList, ",")
@@ -133,3 +148,5 @@ func (router *Router) IsAdminEmail(email string, adminList string) bool {
     }
     return false
 }
+
+

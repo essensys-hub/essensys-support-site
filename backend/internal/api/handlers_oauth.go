@@ -19,6 +19,7 @@ import (
     "golang.org/x/oauth2"
     "golang.org/x/oauth2/google"
     "github.com/golang-jwt/jwt/v4"
+    "github.com/essensys-hub/essensys-support-site/backend/internal/models"
 )
 
 var (
@@ -143,25 +144,11 @@ func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) 
     }
     
     // 5. Generate JWT
+    // 5. Generate JWT
     expirationTime := time.Now().Add(24 * time.Hour)
-    claims := &jwt.RegisteredClaims{
-        Subject:   user.Email,
-        Description: role, // Using Description field to store Role hackily or update GenerateJWT signature
-        // Actually, let's use the GenerateJWT helper we defined or will define.
-        // Wait, the previous code used jwt.NewWithClaims inline.
-        // Let's stick to inline for now to avoid breaking signature if GenerateJWT isn't compatible yet.
-        ExpiresAt: jwt.NewNumericDate(expirationTime),
-        Issuer:    "essensys-backend",
-    }
-    // Add custom claims manually if needed
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-        "sub": user.Email,
-        "role": role,
-        "exp": expirationTime.Unix(),
-        "iss": "essensys-backend",
-    })
-    tokenString, err := token.SignedString(getJWTKey())
+    tokenString, err := GenerateJWT(user.Email, role, expirationTime)
     if err != nil {
+        log.Println("Failed to generate token:", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return
     }
@@ -422,16 +409,11 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     }
 
     // 6. Generate Session JWT
+    // 6. Generate Session JWT
     expirationTime := time.Now().Add(24 * time.Hour)
-    sessionClaims := jwt.MapClaims{
-        "sub": email,
-        "role": role,
-        "exp": expirationTime.Unix(),
-        "iss": "essensys-backend",
-    }
-    sessionToken := jwt.NewWithClaims(jwt.SigningMethodHS256, sessionClaims)
-    tokenString, err := sessionToken.SignedString(getJWTKey())
+    tokenString, err := GenerateJWT(email, role, expirationTime)
     if err != nil {
+        log.Println("Failed to generate token:", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return
     }
