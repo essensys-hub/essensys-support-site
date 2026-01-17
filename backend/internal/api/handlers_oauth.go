@@ -303,17 +303,23 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     }
     defer resp.Body.Close()
 
-    var tokenResp struct {
-        AccessToken string `json:"access_token"`
-        IDToken     string `json:"id_token"`
-        ExpiresIn   int    `json:"expires_in"`
-    }
-    
     bodyBytes, err := io.ReadAll(resp.Body)
     if err != nil {
         log.Printf("Failed to read Apple response body: %v", err)
         http.Redirect(w, req, "/", http.StatusSeeOther)
         return
+    }
+
+    if resp.StatusCode != http.StatusOK {
+        log.Printf("Apple Token Exchange failed. Status: %d, Body: %s", resp.StatusCode, string(bodyBytes))
+        http.Redirect(w, req, "/", http.StatusSeeOther)
+        return
+    }
+
+    var tokenResp struct {
+        AccessToken string `json:"access_token"`
+        IDToken     string `json:"id_token"`
+        ExpiresIn   int    `json:"expires_in"`
     }
 
     if err := json.Unmarshal(bodyBytes, &tokenResp); err != nil {
