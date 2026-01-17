@@ -3,6 +3,8 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Support from './pages/Support';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
 import './App.css';
@@ -15,6 +17,8 @@ function App() {
           <Route index element={<Home />} />
           <Route path="support" element={<Support />} />
           <Route path="admin" element={<Admin />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
           <Route
             path="ios"
             element={
