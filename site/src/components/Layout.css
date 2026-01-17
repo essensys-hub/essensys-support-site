@@ -61,3 +61,40 @@ nav a:hover {
     color: #888;
     font-size: 0.9rem;
 }
+
+/* Auth Buttons in Header */
+.auth-buttons-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-btn-signup {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.nav-btn-signup:hover {
+    color: #ddd;
+}
+
+.nav-btn-login {
+    background-color: #0f172a;
+    /* Dark background */
+    color: white;
+    padding: 8px 24px;
+    border-radius: 9999px;
+    /* Pill shape */
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-btn-login:hover {
+    background-color: #1e293b;
+    transform: scale(1.02);
+}

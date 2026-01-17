@@ -15,11 +15,19 @@ const Layout = () => {
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
-                        <li><Link to="/admin">Admin</Link></li>
-                        <li><Link to="/ios">iOS</Link></li>
-                        <li><Link to="/android">Android</Link></li>
+                        {/* <li><Link to="/admin">Admin</Link></li> Link moved to auth buttons */}
                     </ul>
                 </nav>
+                <div className="auth-buttons-header">
+                    {!localStorage.getItem('adminToken') ? (
+                        <>
+                            <Link to="/register" className="nav-btn-signup">Sign up</Link>
+                            <Link to="/login" className="nav-btn-login">Log in</Link>
+                        </>
+                    ) : (
+                        <Link to="/admin" className="nav-btn-login">Dashboard</Link>
+                    )}
+                </div>
             </header>
             <main className="main-content">
                 <Outlet />
