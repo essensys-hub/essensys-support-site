@@ -15,7 +15,9 @@ const Layout = () => {
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
-                        {/* <li><Link to="/admin">Admin</Link></li> Link moved to auth buttons */}
+                        {localStorage.getItem('adminRole') === 'admin' && (
+                            <li><Link to="/admin">Admin</Link></li>
+                        )}
                     </ul>
                 </nav>
                 <div className="auth-buttons-header">
