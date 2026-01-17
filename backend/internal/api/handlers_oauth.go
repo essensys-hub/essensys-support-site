@@ -265,7 +265,7 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
 
     if req.FormValue("state") != oauthState.Value {
         log.Println("Invalid oauth apple state")
-        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        http.Redirect(w, req, "/", http.StatusSeeOther)
         return
     }
 
@@ -309,9 +309,16 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
         ExpiresIn   int    `json:"expires_in"`
     }
     
-    if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-        log.Printf("Failed to decode Apple token response: %v", err)
-        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+    bodyBytes, err := io.ReadAll(resp.Body)
+    if err != nil {
+        log.Printf("Failed to read Apple response body: %v", err)
+        http.Redirect(w, req, "/", http.StatusSeeOther)
+        return
+    }
+
+    if err := json.Unmarshal(bodyBytes, &tokenResp); err != nil {
+        log.Printf("Failed to decode Apple token response: %v. Body: %s", err, string(bodyBytes))
+        http.Redirect(w, req, "/", http.StatusSeeOther)
         return
     }
 
@@ -324,15 +331,15 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     parser := jwt.Parser{SkipClaimsValidation: true}
     idToken, _, err := parser.ParseUnverified(tokenResp.IDToken, jwt.MapClaims{})
     if err != nil {
-        log.Printf("Failed to parse ID Token: %v", err)
-        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        log.Printf("Failed to parse ID Token: %v. IDToken: %s", err, tokenResp.IDToken)
+        http.Redirect(w, req, "/", http.StatusSeeOther)
         return
     }
 
     claims, ok := idToken.Claims.(jwt.MapClaims)
     if !ok {
          log.Println("Invalid ID Token claims")
-         http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+         http.Redirect(w, req, "/", http.StatusSeeOther)
          return
     }
 
