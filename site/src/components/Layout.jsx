@@ -25,7 +25,19 @@ const Layout = () => {
                             <Link to="/login" className="nav-btn-login">Log in</Link>
                         </>
                     ) : (
-                        <Link to="/admin" className="nav-btn-login">Dashboard</Link>
+                        <div className="user-menu">
+                            <Link to="/admin" className="nav-btn-login">Dashboard</Link>
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('adminToken');
+                                    window.location.reload();
+                                }}
+                                className="nav-btn-logout"
+                                style={{ marginLeft: '10px', background: 'transparent', border: '1px solid white', borderRadius: '20px', padding: '6px 16px', color: 'white', cursor: 'pointer' }}
+                            >
+                                Logout
+                            </button>
+                        </div>
                     )}
                 </div>
             </header>
