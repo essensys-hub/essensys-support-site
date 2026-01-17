@@ -10,7 +10,7 @@ server {
     server_name vps-22806d02.vps.ovh.net test.essensys.fr;
     
     # Root for React App
-    root /home/ubuntu/essensys-frontend;
+    root /opt/essensys/frontend/dist;
     index index.html index.htm;
     
     include /etc/nginx/mime.types;
@@ -62,7 +62,7 @@ server {
     server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr;
     
     # Root for Maintenance Site
-    root /home/ubuntu/essensys-maintenance;
+    root /opt/essensys/maintenance;
     index index.html;
     
     charset utf-8;

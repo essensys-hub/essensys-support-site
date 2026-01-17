@@ -50,6 +50,8 @@ sudo mkdir -p /opt/essensys/frontend/dist
 sudo mkdir -p /opt/essensys/maintenance
 sudo chown -R essensys:essensys /opt/essensys
 
+sudo chmod o+x /home/ubuntu
+
 # 4. Setup PostgreSQL
 echo ">>> Configuring PostgreSQL..."
 if systemctl is-active --quiet postgresql; then

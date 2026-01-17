@@ -25,6 +25,7 @@ cd site
 npm install
 npm run build
 # Deploy to Nginx root
+# Deploy to Nginx root
 TARGET_DIR="/opt/essensys/frontend/dist"
 sudo mkdir -p "$TARGET_DIR"
 sudo rm -rf "$TARGET_DIR"/*
@@ -33,11 +34,11 @@ sudo chown -R essensys:essensys /opt/essensys/frontend
 cd ..
 
 echo ">>> 3b. Deploying Maintenance Site..."
-MAINT_DIR="/opt/essensys/maintenance"
+MAINT_DIR="/home/ubuntu/essensys-maintenance"
 sudo mkdir -p "$MAINT_DIR/assets"
 sudo cp maintenance/index.html "$MAINT_DIR/"
 sudo cp site/src/assets/fond-inprogress.png "$MAINT_DIR/assets/"
-sudo chown -R essensys:essensys /opt/essensys/maintenance
+sudo chown -R ubuntu:ubuntu "$MAINT_DIR"
 
 echo ">>> 4. Updating Service Config & Nginx..."
 sudo cp backend/essensys-backend.service /etc/systemd/system/essensys-backend.service
