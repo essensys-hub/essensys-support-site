@@ -65,7 +65,13 @@ func (r *Router) HandleGoogleLogin(w http.ResponseWriter, req *http.Request) {
 // HandleGoogleCallback handles the callback from Google
 func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) {
     // 1. Verify State
-    oauthState, _ := req.Cookie("oauthstate")
+    oauthState, err := req.Cookie("oauthstate")
+    if err != nil {
+        log.Println("OAuth cookie missing in Google callback")
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
+    }
+
     if req.FormValue("state") != oauthState.Value {
         log.Println("Invalid oauth google state")
         http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
@@ -174,7 +180,15 @@ func generateStateOauthCookie(w http.ResponseWriter) string {
     b := make([]byte, 16)
     rand.Read(b)
     state := base64.URLEncoding.EncodeToString(b)
-    cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration, HttpOnly: true}
+    cookie := http.Cookie{
+        Name:     "oauthstate",
+        Value:    state,
+        Expires:  expiration,
+        HttpOnly: true,
+        Secure:   true,                // Required for SameSite=None
+        SameSite: http.SameSiteNoneMode, // Required for POST callback
+        Path:     "/",
+    }
     http.SetCookie(w, &cookie)
     return state
 }
@@ -242,7 +256,13 @@ func (r *Router) HandleAppleLogin(w http.ResponseWriter, req *http.Request) {
 // Apple sends a POST request to the callback URL
 func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     // 1. Verify State
-    oauthState, _ := req.Cookie("oauthstate")
+    oauthState, err := req.Cookie("oauthstate")
+    if err != nil {
+        log.Printf("OAuth cookie missing in Apple callback. Headers: %v", req.Header)
+        http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+        return
+    }
+
     if req.FormValue("state") != oauthState.Value {
         log.Println("Invalid oauth apple state")
         http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
