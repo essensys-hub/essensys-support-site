@@ -14,6 +14,8 @@ import (
 type UserStore interface {
     CreateUser(u *models.User) error
     GetUserByEmail(email string) (*models.User, error)
+    GetAllUsers() ([]*models.User, error)
+    UpdateUserRole(userID int, role string) error
     UpdateLastLogin(userID int) error
     EnsureTableExists() error
 }
@@ -78,5 +80,18 @@ func (s *PostgresUserStore) GetUserByEmail(email string) (*models.User, error) {
 func (s *PostgresUserStore) UpdateLastLogin(userID int) error {
     query := `UPDATE users SET last_login = $1 WHERE id = $2`
     _, err := s.db.Exec(query, time.Now(), userID)
+    return err
+}
+
+func (s *PostgresUserStore) GetAllUsers() ([]*models.User, error) {
+    var users []*models.User
+    query := `SELECT id, email, role, first_name, last_name, created_at, last_login FROM users ORDER BY created_at DESC`
+    err := s.db.Select(&users, query)
+    return users, err
+}
+
+func (s *PostgresUserStore) UpdateUserRole(userID int, role string) error {
+    query := `UPDATE users SET role = $1 WHERE id = $2`
+    _, err := s.db.Exec(query, role, userID)
     return err
 }

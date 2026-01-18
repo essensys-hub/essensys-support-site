@@ -119,6 +119,11 @@ func main() {
                 r.Put("/admin/newsletters/{id}", apiRouter.HandleUpdateNewsletter)
                 r.Delete("/admin/newsletters/{id}", apiRouter.HandleDeleteNewsletter)
                 r.Post("/admin/newsletters/{id}/send", apiRouter.HandleSendNewsletter)
+
+                // User Management
+                r.Get("/admin/users", apiRouter.HandleAdminGetUsers)
+                r.Post("/admin/users", apiRouter.HandleAdminCreateUser)
+                r.Put("/admin/users/{id}/role", apiRouter.HandleAdminUpdateUserRole)
             })
         })
 	})

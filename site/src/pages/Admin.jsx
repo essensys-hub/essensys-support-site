@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewsletterManager from './NewsletterManager';
+import UserManager from './UserManager';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -157,6 +158,17 @@ const Admin = () => {
     };
 
     if (!isAuthenticated) {
+        if (error) {
+            return (
+                <div style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>
+                    <h3 style={{ color: '#ff4444' }}>Erreur</h3>
+                    <p>{error}</p>
+                    <button onClick={handleLogout} style={{ marginTop: '20px', padding: '10px 20px', cursor: 'pointer' }}>
+                        Retour à la connexion
+                    </button>
+                </div>
+            );
+        }
         return <div style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>Chargement...</div>;
     }
 
@@ -178,6 +190,12 @@ const Admin = () => {
                             style={activeTab === 'newsletters' ? activeTabStyle : inactiveTabStyle}
                         >
                             Newsletters
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('users')}
+                            style={activeTab === 'users' ? activeTabStyle : inactiveTabStyle}
+                        >
+                            Utilisateurs
                         </button>
                     </div>
                     <button onClick={handleLogout} style={{ padding: '5px 10px', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
@@ -354,8 +372,10 @@ const Admin = () => {
                             </div>
                         )}
                     </>
-                ) : (
+                ) : activeTab === 'newsletters' ? (
                     <NewsletterManager token={token} />
+                ) : (
+                    <UserManager token={token} />
                 )}
             </div>
         </div>
