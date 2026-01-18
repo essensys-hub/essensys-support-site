@@ -8,6 +8,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,8 +25,13 @@ const Login = () => {
             const data = await res.json();
 
             if (res.ok) {
-                localStorage.setItem('adminToken', data.token);
-                localStorage.setItem('adminRole', data.user.role);
+                if (rememberMe) {
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminRole', data.user.role);
+                } else {
+                    sessionStorage.setItem('adminToken', data.token);
+                    sessionStorage.setItem('adminRole', data.user.role);
+                }
                 // Redirect to admin
                 navigate('/admin');
             } else {
@@ -70,6 +76,17 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                    </div>
+
+                    <div className="form-group checkbox-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            style={{ width: 'auto' }}
+                        />
+                        <label htmlFor="rememberMe" style={{ marginBottom: 0, cursor: 'pointer' }}>Se souvenir de moi</label>
                     </div>
 
                     <button type="submit" className="auth-btn btn-primary" disabled={loading}>

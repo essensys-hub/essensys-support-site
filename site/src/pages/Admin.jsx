@@ -16,7 +16,11 @@ L.Icon.Default.mergeOptions({
 
 const Admin = () => {
     const navigate = useNavigate();
-    const [token, setToken] = useState(localStorage.getItem('adminToken') || '');
+    // Check both storages
+    const getStoredToken = () => localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken') || '';
+    const getStoredRole = () => localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole');
+
+    const [token, setToken] = useState(getStoredToken());
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [stats, setStats] = React.useState(null);
     const [machines, setMachines] = React.useState([]);
@@ -45,22 +49,32 @@ const Admin = () => {
         const urlRole = params.get('role');
 
         if (urlToken) {
-            localStorage.setItem('adminToken', urlToken);
-            if (urlRole) localStorage.setItem('adminRole', urlRole);
+            // Social Login defaults to LocalStorage currently in handlers, but we can default frontend to session if preferable.
+            // For now, let's keep consistent with existing behavior or allow user to choose?
+            // Actually, backend OAuth redirect logic doesn't know about user preference here.
+            // Let's assume Social Login implies "Remember Me" for now or use session.
+            // The handlers currently redirect with token in query param.
+            // We can default to sessionStorage for safety.
+            sessionStorage.setItem('adminToken', urlToken);
+            if (urlRole) sessionStorage.setItem('adminRole', urlRole);
 
             setToken(urlToken);
             // Clear URL
             window.history.replaceState({}, document.title, window.location.pathname);
             checkRoleAndFetch(urlToken, urlRole);
-        } else if (token) {
-            // Verify token by fetching stats
-            const storedRole = localStorage.getItem('adminRole');
-            checkRoleAndFetch(token, storedRole);
         } else {
-            // Not authenticated, redirect to Login
-            navigate('/login');
+            const t = getStoredToken();
+            if (t) {
+                // Verify token by fetching stats
+                const storedRole = getStoredRole();
+                setToken(t); // Update state if changed
+                checkRoleAndFetch(t, storedRole);
+            } else {
+                // Not authenticated, redirect to Login
+                navigate('/login');
+            }
         }
-    }, [token, navigate]);
+    }, [navigate]);
 
     const checkRoleAndFetch = (authToken, role) => {
         // Frontend Role Check (Fast fail)
@@ -148,6 +162,8 @@ const Admin = () => {
     const handleLogout = () => {
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminRole');
+        sessionStorage.removeItem('adminToken');
+        sessionStorage.removeItem('adminRole');
         setToken('');
         setIsAuthenticated(false);
         setStats(null);

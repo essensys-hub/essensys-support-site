@@ -15,13 +15,13 @@ const Layout = () => {
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
-                        {['admin_global', 'admin_local', 'admin'].includes(localStorage.getItem('adminRole')) && (
+                        {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                             <li><Link to="/admin">Admin</Link></li>
                         )}
                     </ul>
                 </nav>
                 <div className="auth-buttons-header">
-                    {!localStorage.getItem('adminToken') ? (
+                    {!adminToken ? (
                         <>
                             <Link to="/register" className="nav-btn-signup">Sign up</Link>
                             <Link to="/login" className="nav-btn-login">Log in</Link>

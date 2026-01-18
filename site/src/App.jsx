@@ -6,6 +6,7 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
 import './App.css';
@@ -49,6 +50,7 @@ function App() {
           />
         </Route>
       </Routes>
+      <CookieConsent />
     </BrowserRouter>
   );
 }
