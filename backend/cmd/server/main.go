@@ -38,7 +38,7 @@ func main() {
 	dbPass := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 
-    var userStore data.UserStore
+    var auditStore data.AuditStore
 
     // Only connect if DB envs are set (Graceful degradation or Fatal?)
     // For now, let's try to connect if configured.
@@ -50,22 +50,27 @@ func main() {
         if err != nil {
              log.Printf("WARNING: Failed to connect to database: %v. User Registration will fail.", err)
              userStore = &data.PostgresUserStore{} // Empty struct or nil handling? 
-             // Ideally we should fail or have a mock. 
-             // Let's create a partial store that returns errors if DB is nil.
+             auditStore = &data.PostgresAuditStore{}
         } else {
              log.Println("Connected to PostgreSQL")
-             store := data.NewPostgresUserStore(db)
-             if err := store.EnsureTableExists(); err != nil {
+             uStore := data.NewPostgresUserStore(db)
+             if err := uStore.EnsureTableExists(); err != nil {
                  log.Fatalf("Failed to init user table: %v", err)
              }
-             userStore = store
+             userStore = uStore
+
+             aStore := data.NewPostgresAuditStore(db)
+             if err := aStore.EnsureTableExists(); err != nil {
+                 log.Fatalf("Failed to init audit table: %v", err)
+             }
+             auditStore = aStore
         }
     } else {
         log.Println("WARNING: DB configuration missing. User Store disable.")
     }
 
 	// 3. API Routes with Auth
-	apiRouter := api.NewRouter(store, userStore)
+	apiRouter := api.NewRouter(store, userStore, auditStore)
 	
 	r.Route("/api", func(r chi.Router) {
         // 1a. IoT Routes - Strict Auth
@@ -95,6 +100,7 @@ func main() {
             // Email Auth
             r.Post("/auth/register", apiRouter.HandleRegister)
             r.Post("/auth/login", apiRouter.HandleLogin)
+            r.Post("/auth/logout", apiRouter.HandleLogout) // New
             
             // Apple OAuth
             r.Get("/auth/apple/login", apiRouter.HandleAppleLogin)
@@ -115,6 +121,7 @@ func main() {
             r.Group(func(r chi.Router) {
                 r.Use(middleware.AdminTokenMiddleware)
                 r.Get("/admin/stats", apiRouter.HandleAdminStats)
+                r.Get("/admin/audit", apiRouter.HandleGetAuditLogs) // New
                 r.Get("/admin/machines", apiRouter.HandleAdminMachines)
                 r.Get("/admin/gateways", apiRouter.HandleAdminGateways)
                 r.Get("/admin/subscribers", apiRouter.HandleAdminSubscribers)

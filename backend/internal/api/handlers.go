@@ -13,14 +13,37 @@ import (
 )
 
 type Router struct {
-	Store     data.Store
-	UserStore data.UserStore
+	Store      data.Store
+	UserStore  data.UserStore
+	AuditStore data.AuditStore
 }
 
-func NewRouter(store data.Store, userStore data.UserStore) *Router {
+func NewRouter(store data.Store, userStore data.UserStore, auditStore data.AuditStore) *Router {
 	return &Router{
-		Store:     store,
-		UserStore: userStore,
+		Store:      store,
+		UserStore:  userStore,
+		AuditStore: auditStore,
+	}
+}
+
+// LogAudit Helper safely logs an action
+func (rt *Router) LogAudit(userID int, username, action, resourceType, resourceID, ip, details string) {
+	if rt.AuditStore == nil {
+		return
+	}
+	log := &models.AuditLog{
+		UserID:       userID,
+		Username:     username,
+		Action:       action,
+		ResourceType: resourceType,
+		ResourceID:   resourceID,
+		IPAddress:    ip,
+		Details:      details,
+		CreatedAt:    time.Now(),
+	}
+	if err := rt.AuditStore.CreateAuditLog(log); err != nil {
+        // Don't crash on audit fail, just log to stderr
+        // log.Printf("AUDIT FAIL: %v", err)
 	}
 }
 

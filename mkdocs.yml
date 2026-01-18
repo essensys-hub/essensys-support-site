@@ -11,4 +11,5 @@ nav:
     - User Profile & Devices: features.md
     - Authentication: authentication.md
     - Roles & Permissions: roles_matrix.md
+    - Audit Trail: audit_trail.md
   - Configuration: configuration.md

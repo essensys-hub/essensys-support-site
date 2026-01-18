@@ -24,12 +24,13 @@ const Admin = () => {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [stats, setStats] = React.useState(null);
     const [machines, setMachines] = React.useState([]);
-    const [gateways, setGateways] = React.useState([]); // Added
+    const [gateways, setGateways] = React.useState([]);
     const [subscribers, setSubscribers] = React.useState([]);
+    const [logs, setLogs] = React.useState([]); // Audit Logs
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
-    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'newsletters'
+    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'newsletters', 'users', 'audit'
 
     // Gateway Icon
     const gatewayIcon = new L.Icon({
@@ -96,16 +97,33 @@ const Admin = () => {
                 setIsAuthenticated(true);
                 // Also fetch lists immediately
                 fetchMachinesInternal(authToken);
-                fetchGatewaysInternal(authToken); // Added
+                fetchGatewaysInternal(authToken);
                 fetchSubscribers(authToken);
+                // fetchUsers(authToken); // Assuming fetchUsers is defined elsewhere or will be added
+                fetchLogs(authToken);
             } else {
-                // Token invalid
                 // Token invalid
                 handleLogout();
             }
         } catch (err) {
-            console.error("Failed to fetch stats", err);
-            handleLogout(); // API error might mean invalid token too
+            console.error("Fetch Error:", err);
+            setError("Erreur chargement données.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchLogs = async (authToken) => {
+        try {
+            const res = await fetch('/api/admin/audit?limit=100', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setLogs(data);
+            }
+        } catch (error) {
+            console.error("Audit Logs fetch failed", error);
         }
     };
 
@@ -212,6 +230,12 @@ const Admin = () => {
                             style={activeTab === 'users' ? activeTabStyle : inactiveTabStyle}
                         >
                             Utilisateurs
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('audit')}
+                            style={activeTab === 'audit' ? activeTabStyle : inactiveTabStyle}
+                        >
+                            Audit Trail
                         </button>
                     </div>
                     <button onClick={handleLogout} style={{ padding: '5px 10px', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
@@ -390,8 +414,49 @@ const Admin = () => {
                     </>
                 ) : activeTab === 'newsletters' ? (
                     <NewsletterManager token={token} />
-                ) : (
+                ) : activeTab === 'users' ? (
                     <UserManager token={token} />
+                ) : activeTab === 'audit' && (
+                    <div className="admin-section">
+                        <h3>Audit Trail / Journaux d'activité</h3>
+                        <div className="table-container">
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Utilisateur (Email)</th>
+                                        <th>Action</th>
+                                        <th>Type</th>
+                                        <th>Détails</th>
+                                        <th>IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {logs.length === 0 ? (
+                                        <tr><td colSpan="6">Aucun log trouvé.</td></tr>
+                                    ) : (
+                                        logs.map((log) => (
+                                            <tr key={log.id}>
+                                                <td>{new Date(log.created_at).toLocaleString()}</td>
+                                                <td>
+                                                    <div style={{ fontWeight: 'bold' }}>{log.username}</div>
+                                                    <div style={{ fontSize: '0.8em', color: '#888' }}>ID: {log.user_id}</div>
+                                                </td>
+                                                <td>
+                                                    <span className={`status-badge ${log.action.includes('FAIL') ? 'offline' : 'online'}`}>
+                                                        {log.action}
+                                                    </span>
+                                                </td>
+                                                <td>{log.resource_type}</td>
+                                                <td style={{ maxWidth: '300px', wordWrap: 'break-word' }}>{log.details}</td>
+                                                <td>{log.ip_address}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

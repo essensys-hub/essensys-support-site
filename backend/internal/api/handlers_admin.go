@@ -198,6 +198,10 @@ func (rt *Router) HandleAdminUpdateUserRole(w http.ResponseWriter, r *http.Reque
         return
     }
 
+    // Audit Log
+    detail := "Updated role for user " + idStr + " to " + req.Role
+    rt.LogAudit(currentUser.ID, currentUser.Email, "UPDATE_ROLE", "USER", idStr, getIP(r), detail)
+
     w.WriteHeader(http.StatusOK)
 }
 
@@ -206,6 +210,16 @@ func (rt *Router) HandleAdminCreateUser(w http.ResponseWriter, r *http.Request) 
     if rt.UserStore == nil {
         http.Error(w, "User Store not initialized", http.StatusServiceUnavailable)
         return
+    }
+
+    // Get Current Admin for Audit
+    // Assuming context has valid user email from middleware
+    adminEmail, _ := r.Context().Value("user_email").(string)
+    adminID := 0
+    if adminEmail != "" {
+        if u, err := rt.UserStore.GetUserByEmail(adminEmail); err == nil && u != nil {
+            adminID = u.ID
+        }
     }
 
     var req models.RegisterRequest
@@ -259,6 +273,9 @@ func (rt *Router) HandleAdminCreateUser(w http.ResponseWriter, r *http.Request) 
         http.Error(w, "Failed to create user", http.StatusInternalServerError)
         return
     }
+
+    // Audit Log
+    rt.LogAudit(adminID, adminEmail, "CREATE_USER", "USER", user.Email, getIP(r), "Created user by admin")
 
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(map[string]string{"message": "User created successfully"})
