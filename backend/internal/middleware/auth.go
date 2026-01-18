@@ -189,6 +189,35 @@ func AdminTokenMiddleware(next http.Handler) http.Handler {
         log.Printf("Unauthorized Admin Access Attempt. Token: %s...", tokenStr[:min(10, len(tokenStr))])
 		http.Error(w, "Unauthorized Admin Access", http.StatusUnauthorized)
 	})
+        log.Printf("Unauthorized Admin Access Attempt. Token: %s...", tokenStr[:min(10, len(tokenStr))])
+		http.Error(w, "Unauthorized Admin Access", http.StatusUnauthorized)
+	})
+}
+
+// UserTokenMiddleware validates that a user is logged in (any role)
+func UserTokenMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tokenStr := r.Header.Get("Authorization")
+		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
+        
+        if tokenStr == "" {
+            http.Error(w, "Unauthorized", http.StatusUnauthorized)
+            return
+        }
+
+        token, err := jwt.Parse(tokenStr, JWTKeyFunc)
+        if err == nil && token.Valid {
+            if claims, ok := token.Claims.(jwt.MapClaims); ok {
+                if sub, ok := claims["sub"].(string); ok {
+                    ctx := context.WithValue(r.Context(), "user_email", sub)
+                    next.ServeHTTP(w, r.WithContext(ctx))
+                    return
+                }
+            }
+        }
+
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	})
 }
 
 func min(a, b int) int {

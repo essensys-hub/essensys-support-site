@@ -103,12 +103,20 @@ func main() {
             // Public Login endpoint (checks token in body - Legacy)
             r.Post("/admin/login", apiRouter.HandleAdminLogin)
             
+            // 3. User Profile Routes (Any Logged In User)
+            r.Group(func(r chi.Router) {
+                r.Use(middleware.UserTokenMiddleware)
+                r.Get("/profile", apiRouter.HandleGetProfile)
+                r.Get("/devices/nearby", apiRouter.HandleGetNearbyDevices)
+                r.Put("/profile/links", apiRouter.HandleUpdateProfileLinks)
+            })
+            
             // Protected Admin endpoints
             r.Group(func(r chi.Router) {
                 r.Use(middleware.AdminTokenMiddleware)
                 r.Get("/admin/stats", apiRouter.HandleAdminStats)
                 r.Get("/admin/machines", apiRouter.HandleAdminMachines)
-                r.Get("/admin/gateways", apiRouter.HandleAdminGateways) // Added
+                r.Get("/admin/gateways", apiRouter.HandleAdminGateways)
                 r.Get("/admin/subscribers", apiRouter.HandleAdminSubscribers)
                 r.Post("/admin/subscribers", apiRouter.HandleAdminAddSubscriber)
                 r.Delete("/admin/subscribers", apiRouter.HandleDeleteSubscriber)
@@ -124,6 +132,7 @@ func main() {
                 r.Get("/admin/users", apiRouter.HandleAdminGetUsers)
                 r.Post("/admin/users", apiRouter.HandleAdminCreateUser)
                 r.Put("/admin/users/{id}/role", apiRouter.HandleAdminUpdateUserRole)
+                r.Put("/admin/users/{id}/links", apiRouter.HandleAdminUpdateUserLinks)
             })
         })
 	})

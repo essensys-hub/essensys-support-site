@@ -5,6 +5,7 @@ import Support from './pages/Support';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
 import './App.css';
@@ -19,6 +20,7 @@ function App() {
           <Route path="admin" element={<Admin />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="profile" element={<Profile />} />
           <Route
             path="ios"
             element={

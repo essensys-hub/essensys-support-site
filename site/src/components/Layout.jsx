@@ -28,7 +28,10 @@ const Layout = () => {
                         </>
                     ) : (
                         <div className="user-menu">
-                            <Link to="/admin" className="nav-btn-login">Dashboard</Link>
+                            <Link to="/profile" className="nav-btn-login" style={{ marginRight: '10px' }}>Profil</Link>
+                            {localStorage.getItem('adminRole') === 'admin' && (
+                                <Link to="/admin" className="nav-btn-login">Dashboard</Link>
+                            )}
                             <button
                                 onClick={() => {
                                     localStorage.removeItem('adminToken');

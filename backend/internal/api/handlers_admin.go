@@ -62,6 +62,19 @@ func (rt *Router) HandleAdminMachines(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(machines)
 }
 
+// GET /api/admin/gateways
+func (rt *Router) HandleAdminGateways(w http.ResponseWriter, r *http.Request) {
+    gateways, err := rt.Store.GetGateways()
+    if err != nil {
+        log.Printf("[API] Failed to get gateways: %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(gateways)
+}
+
 // GET /api/admin/users
 func (rt *Router) HandleAdminGetUsers(w http.ResponseWriter, r *http.Request) {
     if rt.UserStore == nil {
@@ -175,6 +188,39 @@ func (rt *Router) HandleAdminCreateUser(w http.ResponseWriter, r *http.Request) 
         return
     }
 
-    w.WriteHeader(http.StatusCreated)
+    w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(map[string]string{"message": "User created successfully"})
+}
+
+// PUT /api/admin/users/{id}/links
+func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Request) {
+    if rt.UserStore == nil {
+        http.Error(w, "User Store not initialized", http.StatusServiceUnavailable)
+        return
+    }
+
+    idStr := chi.URLParam(r, "id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        http.Error(w, "Invalid User ID", http.StatusBadRequest)
+        return
+    }
+
+    var req struct {
+        MachineID *int    `json:"linked_machine_id"`
+        GatewayID *string `json:"linked_gateway_id"`
+    }
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Bad Request", http.StatusBadRequest)
+        return
+    }
+
+    // Admins can link whatever they want, no IP check
+    if err := rt.UserStore.UpdateUserLinks(id, req.MachineID, req.GatewayID); err != nil {
+        log.Printf("[API] Failed to update user links (Admin): %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
 }

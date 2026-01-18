@@ -30,6 +30,10 @@ type User struct {
 	ProviderID   string    `db:"provider_id" json:"-"`
 	CreatedAt    time.Time `db:"created_at" json:"created_at"`
 	LastLogin    time.Time `db:"last_login" json:"last_login"`
+    
+    // Linked Devices
+    LinkedMachineID *int    `db:"linked_machine_id" json:"linked_machine_id"`
+    LinkedGatewayID *string `db:"linked_gateway_id" json:"linked_gateway_id"`
 }
 
 // RegisterRequest for email registration
@@ -54,4 +58,8 @@ type UserResponse struct {
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Provider  string    `json:"provider"`
+    
+    // Linked Devices
+    LinkedMachineID *int    `json:"linked_machine_id"`
+    LinkedGatewayID *string `json:"linked_gateway_id"`
 }
