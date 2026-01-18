@@ -189,9 +189,7 @@ func AdminTokenMiddleware(next http.Handler) http.Handler {
         log.Printf("Unauthorized Admin Access Attempt. Token: %s...", tokenStr[:min(10, len(tokenStr))])
 		http.Error(w, "Unauthorized Admin Access", http.StatusUnauthorized)
 	})
-        log.Printf("Unauthorized Admin Access Attempt. Token: %s...", tokenStr[:min(10, len(tokenStr))])
-		http.Error(w, "Unauthorized Admin Access", http.StatusUnauthorized)
-	})
+
 }
 
 // UserTokenMiddleware validates that a user is logged in (any role)
