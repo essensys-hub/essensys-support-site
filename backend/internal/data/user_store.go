@@ -111,3 +111,17 @@ func (s *PostgresUserStore) UpdateUserLinks(userID int, machineID *int, gatewayI
     _, err := s.db.Exec(query, machineID, gatewayID, userID)
     return err
 }
+
+func (s *PostgresUserStore) GetUsersByMachineID(machineID int) ([]*models.User, error) {
+    var users []*models.User
+    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id FROM users WHERE linked_machine_id = $1 ORDER BY created_at DESC`
+    err := s.db.Select(&users, query, machineID)
+    return users, err
+}
+
+func (s *PostgresUserStore) HasLocalAdmin(machineID int) (bool, error) {
+    var count int
+    query := `SELECT count(*) FROM users WHERE linked_machine_id = $1 AND role = $2`
+    err := s.db.Get(&count, query, machineID, models.RoleAdminLocal)
+    return count > 0, err
+}

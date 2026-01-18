@@ -113,7 +113,7 @@ func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) 
         // Check if admin based on env list
         isAdmin := r.IsAdminEmail(user.Email, os.Getenv("ADMIN_EMAILS"))
         if isAdmin {
-            role = models.RoleAdmin
+            role = models.RoleAdminGlobal
         } else {
             role = models.RoleUser
         }
@@ -383,7 +383,7 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
          // Create User
          isAdmin := r.IsAdminEmail(email, os.Getenv("ADMIN_EMAILS"))
          if isAdmin {
-             role = models.RoleAdmin
+             role = models.RoleAdminGlobal
          } else {
              role = models.RoleUser
          }

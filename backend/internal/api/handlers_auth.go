@@ -44,12 +44,22 @@ func (router *Router) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Initialize User Structure
+	user := &models.User{
+		Email:        req.Email,
+		PasswordHash: string(hashedPassword),
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		Provider:     models.ProviderEmail,
+		CreatedAt:    time.Now(),
+		LastLogin:    time.Now(),
+	}
+
 	// Determine Role and Links
 	role := models.RoleGuestLocal // Default
     
     // Auto-Link Logic based on IP
     userIP := getIP(r)
-    // userIP := "88.124.210.27" // DEBUG
     
     machines, err := router.Store.GetMachines()
     if err == nil {
@@ -65,7 +75,7 @@ func (router *Router) HandleRegister(w http.ResponseWriter, r *http.Request) {
                 } else {
                     log.Printf("[Register] User joined machine %d as GuestLocal.", m.ID)
                 }
-                break // Only link to first matching machine (usually 1 per IP)
+                break // Only link to first matching machine
             }
         }
     }
