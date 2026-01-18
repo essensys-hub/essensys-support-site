@@ -1,155 +1,146 @@
-.catalog-container {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    color: var(--text-color, #333);
-}
+/* Catalog.css - Adapted from essensys-server-frontend/src/index.css */
 
-.catalog-header {
-    text-align: center;
-    margin-bottom: 3rem;
+.catalog-container {
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, Verdana, sans-serif;
+    font-size: 14px;
+    color: #333;
+    padding: 20px;
+    background-color: #F8F8F8;
 }
 
 .catalog-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color, #007bff);
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
 }
 
 .catalog-meta {
+    text-align: center;
+    font-style: italic;
+    font-size: 12px;
     color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
+}
+
+/* --- Dashboard Specific Styles --- */
+
+.esys-zone {
+    margin-bottom: 20px;
+    overflow: hidden;
+    padding: 5px;
+    margin-left: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    border: solid 1px #DDD;
+    box-shadow: 2px 2px 3px #AAA;
+}
+
+.esys-zone h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.esys-validinfo {
+    padding: 5px;
+    width: auto;
+}
+
+.esys-validinfo div.clear {
+    margin-bottom: 5px;
+    overflow: hidden;
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.esys-validinfo label {
+    text-align: left;
+    white-space: nowrap;
+    float: left;
+    font-size: 14px;
+    width: 220px;
+    margin-right: 20px;
+    display: inline-block;
+}
+
+/* Buttons mimicking inputs[type=button] */
+.mock-button {
+    font-size: 14px;
+    color: White;
+    line-height: 24px;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    padding: 5px 15px;
+    background-color: #00CCFF;
+    /* Calculated from bgbutton.png base color or .bluebutton */
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.mock-button.red {
+    background-color: #CC0000;
+}
+
+/* Radio button simulation for displaying values */
+.value-display {
+    float: left;
+}
+
+.value-item {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.value-item span.code {
+    font-family: monospace;
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #555;
+    font-size: 12px;
+}
+
+/* Layout helpers */
+.clear {
+    clear: both;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+/* Category Headers as Zone Dividers */
+.category-divider {
+    font-size: 20px;
+    color: #00CCFF;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    padding-left: 20px;
+    border-bottom: 2px solid #00CCFF;
+    padding-bottom: 5px;
+}
+
+/* Search Bar styling match */
+.search-bar {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .search-bar input {
-    width: 100%;
-    max-width: 500px;
-    padding: 12px 20px;
-    border: 1px solid #ddd;
-    border-radius: 25px;
-    font-size: 1rem;
-    transition: box-shadow 0.3s ease;
-}
-
-.search-bar input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-    border-color: var(--primary-color, #007bff);
-}
-
-.catalog-category {
-    margin-bottom: 3rem;
-}
-
-.catalog-category h2 {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    color: var(--heading-color, #222);
-}
-
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.action-card {
-    background: var(--card-bg, #fff);
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.action-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.action-header h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: var(--primary-color, #007bff);
-}
-
-.action-description {
-    line-height: 1.5;
-    margin-bottom: 1.5rem;
-    color: #555;
-}
-
-.action-values h4 {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    color: #888;
-    margin-bottom: 0.5rem;
-}
-
-.action-values ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.action-values li {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    border-bottom: 1px dashed #eee;
-    font-size: 0.9rem;
-}
-
-.action-values li:last-child {
-    border-bottom: none;
-}
-
-.value-label {
-    font-weight: 500;
-}
-
-.value-code {
-    font-family: monospace;
-    background: #f5f5f5;
-    padding: 2px 6px;
+    border: solid 2px #DDD;
     border-radius: 4px;
-    color: #d63384;
-}
-
-.catalog-footer {
-    text-align: center;
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 1px solid #eee;
-    color: #888;
-}
-
-/* Dark mode adjustments if applicable */
-@media (prefers-color-scheme: dark) {
-    .action-card {
-        background: #2a2a2a;
-        border-color: #444;
-    }
-
-    .action-values li {
-        border-bottom-color: #444;
-    }
-
-    .value-code {
-        background: #333;
-        color: #ff79c6;
-    }
-
-    .catalog-header h1,
-    .catalog-category h2 {
-        color: #fff;
-    }
-
-    .catalog-meta,
-    .action-description,
-    .catalog-footer {
-        color: #ccc;
-    }
+    width: 290px;
+    line-height: 20px;
+    padding: 5px;
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, Verdana, sans-serif;
+    color: #666;
 }
