@@ -4,6 +4,7 @@ import './Layout.css';
 import logo from '../assets/logosml.png';
 
 const Layout = () => {
+    // Check for admin token in both storages
     const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
     const adminRole = localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole');
 
@@ -53,7 +54,7 @@ const Layout = () => {
                 <Outlet />
             </main>
             <footer className="main-footer">
-                <p>© 2026 Projet Communautaire Essensys | <Link to="/roles" style={{ color: '#aaa', textDecoration: 'none' }}>Définition des Rôles</Link></p>
+                <p>© 2026 Projet Communautaire Essensys</p>
             </footer>
         </div>
     );

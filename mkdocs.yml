@@ -10,4 +10,5 @@ nav:
   - Features:
     - User Profile & Devices: features.md
     - Authentication: authentication.md
+    - Roles & Permissions: roles_matrix.md
   - Configuration: configuration.md
