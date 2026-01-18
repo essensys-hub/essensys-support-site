@@ -182,6 +182,7 @@ const Admin = () => {
         localStorage.removeItem('adminRole');
         sessionStorage.removeItem('adminToken');
         sessionStorage.removeItem('adminRole');
+        window.dispatchEvent(new Event('auth-change'));
         setToken('');
         setIsAuthenticated(false);
         setStats(null);

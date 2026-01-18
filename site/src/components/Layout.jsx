@@ -5,8 +5,23 @@ import logo from '../assets/logosml.png';
 
 const Layout = ({ children }) => {
     // Check for admin token in both storages
-    const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
-    const adminRole = localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole');
+    const [adminToken, setAdminToken] = React.useState(localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken'));
+    const [adminRole, setAdminRole] = React.useState(localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole'));
+
+    React.useEffect(() => {
+        const handleAuthChange = () => {
+            setAdminToken(localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken'));
+            setAdminRole(localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole'));
+        };
+
+        window.addEventListener('auth-change', handleAuthChange);
+        window.addEventListener('storage', handleAuthChange); // Also listen to cross-tab storage changes
+
+        return () => {
+            window.removeEventListener('auth-change', handleAuthChange);
+            window.removeEventListener('storage', handleAuthChange);
+        };
+    }, []);
 
     return (
         <div className="layout-container">
@@ -33,7 +48,7 @@ const Layout = ({ children }) => {
                     ) : (
                         <div className="user-menu">
                             <Link to="/profile" className="nav-btn-login" style={{ marginRight: '10px' }}>Profil</Link>
-                            {['admin_global', 'admin_local', 'admin'].includes(localStorage.getItem('adminRole')) && (
+                            {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                                 <Link to="/admin" className="nav-btn-login">Dashboard</Link>
                             )}
                             <button
@@ -42,6 +57,7 @@ const Layout = ({ children }) => {
                                     localStorage.removeItem('adminRole');
                                     sessionStorage.removeItem('adminToken');
                                     sessionStorage.removeItem('adminRole');
+                                    window.dispatchEvent(new Event('auth-change'));
                                     window.location.reload();
                                 }}
                                 className="nav-btn-logout"
@@ -62,5 +78,4 @@ const Layout = ({ children }) => {
         </div >
     );
 };
-
 export default Layout;

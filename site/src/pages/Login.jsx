@@ -32,6 +32,9 @@ const Login = () => {
                     sessionStorage.setItem('adminToken', data.token);
                     sessionStorage.setItem('adminRole', data.user.role);
                 }
+                // Dispatch event to notify Layout
+                window.dispatchEvent(new Event('auth-change'));
+
                 // Redirect to admin
                 navigate('/admin');
             } else {
