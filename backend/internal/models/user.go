@@ -5,11 +5,13 @@ import (
 )
 
 // User Roles
+const (
 	RoleAdminGlobal = "admin_global" // Super Admin
 	RoleAdminLocal  = "admin_local"  // Machine Admin
 	RoleUser        = "user"         // Standard User
 	RoleGuestLocal  = "guest_local"  // Read-only Guest (Default)
     RoleSupport     = "support"      // Global Support (unchanged)
+)
 
 // Auth Providers
 const (
