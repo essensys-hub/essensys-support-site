@@ -64,7 +64,7 @@ const Admin = () => {
 
     const checkRoleAndFetch = (authToken, role) => {
         // Frontend Role Check (Fast fail)
-        if (role && role !== 'admin' && role !== 'support') {
+        if (role && !['admin', 'support', 'admin_global', 'admin_local'].includes(role)) {
             setError("Accès refusé. Vous n'avez pas les droits d'administrateur.");
             return;
         }
