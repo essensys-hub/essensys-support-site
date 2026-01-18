@@ -6,6 +6,7 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import RolesMatrix from './pages/RolesMatrix';
 import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
@@ -22,6 +23,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="roles" element={<RolesMatrix />} /> {/* Added route for RolesMatrix */}
           <Route
             path="ios"
             element={
