@@ -59,7 +59,7 @@ server {
 # Serves: Maintenance Page + API for Legacy Devices
 server {
     listen 80;
-    server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr;
+    server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr essensys.fr;
     
     # Root for Maintenance Site
     root /opt/essensys/maintenance;
