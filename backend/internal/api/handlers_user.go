@@ -9,6 +9,8 @@ import (
 
 
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
+    "golang.org/x/crypto/bcrypt"
+    "time"
 )
 
 // Helper to get IP from request (handling proxies)
@@ -200,4 +202,134 @@ func (rt *Router) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(resp)
+}
+
+// PUT /api/profile
+func (rt *Router) HandleUpdateProfile(w http.ResponseWriter, r *http.Request) {
+    if rt.UserStore == nil {
+        http.Error(w, "User Store not initialized", http.StatusServiceUnavailable)
+        return
+    }
+
+    emailVal := r.Context().Value("user_email")
+    if emailVal == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    email := emailVal.(string)
+    user, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || user == nil {
+        http.Error(w, "User not found", http.StatusNotFound)
+        return
+    }
+
+    var req struct {
+        FirstName string `json:"first_name"`
+        LastName  string `json:"last_name"`
+        Password  string `json:"password"` // Optional
+    }
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Bad Request", http.StatusBadRequest)
+        return
+    }
+
+    // Logic: Update fields if provided
+    // If password provided, hash it.
+    hash := ""
+    if req.Password != "" {
+        hashedBytes, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+        if err != nil {
+             http.Error(w, "Server Error", http.StatusInternalServerError)
+             return
+        }
+        hash = string(hashedBytes)
+    }
+
+    if err := rt.UserStore.UpdateUser(user.ID, req.FirstName, req.LastName, hash); err != nil {
+        log.Printf("[API] Failed to update user profile: %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+    
+    // Audit
+    rt.LogAudit(user.ID, email, "UPDATE_PROFILE", "USER", email, getIP(r), "Updated personal details")
+
+    w.WriteHeader(http.StatusOK)
+}
+
+// DELETE /api/profile
+func (rt *Router) HandleDeleteProfile(w http.ResponseWriter, r *http.Request) {
+    if rt.UserStore == nil {
+        http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
+        return
+    }
+    emailVal := r.Context().Value("user_email")
+    if emailVal == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    email := emailVal.(string)
+    user, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || user == nil {
+        http.Error(w, "User not found", http.StatusNotFound)
+        return
+    }
+
+    if err := rt.UserStore.DeleteUser(user.ID); err != nil {
+        log.Printf("[API] Failed to delete user: %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+    
+    // Audit (Note: logging action for a deleted user ID might be tricky if reporting relies on User existence, but Audit table stores snapshotted username)
+    rt.LogAudit(user.ID, email, "DELETE_PROFILE", "USER", email, getIP(r), "User deleted their own account")
+
+    w.WriteHeader(http.StatusOK)
+}
+
+// GET /api/profile/export
+func (rt *Router) HandleExportProfile(w http.ResponseWriter, r *http.Request) {
+    if rt.UserStore == nil {
+         http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
+         return
+    }
+    emailVal := r.Context().Value("user_email")
+    if emailVal == nil {
+         http.Error(w, "Unauthorized", http.StatusUnauthorized)
+         return
+    }
+    email := emailVal.(string)
+    user, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || user == nil {
+         http.Error(w, "User not found", http.StatusNotFound)
+         return
+    }
+
+    // 1. Get User Data
+    // 2. Get Audit Logs for User
+    logs := []*models.AuditLog{}
+    if rt.AuditStore != nil {
+        filter := models.AuditFilter{UserID: user.ID, Limit: 1000, Offset: 0}
+        l, _ := rt.AuditStore.GetAuditLogs(filter)
+        if l != nil {
+            logs = l
+        }
+    }
+    
+    export := struct {
+        User      *models.User       `json:"user_profile"`
+        AuditLogs []*models.AuditLog `json:"audit_history"`
+        ExportedAt time.Time         `json:"exported_at"`
+    }{
+        User: user,
+        AuditLogs: logs,
+        ExportedAt: time.Now(),
+    }
+    
+    // Send as file download
+    w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Content-Disposition", "attachment; filename=\"essensys_export.json\"")
+    json.NewEncoder(w).Encode(export)
+    
+    rt.LogAudit(user.ID, email, "EXPORT_DATA", "USER", email, getIP(r), "Exported personal data")
 }

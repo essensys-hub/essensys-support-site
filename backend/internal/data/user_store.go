@@ -21,6 +21,8 @@ type UserStore interface {
     EnsureTableExists() error
     GetUsersByMachineID(machineID int) ([]*models.User, error)
     HasLocalAdmin(machineID int) (bool, error)
+    UpdateUser(userID int, firstName, lastName, passwordHash string) error
+    DeleteUser(userID int) error
 }
 
 type PostgresUserStore struct {
@@ -124,4 +126,27 @@ func (s *PostgresUserStore) HasLocalAdmin(machineID int) (bool, error) {
     query := `SELECT count(*) FROM users WHERE linked_machine_id = $1 AND role = $2`
     err := s.db.Get(&count, query, machineID, models.RoleAdminLocal)
     return count > 0, err
+}
+
+func (s *PostgresUserStore) UpdateUser(userID int, firstName, lastName, passwordHash string) error {
+    if passwordHash != "" {
+        query := `UPDATE users SET first_name = $1, last_name = $2, password_hash = $3 WHERE id = $4`
+        _, err := s.db.Exec(query, firstName, lastName, passwordHash, userID)
+        return err
+    }
+    query := `UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3`
+    _, err := s.db.Exec(query, firstName, lastName, userID)
+    return err
+}
+
+func (s *PostgresUserStore) DeleteUser(userID int) error {
+    // Hard delete or Soft delete? GDPR Right to Erasure usually implies hard delete or anonymization.
+    // We will do hard delete. Linked audit logs might constrain this via FK?
+    // Audit logs user_id is NOT a foreign key in schema (Step 1065 check: `user_id INT NOT NULL`, no REFERENCES).
+    // So hard delete of user works, audit logs remain but pointing to ID.
+    // Ideally we should maybe anonymize audit logs too, but keeping them for security/traceability is often a permitted exception (balance of interests).
+    // Let's just delete the user.
+    query := `DELETE FROM users WHERE id = $1`
+    _, err := s.db.Exec(query, userID)
+    return err
 }

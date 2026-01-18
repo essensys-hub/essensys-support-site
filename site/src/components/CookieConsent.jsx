@@ -29,7 +29,8 @@ const CookieConsent = () => {
         <div style={styles.banner}>
             <div style={styles.content}>
                 <p style={{ margin: 0 }}>
-                    Nous utilisons des cookies pour améliorer votre expérience (connexion persistante).
+                    Nous utilisons des cookies pour améliorer votre expérience.
+                    <a href="/privacy" style={{ color: '#00C9FF', marginLeft: '5px' }}>En savoir plus</a>
                 </p>
                 <div style={styles.buttons}>
                     <button onClick={handleDecline} style={styles.declineBtn}>Refuser</button>

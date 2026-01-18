@@ -114,6 +114,9 @@ func main() {
             r.Group(func(r chi.Router) {
                 r.Use(middleware.UserTokenMiddleware)
                 r.Get("/profile", apiRouter.HandleGetProfile)
+                r.Put("/profile", apiRouter.HandleUpdateProfile) // Edit
+                r.Delete("/profile", apiRouter.HandleDeleteProfile) // Delete
+                r.Get("/profile/export", apiRouter.HandleExportProfile) // Export
                 r.Get("/devices/nearby", apiRouter.HandleGetNearbyDevices)
                 r.Put("/profile/links", apiRouter.HandleUpdateProfileLinks)
             })

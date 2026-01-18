@@ -173,6 +173,118 @@ const Profile = () => {
 
                 <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
 
+                <h3 style={{ textAlign: 'left' }}>Modifier mes informations</h3>
+                <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                    <div className="form-group">
+                        <label>Prénom</label>
+                        <input
+                            type="text"
+                            defaultValue={profile.first_name}
+                            id="edit-firstname"
+                            style={{ width: '100%', padding: '10px', background: '#333', border: '1px solid #555', color: 'white', borderRadius: '4px' }}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Nom</label>
+                        <input
+                            type="text"
+                            defaultValue={profile.last_name}
+                            id="edit-lastname"
+                            style={{ width: '100%', padding: '10px', background: '#333', border: '1px solid #555', color: 'white', borderRadius: '4px' }}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Nouveau Mot de passe (laisser vide pour ne pas changer)</label>
+                        <input
+                            type="password"
+                            id="edit-password"
+                            placeholder="********"
+                            style={{ width: '100%', padding: '10px', background: '#333', border: '1px solid #555', color: 'white', borderRadius: '4px' }}
+                        />
+                    </div>
+                    <button onClick={async () => {
+                        const firstName = document.getElementById('edit-firstname').value;
+                        const lastName = document.getElementById('edit-lastname').value;
+                        const password = document.getElementById('edit-password').value;
+
+                        try {
+                            const res = await fetch('/api/profile', {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ first_name: firstName, last_name: lastName, password: password })
+                            });
+                            if (res.ok) {
+                                setMessage('Profil mis à jour !');
+                                fetchProfile();
+                            } else {
+                                setError('Erreur lors de la mise à jour.');
+                            }
+                        } catch (e) { setError('Erreur réseau'); }
+                    }} className="auth-btn" style={{ background: '#555' }}>Mettre à jour</button>
+                </div>
+
+                <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
+
+                <h3 style={{ textAlign: 'left' }}>Gestion des données (RGPD)</h3>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                        // onClick={() => window.open(`/api/profile/export?token=${token}`, '_blank')} // Simple GET trigger if token in query or handle via fetch/blob
+                        // Better approach for Auth header: fetch blob
+                        onClick={async () => {
+                            try {
+                                const res = await fetch('/api/profile/export', {
+                                    headers: { 'Authorization': `Bearer ${token}` }
+                                });
+                                if (res.ok) {
+                                    const blob = await res.blob();
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `essensys_export_${profile.id}.json`;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    a.remove();
+                                } else {
+                                    setError('Erreur export');
+                                }
+                            } catch (e) { setError('Erreur réseau'); }
+                        }}
+                        className="auth-btn"
+                        style={{ background: '#006699', flex: 1 }}
+                    >
+                        Exporter mes données
+                    </button>
+
+                    <button
+                        onClick={async () => {
+                            if (window.confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
+                                try {
+                                    const res = await fetch('/api/profile', {
+                                        method: 'DELETE',
+                                        headers: { 'Authorization': `Bearer ${token}` }
+                                    });
+                                    if (res.ok) {
+                                        alert("Compte supprimé.");
+                                        localStorage.removeItem('adminToken');
+                                        navigate('/');
+                                    } else {
+                                        setError('Erreur suppression');
+                                    }
+                                } catch (e) { setError('Erreur réseau'); }
+                            }
+                        }}
+                        className="auth-btn"
+                        style={{ background: '#990000', flex: 1 }}
+                    >
+                        Supprimer mon compte
+                    </button>
+                </div>
+
+                <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
+
                 <h3 style={{ textAlign: 'left' }}>Mon Historique (Audit Trail)</h3>
                 <div className="table-container" style={{ overflowX: 'auto' }}>
                     <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9em' }}>

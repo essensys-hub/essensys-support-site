@@ -9,19 +9,21 @@ import Profile from './pages/Profile';
 import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
+import Privacy from './pages/Privacy';
 import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="support" element={<Support />} />
-          <Route path="admin" element={<Admin />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="profile" element={<Profile />} />
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route
             path="ios"
             element={
@@ -48,8 +50,8 @@ function App() {
             path="raspberrypi"
             element={<RaspberryPi />}
           />
-        </Route>
-      </Routes>
+        </Routes>
+      </Layout>
       <CookieConsent />
     </BrowserRouter>
   );
