@@ -3,7 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 import './Layout.css';
 import logo from '../assets/logosml.png';
 
-const Layout = () => {
+const Layout = ({ children }) => {
     // Check for admin token in both storages
     const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
     const adminRole = localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole');
@@ -54,7 +54,7 @@ const Layout = () => {
                 </div>
             </header >
             <main className="main-content">
-                <Outlet />
+                {children}
             </main>
             <footer className="main-footer">
                 <p>© 2026 Projet Communautaire Essensys</p>
