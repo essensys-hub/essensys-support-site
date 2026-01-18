@@ -213,10 +213,22 @@ const UserManager = ({ token }) => {
                                             value={u.role}
                                             onChange={(e) => handleRoleChange(u.id, e.target.value)}
                                             style={selectStyle}
+                                            disabled={u.role === 'admin_global' || (localStorage.getItem('adminRole') === 'admin_local' && u.role === 'admin_local')}
                                         >
-                                            <option value="user">User</option>
-                                            <option value="support">Support</option>
-                                            <option value="admin">Admin</option>
+                                            {localStorage.getItem('adminRole') === 'admin_global' ? (
+                                                <>
+                                                    <option value="admin_global">Admin Global</option>
+                                                    <option value="admin_local">Admin Local</option>
+                                                    <option value="user">User</option>
+                                                    <option value="guest_local">Guest Local</option>
+                                                    <option value="support">Support</option>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <option value="user">User</option>
+                                                    <option value="guest_local">Guest Local</option>
+                                                </>
+                                            )}
                                         </select>
                                     </td>
                                     <td style={tdStyle}>
@@ -226,7 +238,9 @@ const UserManager = ({ token }) => {
                                         {u.linked_gateway_id ? u.linked_gateway_id : '-'}
                                     </td>
                                     <td style={tdStyle}>
-                                        <button onClick={() => openEditModal(u)} style={editLinkStyle}>Lier Appareils</button>
+                                        {localStorage.getItem('adminRole') === 'admin_global' && (
+                                            <button onClick={() => openEditModal(u)} style={editLinkStyle}>Lier Appareils</button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+    "log"
 	"net/http"
 	"strings"
 	"time"
@@ -43,21 +44,38 @@ func (router *Router) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Determine Role (Admin Check)
-	role := models.RoleUser
-    // TODO: Improve this check, maybe pass environment variable safely
-    // For now, sticking to standard users. Admins added via manual DB or OAuth promotion.
+	// Determine Role and Links
+	role := models.RoleGuestLocal // Default
+    
+    // Auto-Link Logic based on IP
+    userIP := getIP(r)
+    // userIP := "88.124.210.27" // DEBUG
+    
+    machines, err := router.Store.GetMachines()
+    if err == nil {
+        for _, m := range machines {
+            if m.IP == userIP {
+                user.LinkedMachineID = &m.ID
+                
+                // Check if this machine already has a local admin
+                hasAdmin, err := router.UserStore.HasLocalAdmin(m.ID)
+                if err == nil && !hasAdmin {
+                    log.Printf("[Register] First user for machine %d (%s). Promoting to AdminLocal.", m.ID, m.NoSerie)
+                    role = models.RoleAdminLocal
+                } else {
+                    log.Printf("[Register] User joined machine %d as GuestLocal.", m.ID)
+                }
+                break // Only link to first matching machine (usually 1 per IP)
+            }
+        }
+    }
 
-	user := &models.User{
-		Email:        req.Email,
-		PasswordHash: string(hashedPassword),
-		Role:         role,
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
-		Provider:     models.ProviderEmail,
-		CreatedAt:    time.Now(),
-		LastLogin:    time.Now(),
-	}
+	// Double check if email is in global admin list (env var)
+    // if router.IsAdminEmail(req.Email, os.Getenv("ADMIN_EMAILS")) {
+    //     role = models.RoleAdminGlobal
+    // }
+
+	user.Role = role
 
 	if err := router.UserStore.CreateUser(user); err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)

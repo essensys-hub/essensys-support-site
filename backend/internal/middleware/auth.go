@@ -170,7 +170,7 @@ func AdminTokenMiddleware(next http.Handler) http.Handler {
                 if claims, ok := token.Claims.(jwt.MapClaims); ok {
                     role, _ := claims["role"].(string)
 					// Normalize role check
-					if role == "admin" || role == "support" {
+					if role == "admin_global" || role == "admin_local" || role == "support" {
 						// Authorized
 						if sub, ok := claims["sub"].(string); ok {
 							ctx := context.WithValue(r.Context(), "user_email", sub)

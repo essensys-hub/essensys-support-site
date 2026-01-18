@@ -15,7 +15,7 @@ const Layout = () => {
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
-                        {localStorage.getItem('adminRole') === 'admin' && (
+                        {['admin_global', 'admin_local', 'admin'].includes(localStorage.getItem('adminRole')) && (
                             <li><Link to="/admin">Admin</Link></li>
                         )}
                     </ul>
@@ -29,7 +29,7 @@ const Layout = () => {
                     ) : (
                         <div className="user-menu">
                             <Link to="/profile" className="nav-btn-login" style={{ marginRight: '10px' }}>Profil</Link>
-                            {localStorage.getItem('adminRole') === 'admin' && (
+                            {['admin_global', 'admin_local', 'admin'].includes(localStorage.getItem('adminRole')) && (
                                 <Link to="/admin" className="nav-btn-login">Dashboard</Link>
                             )}
                             <button

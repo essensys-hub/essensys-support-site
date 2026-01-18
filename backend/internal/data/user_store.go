@@ -19,6 +19,8 @@ type UserStore interface {
     UpdateUserLinks(userID int, machineID *int, gatewayID *string) error
     UpdateLastLogin(userID int) error
     EnsureTableExists() error
+    GetUsersByMachineID(machineID int) ([]*models.User, error)
+    HasLocalAdmin(machineID int) (bool, error)
 }
 
 type PostgresUserStore struct {

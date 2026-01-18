@@ -82,7 +82,32 @@ func (rt *Router) HandleAdminGetUsers(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    users, err := rt.UserStore.GetAllUsers()
+    // Get Current Admin User
+    email := r.Context().Value("user_email").(string)
+    currentUser, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || currentUser == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
+    var users []*models.User
+    
+    if currentUser.Role == models.RoleAdminGlobal {
+        // Global Admin: GetAll
+        users, err = rt.UserStore.GetAllUsers()
+    } else if currentUser.Role == models.RoleAdminLocal {
+        // Local Admin: GetByMachine
+        if currentUser.LinkedMachineID == nil {
+            // Edge case: AdminLocal but no machine? Should not happen.
+            users = []*models.User{}
+        } else {
+            users, err = rt.UserStore.GetUsersByMachineID(*currentUser.LinkedMachineID)
+        }
+    } else {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
     if err != nil {
         log.Printf("[API] Failed to get users: %v", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -100,8 +125,16 @@ func (rt *Router) HandleAdminUpdateUserRole(w http.ResponseWriter, r *http.Reque
         return
     }
 
+    // Get Current Admin
+    email := r.Context().Value("user_email").(string)
+    currentUser, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || currentUser == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
     idStr := chi.URLParam(r, "id")
-    id, err := strconv.Atoi(idStr)
+    targetUserID, err := strconv.Atoi(idStr)
     if err != nil {
         http.Error(w, "Invalid User ID", http.StatusBadRequest)
         return
@@ -115,12 +148,51 @@ func (rt *Router) HandleAdminUpdateUserRole(w http.ResponseWriter, r *http.Reque
         return
     }
 
-    if req.Role != "admin" && req.Role != "user" && req.Role != "support" {
-        http.Error(w, "Invalid Role", http.StatusBadRequest)
+    // Permission Check
+    allowed := false
+    
+    if currentUser.Role == models.RoleAdminGlobal {
+        // Global can set any role (except maybe invalid ones)
+        allowed = true
+    } else if currentUser.Role == models.RoleAdminLocal {
+        // Local can ONLY promote guest_local <-> user
+        // They CANNOT touch other admins or themselves (usually)
+        // And they must own the user (checked below)
+        
+        // Check if target user belongs to same machine
+        // We could fetch target user, but simpler: verify target is in My Users list?
+        // Let's fetch target user to be safe.
+        // Optimization: We could rely on GetUsersByMachineID check, but explicit fetch is safer.
+        // However, we don't have GetUserByID exposed on Store yet?
+        // Wait, UserStore interface doesn't have GetUserByID. It has GetUserByEmail.
+        // I need GetUserByID to verify relationship!
+        // or I can call UpdateUserRole blindly but that's insecure.
+        // Let's assume for now I add GetUserByID to store, or fetch all and filter.
+        // Or blindly trust ID? No.
+        
+        // WORKAROUND: Iterate over GetUsersByMachineID results to find ID.
+        if currentUser.LinkedMachineID != nil {
+             myUsers, _ := rt.UserStore.GetUsersByMachineID(*currentUser.LinkedMachineID)
+             for _, u := range myUsers {
+                 if u.ID == targetUserID {
+                     allowed = true
+                     break
+                 }
+             }
+        }
+        
+        // Scope Check: Can only set 'user' or 'guest_local'
+        if req.Role != models.RoleUser && req.Role != models.RoleGuestLocal {
+            allowed = false
+        }
+    }
+
+    if !allowed {
+        http.Error(w, "Forbidden: Insufficient Permissions", http.StatusForbidden)
         return
     }
 
-    if err := rt.UserStore.UpdateUserRole(id, req.Role); err != nil {
+    if err := rt.UserStore.UpdateUserRole(targetUserID, req.Role); err != nil {
         log.Printf("[API] Failed to update user role: %v", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return
@@ -168,7 +240,7 @@ func (rt *Router) HandleAdminCreateUser(w http.ResponseWriter, r *http.Request) 
         return
     }
 
-    role := models.RoleUser // Default to user, admin can upgrade later
+    role := models.RoleGuestLocal // Default to guest, local admin can promote
     // Or we could accept role in payload if we extended RegisterRequest, but let's keep it simple.
 
     user := &models.User{
