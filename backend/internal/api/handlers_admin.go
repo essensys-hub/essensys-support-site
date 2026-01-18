@@ -313,3 +313,66 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
 
     w.WriteHeader(http.StatusOK)
 }
+
+// GET /api/admin/audit
+func (rt *Router) HandleGetAuditLogs(w http.ResponseWriter, r *http.Request) {
+    if rt.AuditStore == nil {
+         http.Error(w, "Audit Store not initialized", http.StatusServiceUnavailable)
+         return
+    }
+
+    email := r.Context().Value("user_email").(string)
+    currentUser, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || currentUser == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
+    filter := models.AuditFilter{
+        Limit: 100, // Default limit
+        Offset: 0,
+    }
+    
+    // Parse Query Params
+    if l := r.URL.Query().Get("limit"); l != "" {
+        if val, err := strconv.Atoi(l); err == nil {
+            filter.Limit = val
+        }
+    }
+    if o := r.URL.Query().Get("offset"); o != "" {
+        if val, err := strconv.Atoi(o); err == nil {
+            filter.Offset = val
+        }
+    }
+
+    // Role-Based Filtering
+    if currentUser.Role == models.RoleAdminGlobal {
+        // Global Admin: Sees all
+    } else if currentUser.Role == models.RoleAdminLocal {
+        // Local Admin: Filter by Machine (Implemented in Store via MachineID param)
+         if currentUser.LinkedMachineID != nil {
+             filter.MachineID = *currentUser.LinkedMachineID
+        } else {
+             // AdminLocal without machine -> Empty list
+             w.Header().Set("Content-Type", "application/json")
+             json.NewEncoder(w).Encode([]*models.AuditLog{})
+             return
+        }
+    } else if currentUser.Role == models.RoleUser {
+        // User: Sees ONLY their OWN actions
+        filter.UserID = currentUser.ID
+    } else {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+    
+    logs, err := rt.AuditStore.GetAuditLogs(filter)
+    if err != nil {
+        log.Printf("[API] Failed to get audit logs: %v", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(logs)
+}

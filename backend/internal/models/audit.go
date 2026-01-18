@@ -20,6 +20,7 @@ type AuditFilter struct {
 	Limit        int
 	Offset       int
 	MachineID    int    // Filter by machine scope (for admin_local)
+    UserID       int    // Filter by specific user (for self-view)
     ResourceType string
     Action       string
 }

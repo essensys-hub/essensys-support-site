@@ -9,6 +9,7 @@ const Profile = () => {
     const [nearby, setNearby] = useState({ machines: [], gateways: [] });
     const [selectedMachine, setSelectedMachine] = useState('');
     const [selectedGateway, setSelectedGateway] = useState('');
+    const [logs, setLogs] = useState([]); // User's own logs
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
@@ -19,6 +20,7 @@ const Profile = () => {
         }
         fetchProfile();
         fetchNearby();
+        fetchMyLogs();
     }, [token, navigate]);
 
     const fetchProfile = async () => {
@@ -50,6 +52,22 @@ const Profile = () => {
             }
         } catch (err) {
             console.error("Failed to fetch nearby devices");
+        }
+    };
+
+    const fetchMyLogs = async () => {
+        // Users can use the same admin endpoint if they have role 'user'
+        // Backend handles filtering to return only their own logs.
+        try {
+            const res = await fetch('/api/admin/audit?limit=20', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setLogs(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch logs");
         }
     };
 
@@ -88,19 +106,22 @@ const Profile = () => {
 
     return (
         <div className="auth-container">
-            <div className="auth-card" style={{ maxWidth: '600px' }}>
-                <h2>Mon Profil</h2>
+            <div className="auth-card" style={{ maxWidth: '800px' }}>
+                <h2 style={{ borderBottom: '1px solid #444', paddingBottom: '10px' }}>Mon Profil</h2>
 
-                <div style={{ marginBottom: '20px', textAlign: 'left' }}>
-                    <p><strong>Nom:</strong> {profile.first_name} {profile.last_name}</p>
-                    <p><strong>Email:</strong> {profile.email}</p>
-                    <p><strong>Rôle:</strong> {profile.role}</p>
+                <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', textAlign: 'left' }}>
+                    <div>
+                        <h4 style={{ marginTop: 0 }}>Informations</h4>
+                        <p><strong>Nom:</strong> {profile.first_name} {profile.last_name}</p>
+                        <p><strong>Email:</strong> {profile.email}</p>
+                        <p><strong>Rôle:</strong> {profile.role}</p>
+                    </div>
                 </div>
 
                 <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
 
-                <h3>Mes Appareils</h3>
-                <p style={{ fontSize: '0.9em', color: '#ccc', marginBottom: '20px' }}>
+                <h3 style={{ textAlign: 'left' }}>Mes Appareils</h3>
+                <p style={{ fontSize: '0.9em', color: '#ccc', marginBottom: '20px', textAlign: 'left' }}>
                     Associez votre compte à vos équipements Essensys.
                     Vous ne pouvez voir que les appareils connectés sur le même réseau (IP: {nearby.user_ip || '...'}).
                 </p>
@@ -108,7 +129,7 @@ const Profile = () => {
                 {message && <div className="success-message">{message}</div>}
                 {error && <div className="error-message">{error}</div>}
 
-                <div className="form-group">
+                <div className="form-group" style={{ textAlign: 'left' }}>
                     <label>Armoire Essensys (Machine)</label>
                     <select
                         value={selectedMachine}
@@ -116,7 +137,6 @@ const Profile = () => {
                         style={{ width: '100%', padding: '10px', borderRadius: '5px', background: '#333', color: 'white', border: '1px solid #555' }}
                     >
                         <option value="">-- Aucune --</option>
-                        {/* Show currently linked even if not nearby? ideally yes, but for now strict nearby list + current */}
                         {profile.linked_machine_id && !nearby.machines.find(m => m.id === profile.linked_machine_id) && (
                             <option value={profile.linked_machine_id}>Actuelle (ID: {profile.linked_machine_id}) - Hors ligne ou autre IP</option>
                         )}
@@ -128,7 +148,7 @@ const Profile = () => {
                     </select>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ textAlign: 'left' }}>
                     <label>Passerelle (Gateway)</label>
                     <select
                         value={selectedGateway}
@@ -147,9 +167,49 @@ const Profile = () => {
                     </select>
                 </div>
 
-                <button onClick={handleSave} className="auth-btn" style={{ marginTop: '20px' }}>
+                <button onClick={handleSave} className="auth-btn" style={{ marginTop: '20px', marginBottom: '30px' }}>
                     Enregistrer
                 </button>
+
+                <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
+
+                <h3 style={{ textAlign: 'left' }}>Mon Historique (Audit Trail)</h3>
+                <div className="table-container" style={{ overflowX: 'auto' }}>
+                    <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9em' }}>
+                        <thead>
+                            <tr style={{ background: '#333', color: 'white' }}>
+                                <th style={{ padding: '8px' }}>Date</th>
+                                <th style={{ padding: '8px' }}>Action</th>
+                                <th style={{ padding: '8px' }}>Détails</th>
+                                <th style={{ padding: '8px' }}>IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {logs.length === 0 ? (
+                                <tr><td colSpan="4" style={{ padding: '10px', textAlign: 'center', color: '#888' }}>Aucune activité récente.</td></tr>
+                            ) : (
+                                logs.map((log) => (
+                                    <tr key={log.id} style={{ borderBottom: '1px solid #444' }}>
+                                        <td style={{ padding: '8px' }}>{new Date(log.created_at).toLocaleString()}</td>
+                                        <td style={{ padding: '8px' }}>
+                                            <span style={{
+                                                padding: '2px 6px',
+                                                borderRadius: '4px',
+                                                background: log.action.includes('FAIL') ? '#522' : '#242',
+                                                color: log.action.includes('FAIL') ? '#f88' : '#8f8'
+                                            }}>
+                                                {log.action}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '8px' }}>{log.details}</td>
+                                        <td style={{ padding: '8px' }}>{log.ip_address}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     );

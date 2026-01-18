@@ -28,7 +28,7 @@ Le tableau ci-dessous indique qui peut faire quoi (**R** = Responsible/Access, *
 | **Lier Machine/Gateway (Force)** | ✅ | ❌ | ❌ | ❌ |
 | **Voir Carte Géolocalisation** | ✅ | ✅ | ❌ | ❌ |
 | **Gérer Newsletters** | ✅ | ✅ | ❌ | ❌ |
-| **Voir Audit Trail** | ✅ | ✅ (Local) | ❌ | ❌ |
+| **Voir Audit Trail** | ✅ | ✅ (Local) | ✅ (Perso) | ❌ |
 | **Accès Support / Tickets** | ✅ | ✅ | ✅ | ❌ |
 | **Voir Profil / Appareils liés** | ✅ | ✅ | ✅ | ✅ |
 

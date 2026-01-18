@@ -38,6 +38,7 @@ func main() {
 	dbPass := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 
+    var userStore data.UserStore
     var auditStore data.AuditStore
 
     // Only connect if DB envs are set (Graceful degradation or Fatal?)

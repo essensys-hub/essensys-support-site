@@ -30,6 +30,7 @@ L'accès aux journaux d'audit est en **lecture seule** et restreint selon le rô
 
 *   **Global Admin** (`admin_global`) : Accès à **tous** les journaux de la plateforme.
 *   **Local Admin** (`admin_local`) : Accès restreint aux journaux concernant les utilisateurs liés à sa **machine locale** (armoire Essensys).
+*   **User** (`user`) : Accès restreint à **ses propres actions** uniquement.
 *   **Autres** : Aucun accès.
 
 Ces règles garantissent que chaque administrateur local ne voit que ce qui concerne son périmètre.

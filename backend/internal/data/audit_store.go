@@ -65,8 +65,6 @@ func (s *PostgresAuditStore) GetAuditLogs(filter models.AuditFilter) ([]*models.
 
     if filter.MachineID != 0 {
         // Filter actions performed BY users linked to this machine
-        // AND potentially actions performed ON users linked to this machine?
-        // Let's stick to actions BY users for now as it's cleaner.
         // "admin_local ne voit de les information de l'armoie essensys attaché"
         query = `
             SELECT a.* 
@@ -76,6 +74,10 @@ func (s *PostgresAuditStore) GetAuditLogs(filter models.AuditFilter) ([]*models.
             ORDER BY a.created_at DESC 
             LIMIT $2 OFFSET $3`
         args = []interface{}{filter.MachineID, filter.Limit, filter.Offset}
+    } else if filter.UserID != 0 {
+        // Filter actions performed BY specific user (Own logs)
+        query = `SELECT * FROM audit_logs WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`
+        args = []interface{}{filter.UserID, filter.Limit, filter.Offset}
     } else {
         query = `SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT $1 OFFSET $2`
         args = []interface{}{filter.Limit, filter.Offset}
