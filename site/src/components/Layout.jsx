@@ -39,6 +39,9 @@ const Layout = () => {
                             <button
                                 onClick={() => {
                                     localStorage.removeItem('adminToken');
+                                    localStorage.removeItem('adminRole');
+                                    sessionStorage.removeItem('adminToken');
+                                    sessionStorage.removeItem('adminRole');
                                     window.location.reload();
                                 }}
                                 className="nav-btn-logout"
@@ -49,14 +52,14 @@ const Layout = () => {
                         </div>
                     )}
                 </div>
-            </header>
+            </header >
             <main className="main-content">
                 <Outlet />
             </main>
             <footer className="main-footer">
                 <p>© 2026 Projet Communautaire Essensys</p>
             </footer>
-        </div>
+        </div >
     );
 };
 
