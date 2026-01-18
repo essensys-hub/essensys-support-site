@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/essensys-hub/essensys-support-site/backend/internal/middleware"
+
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
 )
 

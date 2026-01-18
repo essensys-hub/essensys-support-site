@@ -112,15 +112,4 @@ func (rt *Router) HandleGatewayInfos(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
 }
 
-// GET /api/admin/gateways
-func (rt *Router) HandleAdminGateways(w http.ResponseWriter, r *http.Request) {
-    gws, err := rt.Store.GetGateways()
-    if err != nil {
-        log.Printf("[API] Failed to get gateways: %v", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(gws)
-}
