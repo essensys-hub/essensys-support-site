@@ -1,7 +1,13 @@
 site_name: Essensys Support Site Docs
-theme: readthedocs
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: purple
 
 nav:
   - Home: index.md
+  - Features:
+    - User Profile & Devices: features.md
+    - Authentication: authentication.md
   - Configuration: configuration.md
-  - Authentication: authentication.md
