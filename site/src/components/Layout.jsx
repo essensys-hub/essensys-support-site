@@ -73,7 +73,7 @@ const Layout = ({ children }) => {
                 {children}
             </main>
             <footer className="main-footer">
-                <p>© 2026 Projet Communautaire Essensys</p>
+                <p>© 2026 Projet Communautaire Essensys - v1.0.0</p>
             </footer>
         </div >
     );
