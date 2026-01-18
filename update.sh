@@ -11,6 +11,7 @@ echo ">>> 1. Pulling latest changes..."
 git pull
 
 echo ">>> 2. Building Backend..."
+sudo systemctl stop essensys-backend.service
 cd backend
 go mod tidy
 go build -o server ./cmd/server
