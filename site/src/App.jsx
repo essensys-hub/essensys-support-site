@@ -10,6 +10,7 @@ import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
 import Privacy from './pages/Privacy';
+import Catalog from './pages/Catalog';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/catalog" element={<Catalog />} />
           <Route
             path="ios"
             element={

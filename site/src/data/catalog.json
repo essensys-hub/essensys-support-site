@@ -1,0 +1,266 @@
+{
+    "meta": {
+        "version": "2026.01.000",
+        "last_updated": "2026-01-18",
+        "source_url": "https://essensys-hub.github.io/essensys-raspberry-install/maintenance/debug/"
+    },
+    "categories": [
+        {
+            "id": "eclairage",
+            "title": "Éclairage",
+            "actions": [
+                {
+                    "name": "ALLUMER",
+                    "description": "Allume le circuit d'éclairage spécifié.",
+                    "values": [
+                        {
+                            "label": "Circuit 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Circuit 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Circuit 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Circuit 4",
+                            "value": "8"
+                        },
+                        {
+                            "label": "Circuit 5",
+                            "value": "16"
+                        },
+                        {
+                            "label": "Circuit 6",
+                            "value": "32"
+                        },
+                        {
+                            "label": "Circuit 7",
+                            "value": "64"
+                        },
+                        {
+                            "label": "Circuit 8",
+                            "value": "128"
+                        }
+                    ]
+                },
+                {
+                    "name": "ÉTEINDRE",
+                    "description": "Éteint le circuit d'éclairage spécifié.",
+                    "values": [
+                        {
+                            "label": "Plage 1 (1-255)",
+                            "value": "1...255"
+                        }
+                    ]
+                },
+                {
+                    "name": "Configuration Temps Extinction (Minuterie)",
+                    "description": "Définit le temps avant extinction automatique des lampes (en minutes). 0 = Pas d'extinction.",
+                    "values": [
+                        {
+                            "label": "Durée (1-255 minutes)",
+                            "value": "1...255"
+                        }
+                    ],
+                    "key_reference": "550 + Index Lampe"
+                },
+                {
+                    "name": "Configuration Variateurs (Type Sortie)",
+                    "description": "Configure le type de charge pour les sorties variateurs.",
+                    "values": [
+                        {
+                            "label": "TOR avec Rampe (Halogène)",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Gradateur (Dimmer)",
+                            "value": "1"
+                        },
+                        {
+                            "label": "TOR Sec (LED/Relais)",
+                            "value": "2"
+                        }
+                    ],
+                    "key_reference": "495 (Exemple)"
+                }
+            ]
+        },
+        {
+            "id": "volets",
+            "title": "Volets & Stores",
+            "actions": [
+                {
+                    "name": "OUVRIR",
+                    "description": "Ouvre le volet ou store spécifié.",
+                    "values": [
+                        {
+                            "label": "Volet 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Volet 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Volet 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Volet 4",
+                            "value": "8"
+                        },
+                        {
+                            "label": "Volet 5",
+                            "value": "16"
+                        },
+                        {
+                            "label": "Volet 6",
+                            "value": "32"
+                        }
+                    ]
+                },
+                {
+                    "name": "FERMER",
+                    "description": "Ferme le volet ou store spécifié.",
+                    "values": [
+                        {
+                            "label": "Groupe 1 (1-32)",
+                            "value": "1...32"
+                        }
+                    ]
+                },
+                {
+                    "name": "Configuration Temps Course",
+                    "description": "Définit le temps de course des volets (en secondes).",
+                    "values": [
+                        {
+                            "label": "Durée (1-255 secondes)",
+                            "value": "1...255"
+                        }
+                    ],
+                    "key_reference": "566 (Exemple)"
+                }
+            ]
+        },
+        {
+            "id": "arrosage",
+            "title": "Arrosage",
+            "actions": [
+                {
+                    "name": "Mode Fonctionnement (Arrose_Mode)",
+                    "description": "Force l'arrosage pour une durée donnée.",
+                    "values": [
+                        {
+                            "label": "Durée en minutes",
+                            "value": "X minutes"
+                        }
+                    ],
+                    "key_reference": "363"
+                },
+                {
+                    "name": "Détecteur Pluie (Arrose_Detect)",
+                    "description": "État du détecteur de pluie.",
+                    "values": [],
+                    "key_reference": "406"
+                }
+            ]
+        },
+        {
+            "id": "scenarios",
+            "title": "Scénarios & Sécurité",
+            "actions": [
+                {
+                    "name": "Exécuter Scénario",
+                    "description": "Déclenche un scénario prédéfini.",
+                    "values": [
+                        {
+                            "label": "Scénario 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Scénario 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Scénario 3",
+                            "value": "3"
+                        },
+                        {
+                            "label": "Scénario 4",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Scénario 5",
+                            "value": "5"
+                        },
+                        {
+                            "label": "Scénario 6",
+                            "value": "6"
+                        },
+                        {
+                            "label": "Scénario 7",
+                            "value": "7"
+                        },
+                        {
+                            "label": "Scénario 8",
+                            "value": "8"
+                        }
+                    ],
+                    "key_reference": "Clé 590"
+                },
+                {
+                    "name": "Retour Vacances (Date)",
+                    "description": "Date et heure de fin de vacances (VacanceFin).",
+                    "values": [],
+                    "key_reference": "Variable VacanceFin"
+                },
+                {
+                    "name": "Retour Vacances (Chauffage)",
+                    "description": "Mode de chauffage au retour de vacances (VacanceFin_Force).",
+                    "values": [
+                        {
+                            "label": "Auto + Confort",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Auto + Eco",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Auto + Hors Gel",
+                            "value": "5"
+                        },
+                        {
+                            "label": "Forcé + Confort",
+                            "value": "17"
+                        },
+                        {
+                            "label": "Forcé + Hors Gel",
+                            "value": "21"
+                        },
+                        {
+                            "label": "Continuer (Rien changer)",
+                            "value": "128"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "energie",
+            "title": "Énergie & Délestage",
+            "actions": [
+                {
+                    "name": "Activation Délestage",
+                    "description": "Active ou désactive le délestage automatique.",
+                    "values": [],
+                    "key_reference": "Clé 459"
+                }
+            ]
+        }
+    ]
+}
