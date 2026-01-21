@@ -1,7 +1,11 @@
 {
-  "source": "TableReference.csv",
+  "source": "TableReference.json",
   "aliasKey": "attribute",
   "aliases": {},
+  "entryDefaults": {
+    "web": true,
+    "local": true
+  },
   "entries": [
     {
       "zone": "Chauffage Zone Nuit",

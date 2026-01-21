@@ -9,6 +9,11 @@ const STATUS_OPTIONS = [
     { value: 'archive', label: 'Archive' }
 ];
 
+const ENTRY_DEFAULTS = {
+    web: tableReference.entryDefaults?.web ?? true,
+    local: tableReference.entryDefaults?.local ?? true
+};
+
 const EMPTY_FORM = {
     categorie: '',
     zone: '',
@@ -18,7 +23,9 @@ const EMPTY_FORM = {
     value: '',
     attribute: '',
     shortDescription: '',
-    longDescription: ''
+    longDescription: '',
+    web: ENTRY_DEFAULTS.web,
+    local: ENTRY_DEFAULTS.local
 };
 
 const buildInitialEntries = () => (tableReference.entries || []).map((entry, index) => ({
@@ -31,7 +38,9 @@ const buildInitialEntries = () => (tableReference.entries || []).map((entry, ind
     value: entry.value || '',
     attribute: entry.attribute || '',
     shortDescription: entry.shortDescription || '',
-    longDescription: entry.longDescription || ''
+    longDescription: entry.longDescription || '',
+    web: entry.web ?? ENTRY_DEFAULTS.web,
+    local: entry.local ?? ENTRY_DEFAULTS.local
 }));
 
 const formatDate = (isoString) => {
@@ -170,7 +179,9 @@ const Catalog = () => {
             value: entry.value,
             attribute: entry.attribute,
             shortDescription: entry.shortDescription || '',
-            longDescription: entry.longDescription || ''
+            longDescription: entry.longDescription || '',
+            web: entry.web ?? ENTRY_DEFAULTS.web,
+            local: entry.local ?? ENTRY_DEFAULTS.local
         });
     };
 
@@ -218,7 +229,9 @@ const Catalog = () => {
             value: formState.value.trim(),
             attribute: formState.attribute.trim(),
             shortDescription: formState.shortDescription.trim(),
-            longDescription: formState.longDescription.trim()
+            longDescription: formState.longDescription.trim(),
+            web: formState.web ?? ENTRY_DEFAULTS.web,
+            local: formState.local ?? ENTRY_DEFAULTS.local
         };
 
         if (editingEntryId) {
