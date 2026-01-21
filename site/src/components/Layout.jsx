@@ -33,7 +33,6 @@ const Layout = ({ children }) => {
                     <ul>
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
-                        <li><Link to="/catalog">Catalogue</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
                         {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                             <li><Link to="/admin">Admin</Link></li>
