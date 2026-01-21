@@ -192,6 +192,25 @@
     align-items: center;
 }
 
+.toggle-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.toggle-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1f2933;
+}
+
+.toggle-item input {
+    width: 16px;
+    height: 16px;
+}
+
 .search-field input {
     border-radius: 999px;
     border: 1px solid #e2e8f0;
@@ -228,6 +247,11 @@ tbody td {
     display: flex;
     gap: 8px;
     align-items: center;
+}
+
+.table-flag {
+    font-weight: 600;
+    color: #1f2933;
 }
 
 .mono {

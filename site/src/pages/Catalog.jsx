@@ -97,7 +97,9 @@ const Catalog = () => {
                 entry.value,
                 entry.attribute,
                 entry.shortDescription,
-                entry.longDescription
+                entry.longDescription,
+                entry.web ? 'web' : '',
+                entry.local ? 'local' : ''
             ]
                 .filter(Boolean)
                 .join(' ')
@@ -434,6 +436,27 @@ const Catalog = () => {
                             onChange={(event) => setFormState((prev) => ({ ...prev, longDescription: event.target.value }))}
                         />
                     </label>
+                    <div className="field span-2">
+                        <span>Disponibilite</span>
+                        <div className="toggle-group">
+                            <label className="toggle-item">
+                                <input
+                                    type="checkbox"
+                                    checked={!!formState.web}
+                                    onChange={(event) => setFormState((prev) => ({ ...prev, web: event.target.checked }))}
+                                />
+                                <span>Web</span>
+                            </label>
+                            <label className="toggle-item">
+                                <input
+                                    type="checkbox"
+                                    checked={!!formState.local}
+                                    onChange={(event) => setFormState((prev) => ({ ...prev, local: event.target.checked }))}
+                                />
+                                <span>Local</span>
+                            </label>
+                        </div>
+                    </div>
                     <div className="form-actions">
                         <button type="submit" className="catalog-button primary">
                             {editingEntryId ? 'Mettre a jour' : 'Ajouter'}
@@ -470,6 +493,8 @@ const Catalog = () => {
                                 <th>Cle</th>
                                 <th>Valeur</th>
                                 <th>Attribut</th>
+                                <th>Web</th>
+                                <th>Local</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -483,6 +508,8 @@ const Catalog = () => {
                                     <td className="mono">{entry.keys}</td>
                                     <td className="mono">{entry.value}</td>
                                     <td>{entry.attribute || '-'}</td>
+                                    <td className="table-flag">{entry.web ? 'Oui' : 'Non'}</td>
+                                    <td className="table-flag">{entry.local ? 'Oui' : 'Non'}</td>
                                     <td className="table-actions">
                                         <button type="button" className="catalog-button ghost" onClick={() => handleEditEntry(entry)}>
                                             Modifier
@@ -499,7 +526,7 @@ const Catalog = () => {
                             ))}
                             {filteredEntries.length === 0 && (
                                 <tr>
-                                    <td colSpan="8" className="empty-state">
+                                    <td colSpan="10" className="empty-state">
                                         Aucune entree ne correspond a la recherche.
                                     </td>
                                 </tr>
