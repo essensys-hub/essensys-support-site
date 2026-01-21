@@ -1,0 +1,1782 @@
+{
+  "source": "TableReference.csv",
+  "aliasKey": "attribute",
+  "aliases": {},
+  "entries": [
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "1",
+      "attribute": "Automatique (planning)",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "32",
+      "attribute": "Anticipé",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "17",
+      "attribute": "Forçage confort",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "18",
+      "attribute": "Forçage éco",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "19",
+      "attribute": "Forçage éco+",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "20",
+      "attribute": "Forçage éco++",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "21",
+      "attribute": "Forçage hors gel",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Zone Nuit",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "350",
+      "value": "16",
+      "attribute": "OFF",
+      "action": "NULL",
+      "shortDescription": "chauffage zone nuit",
+      "longDescription": "Chauffage Zone Nuit"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "1",
+      "attribute": "Automatique (planning)",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "32",
+      "attribute": "Anticipé",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "17",
+      "attribute": "Forçage confort",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "18",
+      "attribute": "Forçage éco",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "19",
+      "attribute": "Forçage éco+",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "20",
+      "attribute": "Forçage éco++",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "21",
+      "attribute": "Forçage hors gel",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 1",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "351",
+      "value": "16",
+      "attribute": "OFF",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 1",
+      "longDescription": "Chauffage Salle de bain 1"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "1",
+      "attribute": "Automatique (planning)",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "32",
+      "attribute": "Anticipé",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "17",
+      "attribute": "Forçage confort",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "18",
+      "attribute": "Forçage éco",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "19",
+      "attribute": "Forçage éco+",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "20",
+      "attribute": "Forçage éco++",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "21",
+      "attribute": "Forçage hors gel",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Chauffage Salle de bain 2",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "352",
+      "value": "16",
+      "attribute": "OFF",
+      "action": "NULL",
+      "shortDescription": "chauffage salle de bain 2",
+      "longDescription": "Chauffage Salle de bain 2"
+    },
+    {
+      "zone": "Cumulus",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "353",
+      "value": "0",
+      "attribute": "Automatique (ON) ",
+      "action": "NULL",
+      "shortDescription": "cumulus",
+      "longDescription": "Cumulus"
+    },
+    {
+      "zone": "Cumulus",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "353",
+      "value": "1",
+      "attribute": "Suivi HP/HC",
+      "action": "NULL",
+      "shortDescription": "cumulus",
+      "longDescription": "Cumulus"
+    },
+    {
+      "zone": "Cumulus",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "353",
+      "value": "2",
+      "attribute": "OFF",
+      "action": "NULL",
+      "shortDescription": "cumulus",
+      "longDescription": "Cumulus"
+    },
+    {
+      "zone": "Arrosage",
+      "piece": "NULL",
+      "categorie": "ARROSAGE",
+      "keys": "363",
+      "value": "255",
+      "attribute": "Automatique (planning)",
+      "action": "NULL",
+      "shortDescription": "arrosage",
+      "longDescription": "Arrosage"
+    },
+    {
+      "zone": "Arrosage",
+      "piece": "NULL",
+      "categorie": "ARROSAGE",
+      "keys": "363",
+      "value": "15",
+      "attribute": "Forçage arrosage 15 minutes",
+      "action": "NULL",
+      "shortDescription": "arrosage",
+      "longDescription": "Arrosage"
+    },
+    {
+      "zone": "Arrosage",
+      "piece": "NULL",
+      "categorie": "ARROSAGE",
+      "keys": "363",
+      "value": "30",
+      "attribute": "Forçage arrosage 30 minutes",
+      "action": "NULL",
+      "shortDescription": "arrosage",
+      "longDescription": "Arrosage"
+    },
+    {
+      "zone": "Arrosage",
+      "piece": "NULL",
+      "categorie": "ARROSAGE",
+      "keys": "363",
+      "value": "60",
+      "attribute": "Forçage arrosage 1 heure",
+      "action": "NULL",
+      "shortDescription": "arrosage",
+      "longDescription": "Arrosage"
+    },
+    {
+      "zone": "Arrosage",
+      "piece": "NULL",
+      "categorie": "ARROSAGE",
+      "keys": "363",
+      "value": "0",
+      "attribute": "OFF",
+      "action": "NULL",
+      "shortDescription": "arrosage",
+      "longDescription": "Arrosage"
+    },
+    {
+      "zone": "Prises de sécurité",
+      "piece": "NULL",
+      "categorie": "SECURITE",
+      "keys": "440",
+      "value": "0",
+      "attribute": "securiteprise On",
+      "action": "Allumé",
+      "shortDescription": "prises de sécurité",
+      "longDescription": "Prises de sécurité"
+    },
+    {
+      "zone": "Prises de sécurité",
+      "piece": "NULL",
+      "categorie": "SECURITE",
+      "keys": "440",
+      "value": "1",
+      "attribute": "securiteprise Off",
+      "action": "Eteindre",
+      "shortDescription": "prises de sécurité",
+      "longDescription": "Prises de sécurité"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Salon",
+      "categorie": "Volets roulants et store",
+      "keys": "617",
+      "value": "1",
+      "attribute": "volet1salon Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Salon",
+      "categorie": "Volets roulants et store",
+      "keys": "620",
+      "value": "1",
+      "attribute": "volet1salon Close",
+      "action": "Fermer",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Salon",
+      "categorie": "Volets roulants et store",
+      "keys": "617",
+      "value": "2",
+      "attribute": "volet2salon Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Salon",
+      "categorie": "Volets roulants et store",
+      "keys": "620",
+      "value": "2",
+      "attribute": "volet2salon Close",
+      "action": "Fermer",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "1",
+      "attribute": "Automatique (planning)",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "32",
+      "attribute": "Anticipé",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "17",
+      "attribute": "Forçage confort",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "18",
+      "attribute": "Forçage éco",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "19",
+      "attribute": "Forçage éco+",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "20",
+      "attribute": "Forçage éco++",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "21",
+      "attribute": "Forçage hors gel",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Chauffage Zone Jour",
+      "piece": "NULL",
+      "categorie": "Chauffage",
+      "keys": "349",
+      "value": "16",
+      "attribute": "OFF",
+      "action": "NULL",
+      "shortDescription": "chauffage zone jour",
+      "longDescription": "Chauffage Zone Jour"
+    },
+    {
+      "zone": "Volet 3",
+      "piece": "Salon",
+      "categorie": "Volets roulants et store",
+      "keys": "617",
+      "value": "4",
+      "attribute": "volet3salon Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 3",
+      "longDescription": "Volet 3"
+    },
+    {
+      "zone": "Volet 3",
+      "piece": "Salon",
+      "categorie": "Volets roulants et store",
+      "keys": "620",
+      "value": "4",
+      "attribute": "volet3salon Close",
+      "action": "Fermer",
+      "shortDescription": "volet 3",
+      "longDescription": "Volet 3"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Salle à Manger",
+      "categorie": "Volets roulants et store",
+      "keys": "617",
+      "value": "8",
+      "attribute": "volet1salleamanger Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Salle à Manger",
+      "categorie": "Volets roulants et store",
+      "keys": "620",
+      "value": "8",
+      "attribute": "volet1salleamanger Close",
+      "action": "Fermer",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Salle à Manger",
+      "categorie": "Volets roulants et store",
+      "keys": "617",
+      "value": "16",
+      "attribute": "volet2salleamanger Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Salle à Manger",
+      "categorie": "Volets roulants et store",
+      "keys": "620",
+      "value": "16",
+      "attribute": "volet2salleamanger Close",
+      "action": "Fermer",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Cuisine",
+      "categorie": "Volets roulants et store",
+      "keys": "619",
+      "value": "1",
+      "attribute": "volet1cuisine Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Cuisine",
+      "categorie": "Volets roulants et store",
+      "keys": "622",
+      "value": "1",
+      "attribute": "volet1cuisine Close",
+      "action": "Fermer",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Cuisine",
+      "categorie": "Volets roulants et store",
+      "keys": "619",
+      "value": "2",
+      "attribute": "volet2cuisine Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Cuisine",
+      "categorie": "Volets roulants et store",
+      "keys": "622",
+      "value": "2",
+      "attribute": "volet2cuisine Close",
+      "action": "Fermer",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet Salle de Bain 1",
+      "piece": "NULL",
+      "categorie": "Volets roulants et store",
+      "keys": "619",
+      "value": "4",
+      "attribute": "voletsdb Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet salle de bain 1",
+      "longDescription": "Volet Salle de Bain 1"
+    },
+    {
+      "zone": "Volet Salle de Bain 1",
+      "piece": "NULL",
+      "categorie": "Volets roulants et store",
+      "keys": "622",
+      "value": "4",
+      "attribute": "voletsdb Close",
+      "action": "Fermer",
+      "shortDescription": "volet salle de bain 1",
+      "longDescription": "Volet Salle de Bain 1"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Grande Chambre",
+      "categorie": "Volets roulants et store",
+      "keys": "618",
+      "value": "1",
+      "attribute": "volet1gdchamb Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Grande Chambre",
+      "categorie": "Volets roulants et store",
+      "keys": "621",
+      "value": "1",
+      "attribute": "volet1gdchamb Close",
+      "action": "Fermer",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Grande Chambre",
+      "categorie": "Volets roulants et store",
+      "keys": "618",
+      "value": "2",
+      "attribute": "volet2gdchamb Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Grande Chambre",
+      "categorie": "Volets roulants et store",
+      "keys": "621",
+      "value": "2",
+      "attribute": "volet2gdchamb Close",
+      "action": "Fermer",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Petite Chambre 1",
+      "categorie": "Volets roulants et store",
+      "keys": "618",
+      "value": "4",
+      "attribute": "volet1ptchamb Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 1",
+      "piece": "Petite Chambre 1",
+      "categorie": "Volets roulants et store",
+      "keys": "621",
+      "value": "4",
+      "attribute": "volet1ptchamb Close",
+      "action": "Fermer",
+      "shortDescription": "volet 1",
+      "longDescription": "Volet 1"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Petite Chambre 2",
+      "categorie": "Volets roulants et store",
+      "keys": "618",
+      "value": "8",
+      "attribute": "volet2ptchamb Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 2",
+      "piece": "Petite Chambre 2",
+      "categorie": "Volets roulants et store",
+      "keys": "621",
+      "value": "8",
+      "attribute": "volet2ptchamb Close",
+      "action": "Fermer",
+      "shortDescription": "volet 2",
+      "longDescription": "Volet 2"
+    },
+    {
+      "zone": "Volet 3",
+      "piece": "Petite Chambre 3",
+      "categorie": "Volets roulants et store",
+      "keys": "618",
+      "value": "16",
+      "attribute": "volet3ptchamb Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet 3",
+      "longDescription": "Volet 3"
+    },
+    {
+      "zone": "Volet 3",
+      "piece": "Petite Chambre 3",
+      "categorie": "Volets roulants et store",
+      "keys": "621",
+      "value": "16",
+      "attribute": "volet3ptchamb Close",
+      "action": "Fermer",
+      "shortDescription": "volet 3",
+      "longDescription": "Volet 3"
+    },
+    {
+      "zone": "Volet Bureau",
+      "piece": "NULL",
+      "categorie": "Volets roulants et store",
+      "keys": "617",
+      "value": "32",
+      "attribute": "voletbureau Open",
+      "action": "Ouvrir",
+      "shortDescription": "volet bureau",
+      "longDescription": "Volet Bureau"
+    },
+    {
+      "zone": "Volet Bureau",
+      "piece": "NULL",
+      "categorie": "Volets roulants et store",
+      "keys": "620",
+      "value": "32",
+      "attribute": "voletbureau Close",
+      "action": "Fermer",
+      "shortDescription": "volet bureau",
+      "longDescription": "Volet Bureau"
+    },
+    {
+      "zone": "Store",
+      "piece": "NULL",
+      "categorie": "Volets roulants et store",
+      "keys": "619",
+      "value": "8",
+      "attribute": "store Open",
+      "action": "Ouvrir",
+      "shortDescription": "store",
+      "longDescription": "Store"
+    },
+    {
+      "zone": "Store",
+      "piece": "NULL",
+      "categorie": "Volets roulants et store",
+      "keys": "622",
+      "value": "8",
+      "attribute": "store Close",
+      "action": "Fermer",
+      "shortDescription": "store",
+      "longDescription": "Store"
+    },
+    {
+      "zone": "terrasse",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "616",
+      "value": "4",
+      "attribute": "terrasse Open",
+      "action": "Allumer",
+      "shortDescription": "terrasse",
+      "longDescription": "terrasse"
+    },
+    {
+      "zone": "terrasse",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "610",
+      "value": "4",
+      "attribute": "terrasse Close",
+      "action": "Eteindre",
+      "shortDescription": "terrasse",
+      "longDescription": "terrasse"
+    },
+    {
+      "zone": "entree",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "611",
+      "value": "1",
+      "attribute": "entree Open",
+      "action": "Allumer",
+      "shortDescription": "entree",
+      "longDescription": "entree"
+    },
+    {
+      "zone": "entree",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "605",
+      "value": "1",
+      "attribute": "entree Close",
+      "action": "Eteindre",
+      "shortDescription": "entree",
+      "longDescription": "entree"
+    },
+    {
+      "zone": "escalier",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "613",
+      "value": "1",
+      "attribute": "escalier Open",
+      "action": "Allumer",
+      "shortDescription": "escalier",
+      "longDescription": "escalier"
+    },
+    {
+      "zone": "escalier",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "607",
+      "value": "1",
+      "attribute": "escalier Close",
+      "action": "Eteindre",
+      "shortDescription": "escalier",
+      "longDescription": "escalier"
+    },
+    {
+      "zone": "deg1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "616",
+      "value": "1",
+      "attribute": "deg1 Open",
+      "action": "Allumer",
+      "shortDescription": "deg1",
+      "longDescription": "deg1"
+    },
+    {
+      "zone": "deg1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "610",
+      "value": "1",
+      "attribute": "deg1 Close",
+      "action": "Eteindre",
+      "shortDescription": "deg1",
+      "longDescription": "deg1"
+    },
+    {
+      "zone": "deg2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "616",
+      "value": "2",
+      "attribute": "deg2 Open",
+      "action": "Allumer",
+      "shortDescription": "deg2",
+      "longDescription": "deg2"
+    },
+    {
+      "zone": "deg2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "610",
+      "value": "2",
+      "attribute": "deg2 Close",
+      "action": "Eteindre",
+      "shortDescription": "deg2",
+      "longDescription": "deg2"
+    },
+    {
+      "zone": "Pièce de service",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "615",
+      "value": "128",
+      "attribute": "pieceserv Open",
+      "action": "Allumer",
+      "shortDescription": "pièce de service",
+      "longDescription": "Pièce de service"
+    },
+    {
+      "zone": "Pièce de service",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "609",
+      "value": "128",
+      "attribute": "pieceserv Close",
+      "action": "Eteindre",
+      "shortDescription": "pièce de service",
+      "longDescription": "Pièce de service"
+    },
+    {
+      "zone": "Annexe 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "616",
+      "value": "8",
+      "attribute": "ann1 Open",
+      "action": "Allumer",
+      "shortDescription": "annexe 1",
+      "longDescription": "Annexe 1"
+    },
+    {
+      "zone": "Annexe 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "610",
+      "value": "8",
+      "attribute": "ann1 Close",
+      "action": "Eteindre",
+      "shortDescription": "annexe 1",
+      "longDescription": "Annexe 1"
+    },
+    {
+      "zone": "Annexe 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "616",
+      "value": "16",
+      "attribute": "ann2 Open",
+      "action": "Allumer",
+      "shortDescription": "annexe 2",
+      "longDescription": "Annexe 2"
+    },
+    {
+      "zone": "Annexe 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "610",
+      "value": "16",
+      "attribute": "ann2 Close",
+      "action": "Eteindre",
+      "shortDescription": "annexe 2",
+      "longDescription": "Annexe 2"
+    },
+    {
+      "zone": "Salon",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "612",
+      "value": "128",
+      "attribute": "salon Open",
+      "action": "Allumer",
+      "shortDescription": "salon",
+      "longDescription": "Salon"
+    },
+    {
+      "zone": "Salon",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "606",
+      "value": "128",
+      "attribute": "salon Close",
+      "action": "Eteindre",
+      "shortDescription": "salon",
+      "longDescription": "Salon"
+    },
+    {
+      "zone": "Salle à Manger",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "612",
+      "value": "64",
+      "attribute": "salleamanger Open",
+      "action": "Allumer",
+      "shortDescription": "salle à manger",
+      "longDescription": "Salle à Manger"
+    },
+    {
+      "zone": "Salle à Manger",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "606",
+      "value": "64",
+      "attribute": "salleamanger Close",
+      "action": "Eteindre",
+      "shortDescription": "salle à manger",
+      "longDescription": "Salle à Manger"
+    },
+    {
+      "zone": "Cuisine",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "615",
+      "value": "1",
+      "attribute": "cuisine Open",
+      "action": "Allumer",
+      "shortDescription": "cuisine",
+      "longDescription": "Cuisine"
+    },
+    {
+      "zone": "Cuisine",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "609",
+      "value": "1",
+      "attribute": "cuisine Close",
+      "action": "Eteindre",
+      "shortDescription": "cuisine",
+      "longDescription": "Cuisine"
+    },
+    {
+      "zone": "Salle de Bain 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "616",
+      "value": "128",
+      "attribute": "sdb1 Open",
+      "action": "Allumer",
+      "shortDescription": "salle de bain 1",
+      "longDescription": "Salle de Bain 1"
+    },
+    {
+      "zone": "Salle de Bain 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "610",
+      "value": "128",
+      "attribute": "sdb1 Close",
+      "action": "Eteindre",
+      "shortDescription": "salle de bain 1",
+      "longDescription": "Salle de Bain 1"
+    },
+    {
+      "zone": "Salle de Bain 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "615",
+      "value": "8",
+      "attribute": "sdb2 Open",
+      "action": "Allumer",
+      "shortDescription": "salle de bain 2",
+      "longDescription": "Salle de Bain 2"
+    },
+    {
+      "zone": "Salle de Bain 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "609",
+      "value": "8",
+      "attribute": "sdb2 Close",
+      "action": "Eteindre",
+      "shortDescription": "salle de bain 2",
+      "longDescription": "Salle de Bain 2"
+    },
+    {
+      "zone": "WC 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "615",
+      "value": "32",
+      "attribute": "wc1 Open",
+      "action": "Allumer",
+      "shortDescription": "wc 1",
+      "longDescription": "WC 1"
+    },
+    {
+      "zone": "WC 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "609",
+      "value": "32",
+      "attribute": "wc1 Close",
+      "action": "Eteindre",
+      "shortDescription": "wc 1",
+      "longDescription": "WC 1"
+    },
+    {
+      "zone": "WC 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "615",
+      "value": "64",
+      "attribute": "wc2 Open",
+      "action": "Allumer",
+      "shortDescription": "wc 2",
+      "longDescription": "WC 2"
+    },
+    {
+      "zone": "WC 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "609",
+      "value": "64",
+      "attribute": "wc2 Close",
+      "action": "Eteindre",
+      "shortDescription": "wc 2",
+      "longDescription": "WC 2"
+    },
+    {
+      "zone": "Grande Chambre",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "614",
+      "value": "128",
+      "attribute": "gdchamb Open",
+      "action": "Allumer",
+      "shortDescription": "grande chambre",
+      "longDescription": "Grande Chambre"
+    },
+    {
+      "zone": "Grande Chambre",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "608",
+      "value": "128",
+      "attribute": "gdchamb Close",
+      "action": "Eteindre",
+      "shortDescription": "grande chambre",
+      "longDescription": "Grande Chambre"
+    },
+    {
+      "zone": "Petite Chambre 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "614",
+      "value": "64",
+      "attribute": "ptchamb1 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 1",
+      "longDescription": "Petite Chambre 1"
+    },
+    {
+      "zone": "Petite Chambre 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "608",
+      "value": "64",
+      "attribute": "ptchamb1 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 1",
+      "longDescription": "Petite Chambre 1"
+    },
+    {
+      "zone": "Petite Chambre 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "614",
+      "value": "32",
+      "attribute": "ptchamb2 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 2",
+      "longDescription": "Petite Chambre 2"
+    },
+    {
+      "zone": "Petite Chambre 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "608",
+      "value": "32",
+      "attribute": "ptchamb2 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 2",
+      "longDescription": "Petite Chambre 2"
+    },
+    {
+      "zone": "Petite Chambre 3",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "614",
+      "value": "16",
+      "attribute": "ptchamb3 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 3",
+      "longDescription": "Petite Chambre 3"
+    },
+    {
+      "zone": "Petite Chambre 3",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "608",
+      "value": "16",
+      "attribute": "ptchamb3 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 3",
+      "longDescription": "Petite Chambre 3"
+    },
+    {
+      "zone": "Dressing",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "611",
+      "value": "8",
+      "attribute": "dressing Open",
+      "action": "Allumer",
+      "shortDescription": "dressing",
+      "longDescription": "Dressing"
+    },
+    {
+      "zone": "Dressing",
+      "piece": "NULL",
+      "categorie": "Eclairages - Directe",
+      "keys": "605",
+      "value": "8",
+      "attribute": "dressing Close",
+      "action": "Eteindre",
+      "shortDescription": "dressing",
+      "longDescription": "Dressing"
+    },
+    {
+      "zone": "Salon",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "611",
+      "value": "2",
+      "attribute": "isalonind Open",
+      "action": "Allumer",
+      "shortDescription": "salon indirect 1",
+      "longDescription": "Salon indirect 1"
+    },
+    {
+      "zone": "Salon",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "605",
+      "value": "2",
+      "attribute": "isalonind Close",
+      "action": "Eteindre",
+      "shortDescription": "salon indirect 1",
+      "longDescription": "Salon indirect 1"
+    },
+    {
+      "zone": "Salon",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "611",
+      "value": "4",
+      "attribute": "isalonind2 Open",
+      "action": "Allumer",
+      "shortDescription": "salon indirect 2",
+      "longDescription": "Salon indirect 2"
+    },
+    {
+      "zone": "Salon",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "605",
+      "value": "4",
+      "attribute": "isalonind2 Close",
+      "action": "Eteindre",
+      "shortDescription": "salon indirect 2",
+      "longDescription": "Salon indirect 2"
+    },
+    {
+      "zone": "Cuisine",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "615",
+      "value": "2",
+      "attribute": "icuisine Open",
+      "action": "Allumer",
+      "shortDescription": "cuisine plans de travail",
+      "longDescription": "Cuisine plans de travail"
+    },
+    {
+      "zone": "Cuisine",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "609",
+      "value": "2",
+      "attribute": "icuisine Close",
+      "action": "Eteindre",
+      "shortDescription": "cuisine plans de travail",
+      "longDescription": "Cuisine plans de travail"
+    },
+    {
+      "zone": "Salle de Bain 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "615",
+      "value": "4",
+      "attribute": "isdb1 Open",
+      "action": "Allumer",
+      "shortDescription": "salle de bain 1 miroir",
+      "longDescription": "Salle de Bain 1 miroir"
+    },
+    {
+      "zone": "Salle de Bain 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "609",
+      "value": "4",
+      "attribute": "isdb1 Close",
+      "action": "Eteindre",
+      "shortDescription": "salle de bain 1 miroir",
+      "longDescription": "Salle de Bain 1 miroir"
+    },
+    {
+      "zone": "Salle de Bain 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "615",
+      "value": "16",
+      "attribute": "isdb2 Open",
+      "action": "Allumer",
+      "shortDescription": "salle de bain 2 miroir",
+      "longDescription": "Salle de Bain 2 miroir"
+    },
+    {
+      "zone": "Salle de Bain 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "609",
+      "value": "16",
+      "attribute": "isdb2 Close",
+      "action": "Eteindre",
+      "shortDescription": "salle de bain 2 miroir",
+      "longDescription": "Salle de Bain 2 miroir"
+    },
+    {
+      "zone": "Grande Chambre",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "613",
+      "value": "2",
+      "attribute": "igdchamb1 Open",
+      "action": "Allumer",
+      "shortDescription": "grande chambre chevet 1",
+      "longDescription": "Grande Chambre chevet 1"
+    },
+    {
+      "zone": "Grande Chambre",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "607",
+      "value": "2",
+      "attribute": "igdchamb1 Close",
+      "action": "Eteindre",
+      "shortDescription": "grande chambre chevet 1",
+      "longDescription": "Grande Chambre chevet 1"
+    },
+    {
+      "zone": "Grande Chambre",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "613",
+      "value": "4",
+      "attribute": "igdchamb2 Open",
+      "action": "Allumer",
+      "shortDescription": "grande chambre chevet 2",
+      "longDescription": "Grande Chambre chevet 2"
+    },
+    {
+      "zone": "Grande Chambre",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "607",
+      "value": "4",
+      "attribute": "igdchamb2 Close",
+      "action": "Eteindre",
+      "shortDescription": "grande chambre chevet 2",
+      "longDescription": "Grande Chambre chevet 2"
+    },
+    {
+      "zone": "Petite Chambre 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "613",
+      "value": "8",
+      "attribute": "iptchamb1 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 1 chevet 1",
+      "longDescription": "Petite Chambre 1 chevet 1"
+    },
+    {
+      "zone": "Petite Chambre 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "607",
+      "value": "8",
+      "attribute": "iptchamb1 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 1 chevet 1",
+      "longDescription": "Petite Chambre 1 chevet 1"
+    },
+    {
+      "zone": "Petite Chambre 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "613",
+      "value": "16",
+      "attribute": "iptchamb2 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 1 chevet 2",
+      "longDescription": "Petite Chambre 1 chevet 2"
+    },
+    {
+      "zone": "Petite Chambre 1",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "607",
+      "value": "16",
+      "attribute": "iptchamb2 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 1 chevet 2",
+      "longDescription": "Petite Chambre 1 chevet 2"
+    },
+    {
+      "zone": "Petite Chambre 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "613",
+      "value": "32",
+      "attribute": "iptchamb22 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 2 chevet",
+      "longDescription": "Petite Chambre 2 chevet"
+    },
+    {
+      "zone": "Petite Chambre 2",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "607",
+      "value": "32",
+      "attribute": "iptchamb22 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 2 chevet",
+      "longDescription": "Petite Chambre 2 chevet"
+    },
+    {
+      "zone": "Petite Chambre 3",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "613",
+      "value": "64",
+      "attribute": "iptchamb3 Open",
+      "action": "Allumer",
+      "shortDescription": "petite chambre 3",
+      "longDescription": "Petite Chambre 3"
+    },
+    {
+      "zone": "Petite Chambre 3",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "607",
+      "value": "64",
+      "attribute": "iptchamb3 Close",
+      "action": "Eteindre",
+      "shortDescription": "petite chambre 3",
+      "longDescription": "Petite Chambre 3"
+    },
+    {
+      "zone": "Dressing",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "611",
+      "value": "16",
+      "attribute": "idressing Open",
+      "action": "Allumer",
+      "shortDescription": "dressing placards",
+      "longDescription": "Dressing placards"
+    },
+    {
+      "zone": "Dressing",
+      "piece": "NULL",
+      "categorie": "Eclairages - Indirects",
+      "keys": "605",
+      "value": "16",
+      "attribute": "idressing Close",
+      "action": "Eteindre",
+      "shortDescription": "dressing placards",
+      "longDescription": "Dressing placards"
+    },
+    {
+      "zone": "Alarme",
+      "piece": "NULL",
+      "categorie": "Sécurité",
+      "keys": "593",
+      "value": "1",
+      "attribute": "alarme On",
+      "action": "Activer",
+      "shortDescription": "alarme",
+      "longDescription": "Alarme"
+    },
+    {
+      "zone": "Alarme",
+      "piece": "NULL",
+      "categorie": "Sécurité",
+      "keys": "593",
+      "value": "2",
+      "attribute": "alarme Off",
+      "action": "Désactiver",
+      "shortDescription": "alarme",
+      "longDescription": "Alarme"
+    },
+    {
+      "zone": "Sécurité",
+      "piece": "NULL",
+      "categorie": "Sécurité",
+      "keys": "623",
+      "value": "1",
+      "attribute": "securite Couper prises",
+      "action": "Couper",
+      "shortDescription": "sécurité",
+      "longDescription": "Sécurité"
+    },
+    {
+      "zone": "Sécurité",
+      "piece": "NULL",
+      "categorie": "Sécurité",
+      "keys": "623",
+      "value": "2",
+      "attribute": "securite Remettre prises",
+      "action": "Rétablir",
+      "shortDescription": "sécurité",
+      "longDescription": "Sécurité"
+    },
+    {
+      "zone": "Machines",
+      "piece": "NULL",
+      "categorie": "Sécurité",
+      "keys": "624",
+      "value": "1",
+      "attribute": "machines Couper",
+      "action": "Couper",
+      "shortDescription": "machines",
+      "longDescription": "Machines"
+    },
+    {
+      "zone": "Machines",
+      "piece": "NULL",
+      "categorie": "Sécurité",
+      "keys": "624",
+      "value": "2",
+      "attribute": "machines Remettre",
+      "action": "Rétablir",
+      "shortDescription": "machines",
+      "longDescription": "Machines"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "1",
+      "attribute": "Scenario 1 (Réservé Internet)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "2",
+      "attribute": "Scenario 2 (Je sors)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "3",
+      "attribute": "Scenario 3 (Je pars en vacances)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "4",
+      "attribute": "Scenario 4 (Je rentre)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "5",
+      "attribute": "Scenario 5 (Je vais me coucher)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "6",
+      "attribute": "Scenario 6 (Je me lève)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "7",
+      "attribute": "Scenario 7 (Personnalisé 1)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    },
+    {
+      "zone": "Scenario",
+      "piece": "NULL",
+      "categorie": "Scénarios",
+      "keys": "590",
+      "value": "8",
+      "attribute": "Scenario 8 (Personnalisé 2)",
+      "action": "Déclencher",
+      "shortDescription": "scenario",
+      "longDescription": "Scenario"
+    }
+  ],
+  "scenarioDescriptions": [
+    {
+      "id": 1,
+      "name": "Réservé Internet",
+      "base": 592,
+      "description": "Vide par défaut. Utilisé pour les commandes manuelles via le debug (Zone de test)."
+    },
+    {
+      "id": 2,
+      "name": "Je sors",
+      "base": 633,
+      "description": "Alarme : Active (ON). Volets : Ferme TOUT. Sécurité : Coupe les prises. Confirmation : Requise sur l'écran."
+    },
+    {
+      "id": 3,
+      "name": "Je pars en vacances",
+      "base": 674,
+      "description": "Alarme : Active (ON). Volets : Ferme TOUT. Chauffage : Force HORS GEL (toutes zones). Eau/Machines : Coupe l'eau (Securite) et les machines. Cumulus : OFF."
+    },
+    {
+      "id": 4,
+      "name": "Je rentre",
+      "base": 715,
+      "description": "Alarme : Désactive (OFF). Volets : Ouvre TOUT. Sécurité : Rétablit les prises. Chauffage : Reprend le dernier mode mémorisé. Machines : Rétablit l'alimentation."
+    },
+    {
+      "id": 5,
+      "name": "Je vais me coucher",
+      "base": 756,
+      "description": "Alarme : Active (ON). Volets : Ferme TOUT. Réveil : Arme la fonction réveil. Sécurité : Coupe les prises. Chauffage : Continue le fonctionnement actuel."
+    },
+    {
+      "id": 6,
+      "name": "Je me lève",
+      "base": 797,
+      "description": "Alarme : Désactive (OFF). Volets : Ouvre TOUT. Sécurité : Rétablit les prises. Réveil : Désactivé."
+    },
+    {
+      "id": 7,
+      "name": "Personnalisé 1",
+      "base": 838,
+      "description": "Vide par défaut. Configurable par l'utilisateur."
+    },
+    {
+      "id": 8,
+      "name": "Personnalisé 2",
+      "base": 879,
+      "description": "Vide par défaut. Configurable par l'utilisateur."
+    }
+  ],
+  "systemStatusReadOnly": {
+    "status": {
+      "key": 10,
+      "name": "Status",
+      "bits": [
+        {
+          "bit": "b0",
+          "value": 1,
+          "description": "Heures Creuses en cours"
+        },
+        {
+          "bit": "b1",
+          "value": 2,
+          "description": "Délestage en cours"
+        },
+        {
+          "bit": "b2",
+          "value": 4,
+          "description": "Mode Secouru (Batterie)"
+        }
+      ]
+    },
+    "alerte": {
+      "key": 11,
+      "name": "Alerte",
+      "bits": [
+        {
+          "bit": "b0",
+          "value": 1,
+          "description": "Déclenchement Alarme (Intrusion)"
+        },
+        {
+          "bit": "b1",
+          "value": 2,
+          "description": "Alerte Fuite d'Eau (Lave-Linge)"
+        },
+        {
+          "bit": "b2",
+          "value": 4,
+          "description": "Alerte Fuite d'Eau (Lave-Vaisselle)"
+        }
+      ]
+    },
+    "information": {
+      "key": 12,
+      "name": "Information",
+      "bits": [
+        {
+          "bit": "b0",
+          "value": 1,
+          "description": "Défaut Com. Compteur ERDF"
+        },
+        {
+          "bit": "b1",
+          "value": 2,
+          "description": "Défaut Com. IHM (Ecran)"
+        },
+        {
+          "bit": "b2",
+          "value": 4,
+          "description": "Défaut Com. Bus CAN (PDV)"
+        },
+        {
+          "bit": "b3",
+          "value": 8,
+          "description": "Défaut Com. Bus CAN (CHB)"
+        },
+        {
+          "bit": "b4",
+          "value": 16,
+          "description": "Défaut Com. Bus CAN (PDE)"
+        }
+      ]
+    }
+  }
+}

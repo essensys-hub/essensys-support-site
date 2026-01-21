@@ -1,23 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import catalogData from '../data/catalog.json';
+import React, { useState, useMemo, useEffect } from 'react';
+import tableReference from '../data/table_reference.json';
 import './Catalog.css';
+
+const buildCatalog = (entries) => {
+    const categories = new Map();
+
+    entries.forEach((entry) => {
+        const categoryName = entry.categorie || 'Autres';
+        const category = categories.get(categoryName) || { id: categoryName, title: categoryName, actions: new Map() };
+
+        const actionLabel = entry.action && entry.action !== 'NULL' ? entry.action : '';
+        const actionName = actionLabel ? `${entry.zone} - ${actionLabel}` : entry.zone;
+        const actionKey = `${entry.zone}||${actionLabel}||${entry.keys}`;
+
+        if (!category.actions.has(actionKey)) {
+            category.actions.set(actionKey, {
+                name: actionName,
+                description: entry.longDescription || entry.shortDescription || entry.zone || '',
+                key_reference: entry.keys || '',
+                values: []
+            });
+        }
+
+        const action = category.actions.get(actionKey);
+        action.values.push({
+            label: entry.attribute || '',
+            value: entry.value || ''
+        });
+
+        categories.set(categoryName, category);
+    });
+
+    return Array.from(categories.values()).map((category) => ({
+        ...category,
+        actions: Array.from(category.actions.values()).map((action) => ({
+            ...action,
+            values: action.values.slice().sort((a, b) => {
+                const aNum = Number(a.value);
+                const bNum = Number(b.value);
+                if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+                    return aNum - bNum;
+                }
+                return String(a.value).localeCompare(String(b.value));
+            })
+        }))
+    }));
+};
 
 const Catalog = () => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredCategories, setFilteredCategories] = useState(catalogData.categories);
+    const allCategories = useMemo(() => buildCatalog(tableReference.entries || []), []);
+    const [filteredCategories, setFilteredCategories] = useState(allCategories);
 
     useEffect(() => {
-        const lowerTerm = searchTerm.toLowerCase();
-        const filtered = catalogData.categories.map(category => {
-            const matchingActions = category.actions.filter(action =>
-                action.name.toLowerCase().includes(lowerTerm) ||
-                action.description.toLowerCase().includes(lowerTerm)
+        const lowerTerm = searchTerm.trim().toLowerCase();
+        if (!lowerTerm) {
+            setFilteredCategories(allCategories);
+            return;
+        }
+
+        const matchesAction = (action) => {
+            if (action.name.toLowerCase().includes(lowerTerm)) return true;
+            if (action.description.toLowerCase().includes(lowerTerm)) return true;
+            if ((action.key_reference || '').toLowerCase().includes(lowerTerm)) return true;
+            return action.values.some((value) =>
+                String(value.value).toLowerCase().includes(lowerTerm) ||
+                String(value.label).toLowerCase().includes(lowerTerm)
             );
+        };
+
+        const filtered = allCategories.map((category) => {
+            const matchingActions = category.actions.filter(matchesAction);
             return { ...category, actions: matchingActions };
         }).filter(category => category.actions.length > 0);
 
         setFilteredCategories(filtered);
-    }, [searchTerm]);
+    }, [searchTerm, allCategories]);
 
     // Helper to render values in a way that looks like controls
     const renderValues = (values) => {
@@ -54,8 +112,7 @@ const Catalog = () => {
             <div className="catalog-header">
                 <h1>Catalogue des Actions Essensys</h1>
                 <p className="catalog-meta">
-                    Version: {catalogData.meta.version} |
-                    Inspiré de l'interface: <strong>essensys-server-frontend</strong>
+                    Source: <strong>{tableReference.source || 'TableReference.json'}</strong>
                 </p>
                 <div className="search-bar">
                     <input
