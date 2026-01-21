@@ -1653,5 +1653,130 @@
       "shortDescription": "scenario",
       "longDescription": "Scenario"
     }
-  ]
+  ],
+  "scenarioDescriptions": [
+    {
+      "id": 1,
+      "name": "Réservé Internet",
+      "base": 592,
+      "description": "Vide par défaut. Utilisé pour les commandes manuelles via le debug (Zone de test)."
+    },
+    {
+      "id": 2,
+      "name": "Je sors",
+      "base": 633,
+      "description": "Alarme : Active (ON). Volets : Ferme TOUT. Sécurité : Coupe les prises. Confirmation : Requise sur l'écran."
+    },
+    {
+      "id": 3,
+      "name": "Je pars en vacances",
+      "base": 674,
+      "description": "Alarme : Active (ON). Volets : Ferme TOUT. Chauffage : Force HORS GEL (toutes zones). Eau/Machines : Coupe l'eau (Securite) et les machines. Cumulus : OFF."
+    },
+    {
+      "id": 4,
+      "name": "Je rentre",
+      "base": 715,
+      "description": "Alarme : Désactive (OFF). Volets : Ouvre TOUT. Sécurité : Rétablit les prises. Chauffage : Reprend le dernier mode mémorisé. Machines : Rétablit l'alimentation."
+    },
+    {
+      "id": 5,
+      "name": "Je vais me coucher",
+      "base": 756,
+      "description": "Alarme : Active (ON). Volets : Ferme TOUT. Réveil : Arme la fonction réveil. Sécurité : Coupe les prises. Chauffage : Continue le fonctionnement actuel."
+    },
+    {
+      "id": 6,
+      "name": "Je me lève",
+      "base": 797,
+      "description": "Alarme : Désactive (OFF). Volets : Ouvre TOUT. Sécurité : Rétablit les prises. Réveil : Désactivé."
+    },
+    {
+      "id": 7,
+      "name": "Personnalisé 1",
+      "base": 838,
+      "description": "Vide par défaut. Configurable par l'utilisateur."
+    },
+    {
+      "id": 8,
+      "name": "Personnalisé 2",
+      "base": 879,
+      "description": "Vide par défaut. Configurable par l'utilisateur."
+    }
+  ],
+  "systemStatusReadOnly": {
+    "status": {
+      "key": 10,
+      "name": "Status",
+      "bits": [
+        {
+          "bit": "b0",
+          "value": 1,
+          "description": "Heures Creuses en cours"
+        },
+        {
+          "bit": "b1",
+          "value": 2,
+          "description": "Délestage en cours"
+        },
+        {
+          "bit": "b2",
+          "value": 4,
+          "description": "Mode Secouru (Batterie)"
+        }
+      ]
+    },
+    "alerte": {
+      "key": 11,
+      "name": "Alerte",
+      "bits": [
+        {
+          "bit": "b0",
+          "value": 1,
+          "description": "Déclenchement Alarme (Intrusion)"
+        },
+        {
+          "bit": "b1",
+          "value": 2,
+          "description": "Alerte Fuite d'Eau (Lave-Linge)"
+        },
+        {
+          "bit": "b2",
+          "value": 4,
+          "description": "Alerte Fuite d'Eau (Lave-Vaisselle)"
+        }
+      ]
+    },
+    "information": {
+      "key": 12,
+      "name": "Information",
+      "bits": [
+        {
+          "bit": "b0",
+          "value": 1,
+          "description": "Défaut Com. Compteur ERDF"
+        },
+        {
+          "bit": "b1",
+          "value": 2,
+          "description": "Défaut Com. IHM (Ecran)"
+        },
+        {
+          "bit": "b2",
+          "value": 4,
+          "description": "Défaut Com. Bus CAN (PDV)"
+        },
+        {
+          "bit": "b3",
+          "value": 8,
+          "description": "Défaut Com. Bus CAN (CHB)"
+        },
+        {
+          "bit": "b4",
+          "value": 16,
+          "description": "Défaut Com. Bus CAN (PDE)"
+        }
+      ]
+    }
+  }
 }
