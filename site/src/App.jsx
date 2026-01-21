@@ -25,7 +25,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/catalog" element={<Catalog />} />
           <Route
             path="ios"
             element={
