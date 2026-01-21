@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewsletterManager from './NewsletterManager';
 import UserManager from './UserManager';
+import Catalog from './Catalog';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -30,7 +31,7 @@ const Admin = () => {
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
-    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'newsletters', 'users', 'audit'
+    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'newsletters', 'users', 'catalog', 'audit'
 
     // Gateway Icon
     const gatewayIcon = new L.Icon({
@@ -233,6 +234,12 @@ const Admin = () => {
                             Utilisateurs
                         </button>
                         <button
+                            onClick={() => setActiveTab('catalog')}
+                            style={activeTab === 'catalog' ? activeTabStyle : inactiveTabStyle}
+                        >
+                            Catalogue
+                        </button>
+                        <button
                             onClick={() => setActiveTab('audit')}
                             style={activeTab === 'audit' ? activeTabStyle : inactiveTabStyle}
                         >
@@ -417,6 +424,8 @@ const Admin = () => {
                     <NewsletterManager token={token} />
                 ) : activeTab === 'users' ? (
                     <UserManager token={token} />
+                ) : activeTab === 'catalog' ? (
+                    <Catalog />
                 ) : activeTab === 'audit' && (
                     <div className="admin-section">
                         <h3>Audit Trail / Journaux d'activité</h3>
