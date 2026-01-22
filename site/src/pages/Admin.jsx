@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NewsletterManager from './NewsletterManager';
 import UserManager from './UserManager';
 import Catalog from './Catalog';
+import './Catalog.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -280,7 +281,7 @@ const Admin = () => {
 
                         {showMachineList && (
                             <>
-                                <div style={{ marginTop: '20px', padding: '20px', background: '#2a2a2a', borderRadius: '8px' }}>
+                                <div className="catalog-card" style={{ marginTop: '20px' }}>
                                     <h3>Géolocalisation Globale</h3>
                                     <div style={{ height: '400px', width: '100%', borderRadius: '4px', overflow: 'hidden' }}>
                                         <MapContainer center={[46.603354, 1.888334]} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
@@ -317,105 +318,111 @@ const Admin = () => {
                                     </div>
                                 </div>
 
-                                <div style={{ marginTop: '40px', overflowX: 'auto' }}>
+                                <div className="catalog-card" style={{ marginTop: '40px' }}>
                                     <h3>Liste des Gateways ({gateways.length})</h3>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
-                                        <thead>
-                                            <tr style={{ background: '#442222', color: '#fff' }}>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Hostname</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>CPU / RAM</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Services</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {gateways.map((g, i) => (
-                                                <tr key={i} style={{ borderBottom: '1px solid #444' }}>
-                                                    <td style={{ padding: '10px' }}>{g.hostname}</td>
-                                                    <td style={{ padding: '10px' }}>
-                                                        <div>{g.ip || '-'}</div>
-                                                        <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{g.geo_location || ''}</div>
-                                                    </td>
-                                                    <td style={{ padding: '10px' }}>
-                                                        CPU: {g.cpu_usage_percent}%<br />
-                                                        RAM: {g.memory?.percent?.toFixed(1)}%
-                                                    </td>
-                                                    <td style={{ padding: '10px' }}>
-                                                        {g.services && Object.entries(g.services).map(([svc, status]) => (
-                                                            <span key={svc} style={{ color: status ? '#92FE9D' : '#ff4444', marginRight: '5px', fontSize: '0.8em' }}>
-                                                                {svc}: {status ? 'OK' : 'ERR'}
-                                                            </span>
-                                                        ))}
-                                                    </td>
-                                                    <td style={{ padding: '10px' }}>{g.last_seen ? new Date(g.last_seen).toLocaleString() : '-'}</td>
+                                    <div className="table-wrapper">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Hostname</th>
+                                                    <th>IP / Location</th>
+                                                    <th>CPU / RAM</th>
+                                                    <th>Services</th>
+                                                    <th>Last Seen</th>
                                                 </tr>
-                                            ))}
-                                            {gateways.length === 0 && (
-                                                <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Aucune gateway détectée.</td></tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {gateways.map((g, i) => (
+                                                    <tr key={i}>
+                                                        <td>{g.hostname}</td>
+                                                        <td>
+                                                            <div>{g.ip || '-'}</div>
+                                                            <div style={{ fontSize: '0.8em', color: '#6b7280' }}>{g.geo_location || ''}</div>
+                                                        </td>
+                                                        <td>
+                                                            CPU: {g.cpu_usage_percent}%<br />
+                                                            RAM: {g.memory?.percent?.toFixed(1)}%
+                                                        </td>
+                                                        <td>
+                                                            {g.services && Object.entries(g.services).map(([svc, status]) => (
+                                                                <span key={svc} style={{ color: status ? '#15803d' : '#b91c1c', marginRight: '5px', fontSize: '0.8em' }}>
+                                                                    {svc}: {status ? 'OK' : 'ERR'}
+                                                                </span>
+                                                            ))}
+                                                        </td>
+                                                        <td>{g.last_seen ? new Date(g.last_seen).toLocaleString() : '-'}</td>
+                                                    </tr>
+                                                ))}
+                                                {gateways.length === 0 && (
+                                                    <tr><td colSpan="5" className="empty-state">Aucune gateway détectée.</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
-                                <div style={{ marginTop: '40px', overflowX: 'auto' }}>
+                                <div className="catalog-card" style={{ marginTop: '40px' }}>
                                     <h3>Liste des Machines ({machines.length})</h3>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
-                                        <thead>
-                                            <tr style={{ background: '#333', color: '#fff' }}>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Machine ID</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>User / Pass</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>IP / Location</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Raw Auth (Base64)</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Last Seen</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {machines.map(m => (
-                                                <tr key={m.id} style={{ borderBottom: '1px solid #444' }}>
-                                                    <td style={{ padding: '10px' }}>{m.no_serie}</td>
-                                                    <td style={{ padding: '10px', fontFamily: 'monospace' }}>{m.raw_decoded || '-'}</td>
-                                                    <td style={{ padding: '10px' }}>
-                                                        <div>{m.ip || '-'}</div>
-                                                        <div style={{ fontSize: '0.8em', color: '#ffd700' }}>{m.geo_location || ''}</div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.raw_auth || '-'}</td>
-                                                    <td style={{ padding: '10px' }}>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
+                                    <div className="table-wrapper">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Machine ID</th>
+                                                    <th>User / Pass</th>
+                                                    <th>IP / Location</th>
+                                                    <th>Raw Auth (Base64)</th>
+                                                    <th>Last Seen</th>
                                                 </tr>
-                                            ))}
-                                            {machines.length === 0 && (
-                                                <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Aucune machine détectée.</td></tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {machines.map(m => (
+                                                    <tr key={m.id}>
+                                                        <td>{m.no_serie}</td>
+                                                        <td className="mono">{m.raw_decoded || '-'}</td>
+                                                        <td>
+                                                            <div>{m.ip || '-'}</div>
+                                                            <div style={{ fontSize: '0.8em', color: '#6b7280' }}>{m.geo_location || ''}</div>
+                                                        </td>
+                                                        <td className="mono" style={{ fontSize: '0.8em', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {m.raw_auth || '-'}
+                                                        </td>
+                                                        <td>{m.last_seen ? new Date(m.last_seen).toLocaleString() : '-'}</td>
+                                                    </tr>
+                                                ))}
+                                                {machines.length === 0 && (
+                                                    <tr><td colSpan="5" className="empty-state">Aucune machine détectée.</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </>
                         )}
 
                         {(isAuthenticated && subscribers) && (
-                            <div style={{ marginTop: '40px', padding: '0 20px 20px 20px' }}>
+                            <div className="catalog-card" style={{ marginTop: '40px' }}>
                                 <h3>Abonnés Newsletter ({subscribers.length})</h3>
                                 {subscribers.length > 0 ? (
-                                    <div style={{ overflowX: 'auto' }}>
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px', background: '#222' }}>
+                                    <div className="table-wrapper">
+                                        <table>
                                             <thead>
-                                                <tr style={{ background: '#333', color: '#fff' }}>
-                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Email</th>
-                                                    <th style={{ padding: '10px', textAlign: 'left' }}>Date d'inscription</th>
+                                                <tr>
+                                                    <th>Email</th>
+                                                    <th>Date d'inscription</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {subscribers.map((s, i) => (
-                                                    <tr key={i} style={{ borderBottom: '1px solid #444' }}>
-                                                        <td style={{ padding: '10px' }}>{s.email}</td>
-                                                        <td style={{ padding: '10px' }}>{new Date(s.date_joined).toLocaleString()}</td>
+                                                    <tr key={i}>
+                                                        <td>{s.email}</td>
+                                                        <td>{new Date(s.date_joined).toLocaleString()}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
                                     </div>
                                 ) : (
-                                    <p style={{ color: '#888' }}>Aucun abonné pour le moment.</p>
+                                    <p className="empty-state">Aucun abonné pour le moment.</p>
                                 )}
                             </div>
                         )}
@@ -427,10 +434,10 @@ const Admin = () => {
                 ) : activeTab === 'catalog' ? (
                     <Catalog />
                 ) : activeTab === 'audit' && (
-                    <div className="admin-section">
+                    <div className="catalog-card">
                         <h3>Audit Trail / Journaux d'activité</h3>
-                        <div className="table-container">
-                            <table className="admin-table">
+                        <div className="table-wrapper">
+                            <table>
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -443,7 +450,7 @@ const Admin = () => {
                                 </thead>
                                 <tbody>
                                     {logs.length === 0 ? (
-                                        <tr><td colSpan="6">Aucun log trouvé.</td></tr>
+                                        <tr><td colSpan="6" className="empty-state">Aucun log trouvé.</td></tr>
                                     ) : (
                                         logs.map((log) => (
                                             <tr key={log.id}>
