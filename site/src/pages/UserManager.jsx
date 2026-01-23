@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Auth.css'; // Reusing auth styles for form
+import './Catalog.css';
 
 const UserManager = ({ token }) => {
     const [users, setUsers] = useState([]);
@@ -145,122 +145,139 @@ const UserManager = ({ token }) => {
     };
 
     return (
-        <div style={{ color: 'white', marginTop: '20px' }}>
+        <div className="catalog-page">
             <h2>Gestion des Utilisateurs</h2>
 
-            {/* Create User Form - Compact */}
-            <div style={{ background: '#2a2a2a', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
-                <h3 style={{ marginTop: 0 }}>Ajouter un Utilisateur</h3>
-                <form onSubmit={handleCreateUser} style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.8em', marginBottom: '5px' }}>Email</label>
+            <section className="catalog-card">
+                <div className="card-header">
+                    <h3>Ajouter un Utilisateur</h3>
+                </div>
+                <form onSubmit={handleCreateUser} className="entry-form">
+                    <label className="field">
+                        <span>Email</span>
                         <input
                             type="email"
                             placeholder="Email"
                             value={newUser.email}
                             onChange={e => setNewUser({ ...newUser, email: e.target.value })}
                             required
-                            style={inputStyle}
                         />
-                    </div>
-                    {/* ... (Other inputs can stay concise, reused style) ... */}
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.8em', marginBottom: '5px' }}>Mot de passe</label>
+                    </label>
+                    <label className="field">
+                        <span>Mot de passe</span>
                         <input
                             type="password"
                             placeholder="Mot de passe"
                             value={newUser.password}
                             onChange={e => setNewUser({ ...newUser, password: e.target.value })}
                             required
-                            style={inputStyle}
                         />
+                    </label>
+                    <label className="field">
+                        <span>Prénom (Opt)</span>
+                        <input
+                            type="text"
+                            placeholder="Prénom"
+                            value={newUser.firstName}
+                            onChange={e => setNewUser({ ...newUser, firstName: e.target.value })}
+                        />
+                    </label>
+                    <label className="field">
+                        <span>Nom (Opt)</span>
+                        <input
+                            type="text"
+                            placeholder="Nom"
+                            value={newUser.lastName}
+                            onChange={e => setNewUser({ ...newUser, lastName: e.target.value })}
+                        />
+                    </label>
+                    <div className="form-actions">
+                        <button type="submit" className="catalog-button primary">Ajouter</button>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.8em', marginBottom: '5px' }}>Prénom (Opt)</label>
-                        <input type="text" placeholder="Prénom" value={newUser.firstName} onChange={e => setNewUser({ ...newUser, firstName: e.target.value })} style={inputStyle} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '0.8em', marginBottom: '5px' }}>Nom (Opt)</label>
-                        <input type="text" placeholder="Nom" value={newUser.lastName} onChange={e => setNewUser({ ...newUser, lastName: e.target.value })} style={inputStyle} />
-                    </div>
-                    <button type="submit" style={buttonStyle}>Ajouter</button>
                 </form>
-            </div>
+            </section>
 
-            {/* User List */}
-            {loading ? <p>Chargement...</p> : (
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', background: '#222' }}>
-                        <thead>
-                            <tr style={{ background: '#333', color: '#fff' }}>
-                                <th style={thStyle}>ID</th>
-                                <th style={thStyle}>Email</th>
-                                <th style={thStyle}>Nom</th>
-                                <th style={thStyle}>Rôle</th>
-                                <th style={thStyle}>Machine Liée</th>
-                                <th style={thStyle}>Gateway Liée</th>
-                                <th style={thStyle}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map(u => (
-                                <tr key={u.id} style={{ borderBottom: '1px solid #444' }}>
-                                    <td style={tdStyle}>{u.id}</td>
-                                    <td style={tdStyle}>{u.email}</td>
-                                    <td style={tdStyle}>{u.first_name} {u.last_name}</td>
-                                    <td style={tdStyle}>
-                                        <select
-                                            value={u.role}
-                                            onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                                            style={selectStyle}
-                                            disabled={u.role === 'admin_global' || (localStorage.getItem('adminRole') === 'admin_local' && u.role === 'admin_local')}
-                                        >
-                                            {localStorage.getItem('adminRole') === 'admin_global' ? (
-                                                <>
-                                                    <option value="admin_global">Admin Global</option>
-                                                    <option value="admin_local">Admin Local</option>
-                                                    <option value="user">User</option>
-                                                    <option value="guest_local">Guest Local</option>
-                                                    <option value="support">Support</option>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <option value="user">User</option>
-                                                    <option value="guest_local">Guest Local</option>
-                                                </>
-                                            )}
-                                        </select>
-                                    </td>
-                                    <td style={tdStyle}>
-                                        {u.linked_machine_id ? `ID: ${u.linked_machine_id}` : '-'}
-                                    </td>
-                                    <td style={tdStyle}>
-                                        {u.linked_gateway_id ? u.linked_gateway_id : '-'}
-                                    </td>
-                                    <td style={tdStyle}>
-                                        {localStorage.getItem('adminRole') === 'admin_global' && (
-                                            <button onClick={() => openEditModal(u)} style={editLinkStyle}>Lier Appareils</button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            <section className="catalog-card">
+                <div className="card-header">
+                    <h3>Liste des utilisateurs</h3>
                 </div>
-            )}
+                {loading ? (
+                    <p className="empty-state">Chargement...</p>
+                ) : (
+                    <div className="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Nom</th>
+                                    <th>Rôle</th>
+                                    <th>Machine Liée</th>
+                                    <th>Gateway Liée</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map(u => (
+                                    <tr key={u.id}>
+                                        <td>{u.id}</td>
+                                        <td>{u.email}</td>
+                                        <td>{u.first_name} {u.last_name}</td>
+                                        <td>
+                                            <select
+                                                value={u.role}
+                                                onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                                                disabled={u.role === 'admin_global' || (localStorage.getItem('adminRole') === 'admin_local' && u.role === 'admin_local')}
+                                            >
+                                                {localStorage.getItem('adminRole') === 'admin_global' ? (
+                                                    <>
+                                                        <option value="admin_global">Admin Global</option>
+                                                        <option value="admin_local">Admin Local</option>
+                                                        <option value="user">User</option>
+                                                        <option value="guest_local">Guest Local</option>
+                                                        <option value="support">Support</option>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <option value="user">User</option>
+                                                        <option value="guest_local">Guest Local</option>
+                                                    </>
+                                                )}
+                                            </select>
+                                        </td>
+                                        <td>{u.linked_machine_id ? `ID: ${u.linked_machine_id}` : '-'}</td>
+                                        <td>{u.linked_gateway_id ? u.linked_gateway_id : '-'}</td>
+                                        <td className="table-actions">
+                                            {localStorage.getItem('adminRole') === 'admin_global' && (
+                                                <button onClick={() => openEditModal(u)} className="catalog-button ghost">
+                                                    Lier Appareils
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {!loading && users.length === 0 && (
+                                    <tr>
+                                        <td colSpan="7" className="empty-state">Aucun utilisateur trouvé.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+                {error && <p className="empty-state">{error}</p>}
+            </section>
 
-            {/* Edit Modal Overlay */}
             {editingUser && (
-                <div style={modalOverlayStyle}>
-                    <div style={modalContentStyle}>
+                <div className="modal-overlay">
+                    <div className="modal-content">
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>Machine (Armoire)</label>
+                        <label className="field">
+                            <span>Machine (Armoire)</span>
                             <select
                                 value={editMachine}
                                 onChange={(e) => setEditMachine(e.target.value)}
-                                style={{ ...inputStyle, width: '100%' }}
                             >
                                 <option value="">-- Aucune --</option>
                                 {machines.map(m => (
@@ -269,14 +286,13 @@ const UserManager = ({ token }) => {
                                     </option>
                                 ))}
                             </select>
-                        </div>
+                        </label>
 
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>Gateway</label>
+                        <label className="field">
+                            <span>Gateway</span>
                             <select
                                 value={editGateway}
                                 onChange={(e) => setEditGateway(e.target.value)}
-                                style={{ ...inputStyle, width: '100%' }}
                             >
                                 <option value="">-- Aucune --</option>
                                 {gateways.map(g => (
@@ -285,33 +301,17 @@ const UserManager = ({ token }) => {
                                     </option>
                                 ))}
                             </select>
-                        </div>
+                        </label>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                            <button onClick={() => setEditingUser(null)} style={{ ...buttonStyle, background: '#555', color: 'white' }}>Annuler</button>
-                            <button onClick={handleSaveLinks} style={buttonStyle}>Sauvegarder</button>
+                        <div className="modal-actions">
+                            <button onClick={() => setEditingUser(null)} className="catalog-button ghost">Annuler</button>
+                            <button onClick={handleSaveLinks} className="catalog-button primary">Sauvegarder</button>
                         </div>
                     </div>
                 </div>
             )}
         </div>
     );
-};
-
-// Styles
-const inputStyle = { padding: '8px', borderRadius: '4px', border: '1px solid #444', background: '#333', color: 'white', minWidth: '150px' };
-const buttonStyle = { padding: '8px 16px', borderRadius: '4px', border: 'none', background: '#00C9FF', color: 'black', fontWeight: 'bold', cursor: 'pointer' };
-const selectStyle = { padding: '5px', borderRadius: '4px', background: '#333', color: 'white', border: '1px solid #555' };
-const thStyle = { padding: '12px', textAlign: 'left' };
-const tdStyle = { padding: '12px' };
-const editLinkStyle = { background: 'transparent', border: '1px solid #00C9FF', color: '#00C9FF', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' };
-
-const modalOverlayStyle = {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-};
-const modalContentStyle = {
-    background: '#222', padding: '30px', borderRadius: '8px', width: '400px', border: '1px solid #444'
 };
 
 export default UserManager;

@@ -82,7 +82,7 @@ const RaspberryPi = () => {
                     margin: '20px 0',
                     display: 'inline-block'
                 }}>
-                    curl -sL https://essensys.fr/install.sh | bash
+                    sudo curl -sL https://raw.githubusercontent.com/essensys-hub/essensys-raspberry-install/refs/heads/V.1.1.0/install.sh | sudo bash
                 </div>
 
                 <div style={{ marginTop: '20px' }}>
