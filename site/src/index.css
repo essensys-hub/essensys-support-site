@@ -100,3 +100,23 @@ button:focus-visible {
   gap: 1rem;
   margin-top: 3rem;
 }
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .page-content {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}

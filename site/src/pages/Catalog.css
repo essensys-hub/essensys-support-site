@@ -345,3 +345,31 @@ tbody td {
         align-items: flex-start;
     }
 }
+
+@media (max-width: 600px) {
+    .catalog-page {
+        padding: 16px;
+    }
+    .catalog-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .version-grid,
+    .entry-form {
+        grid-template-columns: 1fr;
+    }
+    .search-field input {
+        min-width: 0;
+        width: 100%;
+    }
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .form-actions {
+        flex-wrap: wrap;
+    }
+    .table-actions {
+        flex-wrap: wrap;
+    }
+}

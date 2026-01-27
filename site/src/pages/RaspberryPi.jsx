@@ -1,12 +1,13 @@
 import React from 'react';
 import diagramImage from '../assets/raspberry_pi_diagram.png';
 import { Cpu, ArrowRight, BookOpen } from 'lucide-react';
+import './RaspberryPi.css';
 
 const RaspberryPi = () => {
     return (
-        <div className="page-content" style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center', color: 'white' }}>
-            <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>Comment fonctionne Essensys sur un Raspberry Pi ?</h1>
-            <p style={{ fontSize: '1.2rem', color: '#ccc', marginBottom: '40px' }}>
+        <div className="page-content raspberry-page">
+            <h1 className="raspberry-title">Comment fonctionne Essensys sur un Raspberry Pi ?</h1>
+            <p className="raspberry-subtitle">
                 Un site web hébergé chez soi, accessible en local et depuis Internet
             </p>
 
@@ -18,15 +19,9 @@ const RaspberryPi = () => {
                 justifyContent: 'center'
             }}>
                 <img
+                    className="raspberry-diagram"
                     src={diagramImage}
                     alt="Schéma de fonctionnement Essensys : Utilisateur -> Raspberry Pi -> Site Web"
-                    style={{
-                        width: '100%',
-                        maxWidth: '1000px',
-                        borderRadius: '24px',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}
                 />
             </div>
 
@@ -36,7 +31,7 @@ const RaspberryPi = () => {
             </p>
 
             {/* Bottom Cards Grid - Explaining the Steps */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '60px' }}>
+            <div className="raspberry-grid">
                 <div style={gridCardStyle}>
                     <div style={circleNumberStyle('#4A90E2')}>1</div>
                     <h3 style={{ color: '#4A90E2', marginBottom: '10px' }}>L'utilisateur</h3>
@@ -68,20 +63,9 @@ const RaspberryPi = () => {
             </div>
 
             {/* Installation Section */}
-            <div style={{ background: '#111', padding: '30px', borderRadius: '16px', border: '1px solid #333' }}>
+            <div className="raspberry-install-card">
                 <h2 style={{ marginTop: 0 }}>Prêt à installer ?</h2>
-                <div style={{
-                    background: '#000',
-                    padding: '15px',
-                    borderRadius: '8px',
-                    fontFamily: 'monospace',
-                    fontSize: '1.1em',
-                    color: '#00C9FF',
-                    overflowX: 'auto',
-                    border: '1px solid #444',
-                    margin: '20px 0',
-                    display: 'inline-block'
-                }}>
+                <div className="raspberry-install-command">
                     sudo curl -sL https://raw.githubusercontent.com/essensys-hub/essensys-raspberry-install/refs/heads/V.1.1.0/install.sh | sudo bash
                 </div>
 
