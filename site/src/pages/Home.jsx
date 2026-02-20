@@ -12,7 +12,7 @@ const Home = () => {
 
             <div className="hero-actions">
                 <button onClick={() => window.location.href = '/support'}>Commencer</button>
-                <button className="secondary" onClick={() => window.open('https://github.com/essensys-hub', '_blank')}>Voir sur GitHub</button>
+                <button className="secondary" onClick={() => window.open('https://github.com/orgs/essensys-hub/repositories', '_blank')}>Voir sur GitHub</button>
             </div>
 
             <section className="features">
