@@ -48,7 +48,7 @@ const Support = () => {
                     </div>
                     <ul className="support-doc-list">
                         <li style={{ marginBottom: '10px' }}>
-                            <a href="hhttps://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/installation/maintenance/" className="support-doc-link">
+                            <a href="hhttps://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/maintenance/" className="support-doc-link">
                                 <span style={{ marginRight: '8px', fontSize: '0.8em' }}>▶</span> Problèmes Courants
                             </a>
                         </li>
