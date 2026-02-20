@@ -71,7 +71,7 @@ const RaspberryPi = () => {
 
                 <div style={{ marginTop: '20px' }}>
                     <a
-                        href="https://essensys-hub.github.io/essensys-raspberry-install/installation/"
+                        href="https://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/installation/"
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
