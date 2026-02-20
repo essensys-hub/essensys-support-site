@@ -1,0 +1,641 @@
+{
+    "meta": {
+        "version": "2026.01.001",
+        "last_updated": "2026-01-18",
+        "source_url": "https://essensys-hub.github.io/essensys-raspberry-install/maintenance/debug/"
+    },
+    "categories": [
+        {
+            "id": "eclairage",
+            "title": "Éclairage",
+            "actions": [
+                {
+                    "name": "Allumer",
+                    "description": "Allume le circuit d'éclairage spécifié.",
+                    "values": [
+                        {
+                            "label": "Circuit 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Circuit 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Circuit 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Circuit 4",
+                            "value": "8"
+                        },
+                        {
+                            "label": "Circuit 5",
+                            "value": "16"
+                        },
+                        {
+                            "label": "Circuit 6",
+                            "value": "32"
+                        },
+                        {
+                            "label": "Circuit 7",
+                            "value": "64"
+                        },
+                        {
+                            "label": "Circuit 8",
+                            "value": "128"
+                        }
+                    ]
+                },
+                {
+                    "name": "Éteindre",
+                    "description": "Éteint le circuit d'éclairage spécifié.",
+                    "values": [
+                        {
+                            "label": "Circuit 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Circuit 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Circuit 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Circuit 4",
+                            "value": "8"
+                        },
+                        {
+                            "label": "Circuit 5",
+                            "value": "16"
+                        },
+                        {
+                            "label": "Circuit 6",
+                            "value": "32"
+                        },
+                        {
+                            "label": "Circuit 7",
+                            "value": "64"
+                        },
+                        {
+                            "label": "Circuit 8",
+                            "value": "128"
+                        }
+                    ]
+                },
+                {
+                    "name": "Temps d'extinction",
+                    "description": "Définit le temps avant extinction automatique des lampes (en minutes). 0 = pas d'extinction.",
+                    "values": [
+                        {
+                            "label": "Durée (1-255 minutes)",
+                            "value": "1...255"
+                        }
+                    ]
+                },
+                {
+                    "name": "Type variateur",
+                    "description": "Configure le type de charge pour les sorties variateurs.",
+                    "values": [
+                        {
+                            "label": "TOR avec rampe (halogène)",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Gradateur (dimmer)",
+                            "value": "1"
+                        },
+                        {
+                            "label": "TOR sec (LED/Relais)",
+                            "value": "2"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "volets",
+            "title": "Volets & Stores",
+            "actions": [
+                {
+                    "name": "Ouvrir",
+                    "description": "Ouvre le volet ou store spécifié.",
+                    "values": [
+                        {
+                            "label": "Volet 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Volet 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Volet 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Volet 4",
+                            "value": "8"
+                        },
+                        {
+                            "label": "Volet 5",
+                            "value": "16"
+                        },
+                        {
+                            "label": "Volet 6",
+                            "value": "32"
+                        }
+                    ]
+                },
+                {
+                    "name": "Fermer",
+                    "description": "Ferme le volet ou store spécifié.",
+                    "values": [
+                        {
+                            "label": "Volet 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Volet 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Volet 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Volet 4",
+                            "value": "8"
+                        },
+                        {
+                            "label": "Volet 5",
+                            "value": "16"
+                        },
+                        {
+                            "label": "Volet 6",
+                            "value": "32"
+                        }
+                    ]
+                },
+                {
+                    "name": "Temps de course",
+                    "description": "Définit le temps de course des volets (en secondes).",
+                    "values": [
+                        {
+                            "label": "Durée (1-255 secondes)",
+                            "value": "1...255"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "chauffage",
+            "title": "Chauffage",
+            "actions": [
+                {
+                    "name": "Mode chauffage (zone jour)",
+                    "description": "Sélectionne le mode de chauffage pour la zone jour.",
+                    "values": [
+                        {
+                            "label": "Automatique (planning)",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Forçage confort",
+                            "value": "17"
+                        },
+                        {
+                            "label": "Forçage éco",
+                            "value": "18"
+                        },
+                        {
+                            "label": "Forçage éco+",
+                            "value": "19"
+                        },
+                        {
+                            "label": "Forçage éco++",
+                            "value": "20"
+                        },
+                        {
+                            "label": "Forçage hors gel",
+                            "value": "21"
+                        },
+                        {
+                            "label": "Anticipé",
+                            "value": "32"
+                        },
+                        {
+                            "label": "OFF",
+                            "value": "16"
+                        }
+                    ]
+                },
+                {
+                    "name": "Mode chauffage (zone nuit)",
+                    "description": "Sélectionne le mode de chauffage pour la zone nuit.",
+                    "values": [
+                        {
+                            "label": "Automatique (planning)",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Forçage confort",
+                            "value": "17"
+                        },
+                        {
+                            "label": "Forçage éco",
+                            "value": "18"
+                        },
+                        {
+                            "label": "Forçage éco+",
+                            "value": "19"
+                        },
+                        {
+                            "label": "Forçage éco++",
+                            "value": "20"
+                        },
+                        {
+                            "label": "Forçage hors gel",
+                            "value": "21"
+                        },
+                        {
+                            "label": "Anticipé",
+                            "value": "32"
+                        },
+                        {
+                            "label": "OFF",
+                            "value": "16"
+                        }
+                    ]
+                },
+                {
+                    "name": "Mode chauffage (salle de bain 1)",
+                    "description": "Sélectionne le mode de chauffage pour la salle de bain 1.",
+                    "values": [
+                        {
+                            "label": "Automatique (planning)",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Forçage confort",
+                            "value": "17"
+                        },
+                        {
+                            "label": "Forçage éco",
+                            "value": "18"
+                        },
+                        {
+                            "label": "Forçage éco+",
+                            "value": "19"
+                        },
+                        {
+                            "label": "Forçage éco++",
+                            "value": "20"
+                        },
+                        {
+                            "label": "Forçage hors gel",
+                            "value": "21"
+                        },
+                        {
+                            "label": "Anticipé",
+                            "value": "32"
+                        },
+                        {
+                            "label": "OFF",
+                            "value": "16"
+                        }
+                    ]
+                },
+                {
+                    "name": "Mode chauffage (salle de bain 2)",
+                    "description": "Sélectionne le mode de chauffage pour la salle de bain 2.",
+                    "values": [
+                        {
+                            "label": "Automatique (planning)",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Forçage confort",
+                            "value": "17"
+                        },
+                        {
+                            "label": "Forçage éco",
+                            "value": "18"
+                        },
+                        {
+                            "label": "Forçage éco+",
+                            "value": "19"
+                        },
+                        {
+                            "label": "Forçage éco++",
+                            "value": "20"
+                        },
+                        {
+                            "label": "Forçage hors gel",
+                            "value": "21"
+                        },
+                        {
+                            "label": "Anticipé",
+                            "value": "32"
+                        },
+                        {
+                            "label": "OFF",
+                            "value": "16"
+                        }
+                    ]
+                },
+                {
+                    "name": "Mode cumulus",
+                    "description": "Définit le mode de fonctionnement du ballon d'eau chaude (cumulus).",
+                    "values": [
+                        {
+                            "label": "Auto",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Heures creuses",
+                            "value": "1"
+                        },
+                        {
+                            "label": "OFF",
+                            "value": "2"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "scenarios",
+            "title": "Scénarios",
+            "actions": [
+                {
+                    "name": "Lancer un scénario",
+                    "description": "Déclenche un scénario prédéfini.",
+                    "values": [
+                        {
+                            "label": "Je sors (Scénario 2)",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Je pars en vacances (Scénario 3)",
+                            "value": "3"
+                        },
+                        {
+                            "label": "Je rentre (Scénario 4)",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Je vais me coucher (Scénario 5)",
+                            "value": "5"
+                        },
+                        {
+                            "label": "Je me lève (Scénario 6)",
+                            "value": "6"
+                        },
+                        {
+                            "label": "Personnalisé (Scénario 7)",
+                            "value": "7"
+                        },
+                        {
+                            "label": "Libre (Scénario 8)",
+                            "value": "8"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "teleinformation",
+            "title": "Téléinformation",
+            "actions": [
+                {
+                    "name": "Lire option tarifaire",
+                    "description": "Renvoie l'option tarifaire du compteur.",
+                    "values": []
+                },
+                {
+                    "name": "Lire période tarifaire en cours",
+                    "description": "Renvoie la période tarifaire en cours (heures creuses, heures pleines, etc.).",
+                    "values": []
+                },
+                {
+                    "name": "Lire puissance apparente",
+                    "description": "Lit la puissance apparente actuellement consommée.",
+                    "values": []
+                },
+                {
+                    "name": "Lire consommation HPB",
+                    "description": "Lit les consommations en heures pleines / base pour chaque usage.",
+                    "values": []
+                },
+                {
+                    "name": "Lire consommation HC",
+                    "description": "Lit les consommations en heures creuses pour chaque usage.",
+                    "values": []
+                },
+                {
+                    "name": "Lire répartition consommations",
+                    "description": "Affiche la répartition en pourcentage des consommations par poste (chauffage, eau chaude, prises, etc.).",
+                    "values": []
+                }
+            ]
+        },
+        {
+            "id": "version",
+            "title": "Version",
+            "actions": [
+                {
+                    "name": "Consulter versions logicielles",
+                    "description": "Affiche les versions du logiciel embarqué (BP), du serveur Web, de l'IHM et de la table d'échange.",
+                    "values": []
+                }
+            ]
+        },
+        {
+            "id": "etat",
+            "title": "Status & État",
+            "actions": [
+                {
+                    "name": "Lire status système",
+                    "description": "Renvoie l'état du système (heures creuses, délestage, mode secouru).",
+                    "values": []
+                },
+                {
+                    "name": "Lire alertes",
+                    "description": "Affiche les alertes en cours (intrusion, fuite d'eau, etc.).",
+                    "values": []
+                },
+                {
+                    "name": "Lire informations système",
+                    "description": "Donne l'état des communications (compteur ERDF, IHM, boîtiers auxiliaires).",
+                    "values": []
+                }
+            ]
+        },
+        {
+            "id": "arrosage",
+            "title": "Arrosage",
+            "actions": [
+                {
+                    "name": "Démarrer l'arrosage",
+                    "description": "Démarre l'arrosage sur une zone spécifiée.",
+                    "values": [
+                        {
+                            "label": "Zone 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Zone 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Zone 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Zone 4",
+                            "value": "8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Arrêter l'arrosage",
+                    "description": "Arrête l'arrosage sur une zone spécifiée.",
+                    "values": [
+                        {
+                            "label": "Zone 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Zone 2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "Zone 3",
+                            "value": "4"
+                        },
+                        {
+                            "label": "Zone 4",
+                            "value": "8"
+                        }
+                    ]
+                },
+                {
+                    "name": "Mode de fonctionnement",
+                    "description": "Définit le mode d'arrosage (manuel ou automatique).",
+                    "values": [
+                        {
+                            "label": "Off",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Manuel – durée (minutes)",
+                            "value": "1...254"
+                        },
+                        {
+                            "label": "Automatique (planning)",
+                            "value": "255"
+                        }
+                    ]
+                },
+                {
+                    "name": "État du détecteur de pluie",
+                    "description": "Renvoie l'état du détecteur de pluie (actif ou inactif).",
+                    "values": []
+                }
+            ]
+        },
+        {
+            "id": "alarme",
+            "title": "Alarme",
+            "actions": [
+                {
+                    "name": "Activer",
+                    "description": "Active le système d'alarme.",
+                    "values": []
+                },
+                {
+                    "name": "Désactiver",
+                    "description": "Désactive le système d'alarme.",
+                    "values": []
+                },
+                {
+                    "name": "Armer/Désarmer via scénario",
+                    "description": "Mise sous alarme ou hors alarme via scénario prédéfini.",
+                    "values": [
+                        {
+                            "label": "Mettre sous alarme",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Retirer l'alarme",
+                            "value": "2"
+                        }
+                    ]
+                },
+                {
+                    "name": "Test sirène",
+                    "description": "Test de la sirène intérieure ou extérieure.",
+                    "values": [
+                        {
+                            "label": "Sirène intérieure",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Sirène extérieure",
+                            "value": "2"
+                        }
+                    ]
+                },
+                {
+                    "name": "Test détecteurs",
+                    "description": "Remet à zéro les indicateurs de détection pour les détecteurs de présence.",
+                    "values": [
+                        {
+                            "label": "Détecteur présence 1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Détecteur présence 2",
+                            "value": "2"
+                        }
+                    ]
+                },
+                {
+                    "name": "Statut de l'alarme",
+                    "description": "Affiche le suivi et l'état de l'alarme (intrusion, vandalisme, etc.).",
+                    "values": []
+                }
+            ]
+        },
+        {
+            "id": "environnement",
+            "title": "Environnement (Pluie & Vent)",
+            "actions": [
+                {
+                    "name": "Lire détecteur de pluie",
+                    "description": "Indique si de la pluie est détectée.",
+                    "values": []
+                },
+                {
+                    "name": "Lire vitesse du vent",
+                    "description": "Renvoie la vitesse instantanée du vent en km/h.",
+                    "values": []
+                },
+                {
+                    "name": "Seuil repliage store",
+                    "description": "Définit la vitesse de vent qui déclenche le repliage automatique du store.",
+                    "values": [
+                        {
+                            "label": "Vitesse (1-255 km/h)",
+                            "value": "1...255"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
