@@ -84,7 +84,7 @@ const Home = () => {
                         <li><strong>Évolution</strong> : La communauté peut développer de nouveaux connecteurs et fonctionnalités sans attendre un fabricant.</li>
                     </ul>
                     <div className="github-actions">
-                        <button className="secondary" onClick={() => window.open('https://github.com/essensys-hub', '_blank')}>Explorer les 20+ Répôts</button>
+                        <button className="secondary" onClick={() => window.open('https://github.com/orgs/essensys-hub/repositories', '_blank')}>Explorer les 20+ Répôts</button>
                     </div>
                 </div>
             </section>
