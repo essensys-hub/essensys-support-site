@@ -20,12 +20,12 @@ const Support = () => {
                     </div>
                     <ul className="support-doc-list">
                         <li style={{ marginBottom: '10px' }}>
-                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/installation/" className="support-doc-link">
+                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/installation/" className="support-doc-link">
                                 <span style={{ marginRight: '8px', fontSize: '0.8em' }}>▶</span> Installer le Serveur sur Raspberry Pi
                             </a>
                         </li>
                         <li>
-                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/installation/preparation/" className="support-doc-link">
+                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/installation/preparation/" className="support-doc-link">
                                 <span style={{ marginRight: '8px', fontSize: '0.8em' }}>▶</span> Connecter le Matériel
                             </a>
                         </li>
@@ -48,12 +48,12 @@ const Support = () => {
                     </div>
                     <ul className="support-doc-list">
                         <li style={{ marginBottom: '10px' }}>
-                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/maintenance/" className="support-doc-link">
+                            <a href="hhttps://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/installation/maintenance/" className="support-doc-link">
                                 <span style={{ marginRight: '8px', fontSize: '0.8em' }}>▶</span> Problèmes Courants
                             </a>
                         </li>
                         <li>
-                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/logs/" className="support-doc-link">
+                            <a href="https://essensys-hub.github.io/essensys-raspberry-install/V.1.2.0/logs/" className="support-doc-link">
                                 <span style={{ marginRight: '8px', fontSize: '0.8em' }}>▶</span> Outils de Diagnostic
                             </a>
                         </li>
