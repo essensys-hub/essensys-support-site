@@ -6,13 +6,17 @@ import android2 from '../assets/app_android_002.png';
 
 const Home = () => {
     return (
-        <div className="page-content home-page">
-            <h1>Essensys Domotique</h1>
-            <p className="subtitle">Donnez une seconde vie à votre installation.</p>
+        <div className="home-page">
+            <div className="hero-section">
+                <h1>Essensys Domotique</h1>
+                <p className="subtitle" style={{ fontSize: '1.2rem', color: '#475569', maxWidth: '600px', margin: '0 auto 2rem' }}>
+                    Donnez une seconde vie à votre installation.
+                </p>
 
-            <div className="hero-actions">
-                <button onClick={() => window.location.href = '/support'}>Commencer</button>
-                <button className="secondary" onClick={() => window.open('https://github.com/orgs/essensys-hub/repositories', '_blank')}>Voir sur GitHub</button>
+                <div className="hero-actions">
+                    <button onClick={() => window.location.href = '/support'}>Commencer</button>
+                    <button className="secondary" onClick={() => window.open('https://github.com/orgs/essensys-hub/repositories', '_blank')}>Voir sur GitHub</button>
+                </div>
             </div>
 
             <section className="features">

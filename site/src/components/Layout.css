@@ -5,8 +5,8 @@
 }
 
 .main-header {
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -14,7 +14,8 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .logo {
@@ -36,14 +37,15 @@ nav ul {
 }
 
 nav a {
-    color: #e0e0e0;
+    color: #475569;
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s;
+    transition: color 0.2s;
+    font-size: 1rem;
 }
 
 nav a:hover {
-    color: #4CAF50;
+    color: #3B82F6;
 }
 
 .main-content {
@@ -56,47 +58,51 @@ nav a:hover {
 
 .main-footer {
     text-align: center;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.4);
-    color: #888;
+    padding: 2rem;
+    background-color: #FFFFFF;
+    color: #94A3B8;
     font-size: 0.9rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 4rem;
 }
 
 /* Auth Buttons in Header */
 .auth-buttons-header {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 1rem;
 }
 
 .nav-btn-signup {
-    color: #ffffff;
+    color: #1E293B;
+    background-color: #E2E8F0;
+    padding: 8px 20px;
+    border-radius: 9999px;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 1rem;
-    transition: color 0.2s;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
 .nav-btn-signup:hover {
-    color: #ddd;
+    background-color: #CBD5E1;
+    color: #1E293B;
 }
 
 .nav-btn-login {
-    background-color: #0f172a;
-    /* Dark background */
+    background: linear-gradient(to right, #60A5FA, #3B82F6);
     color: white;
     padding: 8px 24px;
     border-radius: 9999px;
-    /* Pill shape */
     text-decoration: none;
     font-weight: 600;
-    transition: background-color 0.2s, transform 0.1s;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
 
 .nav-btn-login:hover {
-    background-color: #1e293b;
-    transform: scale(1.02);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.4);
+    color: white;
 }
 
 @media (max-width: 768px) {
