@@ -50,6 +50,26 @@ const Home = () => {
                 </div>
             </section>
 
+            <section id="demos" className="content-section">
+                <h2>Démos en Ligne</h2>
+                <div className="features">
+                    <div
+                        className="feature-card clickable"
+                        onClick={() => window.open('/demo/server-frontend/', '_blank')}
+                    >
+                        <h3>Client Web</h3>
+                        <p>Découvrez l'interface de contrôle domotique principale. (Mode démo sans backend)</p>
+                    </div>
+                    <div
+                        className="feature-card clickable"
+                        onClick={() => window.open('/demo/control-plane/', '_blank')}
+                    >
+                        <h3>Control Plane</h3>
+                        <p>Explorez l'interface d'administration système. (Mode démo sans backend)</p>
+                    </div>
+                </div>
+            </section>
+
             <section id="apps" className="content-section">
                 <h2>Applications Mobiles</h2>
                 <div className="apps-showcase">
