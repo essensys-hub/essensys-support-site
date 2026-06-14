@@ -114,7 +114,10 @@ func (rt *Router) HandleAdminGetUsers(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return
     }
-    
+    if users == nil {
+        users = []*models.User{}
+    }
+
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(users)
 }

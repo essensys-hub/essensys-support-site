@@ -123,7 +123,7 @@ const Admin = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setLogs(data);
+                setLogs(Array.isArray(data) ? data : []);
             }
         } catch (error) {
             console.error("Audit Logs fetch failed", error);
@@ -137,7 +137,7 @@ const Admin = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setSubscribers(data);
+                setSubscribers(Array.isArray(data) ? data : []);
             }
         } catch (err) {
             console.error("Failed to fetch subscribers", err);
@@ -151,7 +151,7 @@ const Admin = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setMachines(data);
+                setMachines(Array.isArray(data) ? data : []);
                 setShowMachineList(true); // Auto-show list/map
             }
         } catch (err) {
@@ -166,7 +166,7 @@ const Admin = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setGateways(data);
+                setGateways(Array.isArray(data) ? data : []);
             }
         } catch (err) {
             console.error("Failed to fetch gateways", err);

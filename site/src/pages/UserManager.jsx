@@ -140,7 +140,7 @@ const UserManager = ({ token }) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setUsers(data);
+                setUsers(Array.isArray(data) ? data : []);
             } else {
                 setError('Failed to fetch users');
             }
@@ -154,15 +154,24 @@ const UserManager = ({ token }) => {
     const fetchDevices = async () => {
         try {
             const resM = await fetch('/api/admin/machines', { headers: { 'Authorization': `Bearer ${token}` } });
-            if (resM.ok) setMachines(await resM.json());
+            if (resM.ok) {
+                const data = await resM.json();
+                setMachines(Array.isArray(data) ? data : []);
+            }
 
             const resG = await fetch('/api/admin/gateways', { headers: { 'Authorization': `Bearer ${token}` } });
-            if (resG.ok) setGateways(await resG.json());
+            if (resG.ok) {
+                const data = await resG.json();
+                setGateways(Array.isArray(data) ? data : []);
+            }
 
             const resP = await fetch('/api/portal/admin/gateway-sessions', {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (resP.ok) setPortalGateways(await resP.json());
+            if (resP.ok) {
+                const data = await resP.json();
+                setPortalGateways(Array.isArray(data) ? data : []);
+            }
         } catch (err) {
             console.error("Failed to fetch devices");
         }

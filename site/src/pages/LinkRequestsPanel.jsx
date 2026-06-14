@@ -12,7 +12,8 @@ const LinkRequestsPanel = ({ token }) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
-                setRequests(await res.json());
+                const data = await res.json();
+                setRequests(Array.isArray(data) ? data : []);
             } else {
                 setError('Impossible de charger les demandes (portail backend déployé ?)');
             }
