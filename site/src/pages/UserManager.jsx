@@ -13,9 +13,52 @@ const findGateway = (gateways, linkedGatewayId) => {
     )) ?? null;
 };
 
-const findMachine = (machines, linkedMachineId) => {
-    if (!linkedMachineId) return null;
-    return machines.find((m) => m.id === linkedMachineId) ?? null;
+const findPortalGateway = (sessions, linkedGatewayId) => {
+    if (!linkedGatewayId || !sessions?.length) return null;
+    const key = normalizeGatewayKey(linkedGatewayId);
+    return sessions.find((s) => (
+        s.gateway_id === linkedGatewayId
+        || normalizeGatewayKey(s.gateway_id) === key
+    )) ?? null;
+};
+
+const findArmoireForGateway = (machines, gatewayStatus) => {
+    if (!gatewayStatus?.ip) return null;
+    const gatewayIp = gatewayStatus.ip;
+    const candidates = machines.filter((m) => (
+        m.ip === gatewayIp || (m.ip && m.ip.startsWith('10.0.1.'))
+    ));
+    if (candidates.length === 0) return null;
+    if (candidates.length === 1) return candidates[0];
+    const onGatewayIp = candidates.filter((m) => m.ip === gatewayIp);
+    const pool = onGatewayIp.length > 0 ? onGatewayIp : candidates;
+    return [...pool].sort((a, b) => new Date(b.last_seen || 0) - new Date(a.last_seen || 0))[0];
+};
+
+const resolveUserDevices = (user, machines, gateways, portalGateways) => {
+    const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
+    const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
+    const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
+    const armoire = findArmoireForGateway(machines, gatewayStatus);
+
+    const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
+    const gatewaySubtitle = [
+        user.linked_gateway_id && user.linked_gateway_id !== gatewayLabel ? user.linked_gateway_id : null,
+        gatewayStatus?.ip,
+    ].filter(Boolean).join(' · ');
+
+    const serverSubtitle = [
+        portalGw?.eth0_mac ? `eth0 ${portalGw.eth0_mac}` : null,
+        portalGw?.eth1_mac ? `eth1 ${portalGw.eth1_mac}` : null,
+    ].filter(Boolean).join(' · ');
+
+    return {
+        gatewayLabel,
+        gatewaySubtitle,
+        cloudMachineId,
+        serverSubtitle,
+        armoire,
+    };
 };
 
 const DeviceCell = ({ title, subtitle, fallback }) => {
@@ -34,6 +77,7 @@ const UserManager = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [machines, setMachines] = useState([]);
     const [gateways, setGateways] = useState([]);
+    const [portalGateways, setPortalGateways] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -81,6 +125,11 @@ const UserManager = ({ token }) => {
 
             const resG = await fetch('/api/admin/gateways', { headers: { 'Authorization': `Bearer ${token}` } });
             if (resG.ok) setGateways(await resG.json());
+
+            const resP = await fetch('/api/portal/admin/gateway-sessions', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (resP.ok) setPortalGateways(await resP.json());
         } catch (err) {
             console.error("Failed to fetch devices");
         }
@@ -140,16 +189,27 @@ const UserManager = ({ token }) => {
 
     const openEditModal = (user) => {
         setEditingUser(user);
-        setEditMachine(user.linked_machine_id || '');
-        setEditGateway(user.linked_gateway_id || '');
+        const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
+        const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
+        setEditGateway(gatewayStatus?.hostname || user.linked_gateway_id || '');
+        setEditMachine(String(portalGw?.machine_id ?? user.linked_machine_id ?? ''));
+    };
+
+    const handleGatewayChange = (value) => {
+        setEditGateway(value);
+        const portalGw = findPortalGateway(portalGateways, value);
+        if (portalGw?.machine_id) {
+            setEditMachine(String(portalGw.machine_id));
+        }
     };
 
     const handleSaveLinks = async () => {
         if (!editingUser) return;
         try {
+            const portalGw = findPortalGateway(portalGateways, editGateway);
             const body = {
-                linked_machine_id: editMachine ? parseInt(editMachine) : null,
-                linked_gateway_id: editGateway || null
+                linked_machine_id: editMachine ? parseInt(editMachine, 10) : null,
+                linked_gateway_id: portalGw?.gateway_id || editGateway || null,
             };
 
             const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
@@ -249,13 +309,13 @@ const UserManager = ({ token }) => {
                             </thead>
                             <tbody>
                                 {users.map((u) => {
-                                    const machine = findMachine(machines, u.linked_machine_id);
-                                    const gateway = findGateway(gateways, u.linked_gateway_id);
-                                    const gatewayLabel = gateway?.hostname || u.linked_gateway_id;
-                                    const gatewaySubtitle = [
-                                        u.linked_gateway_id && u.linked_gateway_id !== gatewayLabel ? u.linked_gateway_id : null,
-                                        gateway?.ip,
-                                    ].filter(Boolean).join(' · ');
+                                    const {
+                                        gatewayLabel,
+                                        gatewaySubtitle,
+                                        cloudMachineId,
+                                        serverSubtitle,
+                                        armoire,
+                                    } = resolveUserDevices(u, machines, gateways, portalGateways);
 
                                     return (
                                     <tr key={u.id}>
@@ -293,16 +353,16 @@ const UserManager = ({ token }) => {
                                         </td>
                                         <td>
                                             <DeviceCell
-                                                title={u.linked_machine_id ? `ID ${u.linked_machine_id}` : undefined}
-                                                subtitle={machine?.ip ? `IP ${machine.ip}` : undefined}
+                                                title={cloudMachineId ? `ID ${cloudMachineId}` : undefined}
+                                                subtitle={serverSubtitle || undefined}
                                                 fallback={u.linked_machine_id ? String(u.linked_machine_id) : undefined}
                                             />
                                         </td>
                                         <td>
                                             <DeviceCell
-                                                title={machine?.no_serie}
-                                                subtitle={machine?.ip ? `IP ${machine.ip}` : undefined}
-                                                fallback={u.linked_machine_id ? `ID ${u.linked_machine_id}` : undefined}
+                                                title={armoire?.no_serie}
+                                                subtitle={armoire?.ip ? `IP ${armoire.ip}` : undefined}
+                                                fallback={armoire ? `ID ${armoire.id}` : undefined}
                                             />
                                         </td>
                                         <td className="table-actions">
@@ -332,35 +392,65 @@ const UserManager = ({ token }) => {
                     <div className="modal-content">
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
+                        <p className="device-meta" style={{ marginBottom: '1rem' }}>
+                            Le serveur cloud (machine_id) est dérivé de la gateway enregistrée sur le portail.
+                            L&apos;armoire est détectée sur le même site que la gateway.
+                        </p>
+
                         <label className="field">
                             <span>Gateway</span>
                             <select
                                 value={editGateway}
-                                onChange={(e) => setEditGateway(e.target.value)}
+                                onChange={(e) => handleGatewayChange(e.target.value)}
                             >
                                 <option value="">-- Aucune --</option>
-                                {gateways.map((g) => (
-                                    <option key={g.hostname} value={g.hostname}>
-                                        {g.hostname} · IP {g.ip || '—'}
-                                    </option>
-                                ))}
+                                {gateways.map((g) => {
+                                    const portalGw = findPortalGateway(portalGateways, g.hostname)
+                                        ?? findPortalGateway(portalGateways, `gw-${g.hostname}`);
+                                    const cloudId = portalGw?.machine_id;
+                                    return (
+                                        <option key={g.hostname} value={g.hostname}>
+                                            {g.hostname}
+                                            {cloudId ? ` · serveur ID ${cloudId}` : ''}
+                                            {' · IP '}{g.ip || '—'}
+                                        </option>
+                                    );
+                                })}
+                                {portalGateways
+                                    .filter((pg) => !gateways.some((g) => (
+                                        g.hostname === pg.gateway_id
+                                        || `gw-${g.hostname}` === pg.gateway_id
+                                    )))
+                                    .map((pg) => (
+                                        <option key={pg.gateway_id} value={pg.gateway_id}>
+                                            {pg.gateway_id} · serveur ID {pg.machine_id}
+                                        </option>
+                                    ))}
                             </select>
                         </label>
 
                         <label className="field">
-                            <span>Serveur / Armoire</span>
-                            <select
+                            <span>Serveur cloud (machine_id)</span>
+                            <input
+                                type="number"
+                                min="1"
                                 value={editMachine}
                                 onChange={(e) => setEditMachine(e.target.value)}
-                            >
-                                <option value="">-- Aucune --</option>
-                                {machines.map((m) => (
-                                    <option key={m.id} value={m.id}>
-                                        Serveur ID {m.id} · Armoire {m.no_serie} · IP {m.ip || '—'}
-                                    </option>
-                                ))}
-                            </select>
+                                placeholder="Ex. 19"
+                            />
                         </label>
+
+                        {editGateway && (() => {
+                            const gw = findGateway(gateways, editGateway);
+                            const armoire = findArmoireForGateway(machines, gw);
+                            return armoire ? (
+                                <p className="device-meta">
+                                    Armoire détectée : {armoire.no_serie} · IP {armoire.ip || '—'}
+                                </p>
+                            ) : (
+                                <p className="device-meta">Aucune armoire détectée sur cette gateway.</p>
+                            );
+                        })()}
 
                         <div className="modal-actions">
                             <button onClick={() => setEditingUser(null)} className="catalog-button ghost">Annuler</button>
