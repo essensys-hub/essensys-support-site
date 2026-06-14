@@ -1,6 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import './Catalog.css';
 
+const normalizeGatewayKey = (value) => (value ? value.replace(/^gw-/, '') : '');
+
+const findGateway = (gateways, linkedGatewayId) => {
+    if (!linkedGatewayId) return null;
+    const key = normalizeGatewayKey(linkedGatewayId);
+    return gateways.find((g) => (
+        g.hostname === linkedGatewayId
+        || g.hostname === key
+        || normalizeGatewayKey(g.hostname) === key
+    )) ?? null;
+};
+
+const findMachine = (machines, linkedMachineId) => {
+    if (!linkedMachineId) return null;
+    return machines.find((m) => m.id === linkedMachineId) ?? null;
+};
+
+const DeviceCell = ({ title, subtitle, fallback }) => {
+    if (!title && !fallback) {
+        return <span className="device-empty">—</span>;
+    }
+    return (
+        <div className="device-cell">
+            <div>{title || fallback}</div>
+            {subtitle && <div className="device-meta">{subtitle}</div>}
+        </div>
+    );
+};
+
 const UserManager = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [machines, setMachines] = useState([]);
@@ -212,13 +241,23 @@ const UserManager = ({ token }) => {
                                     <th>Email</th>
                                     <th>Nom</th>
                                     <th>Rôle</th>
-                                    <th>Machine Liée</th>
-                                    <th>Gateway Liée</th>
+                                    <th>Gateway</th>
+                                    <th>Serveur</th>
+                                    <th>Armoire</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map(u => (
+                                {users.map((u) => {
+                                    const machine = findMachine(machines, u.linked_machine_id);
+                                    const gateway = findGateway(gateways, u.linked_gateway_id);
+                                    const gatewayLabel = gateway?.hostname || u.linked_gateway_id;
+                                    const gatewaySubtitle = [
+                                        u.linked_gateway_id && u.linked_gateway_id !== gatewayLabel ? u.linked_gateway_id : null,
+                                        gateway?.ip,
+                                    ].filter(Boolean).join(' · ');
+
+                                    return (
                                     <tr key={u.id}>
                                         <td>{u.id}</td>
                                         <td>{u.email}</td>
@@ -245,8 +284,27 @@ const UserManager = ({ token }) => {
                                                 )}
                                             </select>
                                         </td>
-                                        <td>{u.linked_machine_id ? `ID: ${u.linked_machine_id}` : '-'}</td>
-                                        <td>{u.linked_gateway_id ? u.linked_gateway_id : '-'}</td>
+                                        <td>
+                                            <DeviceCell
+                                                title={gatewayLabel}
+                                                subtitle={gatewaySubtitle || undefined}
+                                                fallback={u.linked_gateway_id}
+                                            />
+                                        </td>
+                                        <td>
+                                            <DeviceCell
+                                                title={u.linked_machine_id ? `ID ${u.linked_machine_id}` : undefined}
+                                                subtitle={machine?.ip ? `IP ${machine.ip}` : undefined}
+                                                fallback={u.linked_machine_id ? String(u.linked_machine_id) : undefined}
+                                            />
+                                        </td>
+                                        <td>
+                                            <DeviceCell
+                                                title={machine?.no_serie}
+                                                subtitle={machine?.ip ? `IP ${machine.ip}` : undefined}
+                                                fallback={u.linked_machine_id ? `ID ${u.linked_machine_id}` : undefined}
+                                            />
+                                        </td>
                                         <td className="table-actions">
                                             {localStorage.getItem('adminRole') === 'admin_global' && (
                                                 <button onClick={() => openEditModal(u)} className="catalog-button ghost">
@@ -255,10 +313,11 @@ const UserManager = ({ token }) => {
                                             )}
                                         </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                                 {!loading && users.length === 0 && (
                                     <tr>
-                                        <td colSpan="7" className="empty-state">Aucun utilisateur trouvé.</td>
+                                        <td colSpan="8" className="empty-state">Aucun utilisateur trouvé.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -274,30 +333,30 @@ const UserManager = ({ token }) => {
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
                         <label className="field">
-                            <span>Machine (Armoire)</span>
-                            <select
-                                value={editMachine}
-                                onChange={(e) => setEditMachine(e.target.value)}
-                            >
-                                <option value="">-- Aucune --</option>
-                                {machines.map(m => (
-                                    <option key={m.id} value={m.id}>
-                                        {m.no_serie} (ID: {m.id}) - {m.ip}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-
-                        <label className="field">
                             <span>Gateway</span>
                             <select
                                 value={editGateway}
                                 onChange={(e) => setEditGateway(e.target.value)}
                             >
                                 <option value="">-- Aucune --</option>
-                                {gateways.map(g => (
+                                {gateways.map((g) => (
                                     <option key={g.hostname} value={g.hostname}>
-                                        {g.hostname} ({g.ip})
+                                        {g.hostname} · IP {g.ip || '—'}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="field">
+                            <span>Serveur / Armoire</span>
+                            <select
+                                value={editMachine}
+                                onChange={(e) => setEditMachine(e.target.value)}
+                            >
+                                <option value="">-- Aucune --</option>
+                                {machines.map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                        Serveur ID {m.id} · Armoire {m.no_serie} · IP {m.ip || '—'}
                                     </option>
                                 ))}
                             </select>

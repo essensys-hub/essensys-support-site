@@ -259,6 +259,21 @@ tbody td {
     font-size: 12px;
 }
 
+.device-cell {
+    min-width: 140px;
+    line-height: 1.35;
+}
+
+.device-meta {
+    font-size: 0.8em;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.device-empty {
+    color: #9ca3af;
+}
+
 .empty-state {
     text-align: center;
     color: #9ca3af;
