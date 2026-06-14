@@ -47,6 +47,9 @@ const Layout = ({ children }) => {
                         </>
                     ) : (
                         <div className="user-menu">
+                            <a href="/portal/" className="nav-btn-login" style={{ marginRight: '10px' }}>
+                                Portail remote
+                            </a>
                             <Link to="/profile" className="nav-btn-login" style={{ marginRight: '10px' }}>Profil</Link>
                             {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                                 <Link to="/admin" className="nav-btn-login">Dashboard</Link>
