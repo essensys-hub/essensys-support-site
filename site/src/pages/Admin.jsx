@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewsletterManager from './NewsletterManager';
 import UserManager from './UserManager';
+import LinkRequestsPanel from './LinkRequestsPanel';
 import Catalog from './Catalog';
 import './Catalog.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -430,7 +431,10 @@ const Admin = () => {
                 ) : activeTab === 'newsletters' ? (
                     <NewsletterManager token={token} />
                 ) : activeTab === 'users' ? (
+                    <>
+                    <LinkRequestsPanel token={token} />
                     <UserManager token={token} />
+                    </>
                 ) : activeTab === 'catalog' ? (
                     <Catalog />
                 ) : activeTab === 'audit' && (
