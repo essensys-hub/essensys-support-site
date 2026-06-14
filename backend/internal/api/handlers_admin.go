@@ -298,6 +298,7 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
     var req struct {
         MachineID *int    `json:"linked_machine_id"`
         GatewayID *string `json:"linked_gateway_id"`
+        ArmoireID *int    `json:"linked_armoire_id"`
     }
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -305,7 +306,7 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
     }
 
     // Admins can link whatever they want, no IP check
-    if err := rt.UserStore.UpdateUserLinks(id, req.MachineID, req.GatewayID); err != nil {
+    if err := rt.UserStore.UpdateUserLinks(id, req.MachineID, req.GatewayID, req.ArmoireID); err != nil {
         log.Printf("[API] Failed to update user links (Admin): %v", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return

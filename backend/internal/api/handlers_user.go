@@ -159,7 +159,7 @@ func (rt *Router) HandleUpdateProfileLinks(w http.ResponseWriter, r *http.Reques
         }
     }
 
-    if err := rt.UserStore.UpdateUserLinks(user.ID, req.MachineID, req.GatewayID); err != nil {
+    if err := rt.UserStore.UpdateUserLinks(user.ID, req.MachineID, req.GatewayID, nil); err != nil {
         log.Printf("[API] Failed to update user links: %v", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return

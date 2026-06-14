@@ -36,6 +36,7 @@ type User struct {
     // Linked Devices
     LinkedMachineID *int    `db:"linked_machine_id" json:"linked_machine_id"`
     LinkedGatewayID *string `db:"linked_gateway_id" json:"linked_gateway_id"`
+    LinkedArmoireID *int    `db:"linked_armoire_id" json:"linked_armoire_id"`
 }
 
 // RegisterRequest for email registration
@@ -64,4 +65,5 @@ type UserResponse struct {
     // Linked Devices
     LinkedMachineID *int    `json:"linked_machine_id"`
     LinkedGatewayID *string `json:"linked_gateway_id"`
+    LinkedArmoireID *int    `json:"linked_armoire_id"`
 }

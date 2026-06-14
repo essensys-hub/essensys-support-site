@@ -16,7 +16,7 @@ type UserStore interface {
     GetUserByEmail(email string) (*models.User, error)
     GetAllUsers() ([]*models.User, error)
     UpdateUserRole(userID int, role string) error
-    UpdateUserLinks(userID int, machineID *int, gatewayID *string) error
+    UpdateUserLinks(userID int, machineID *int, gatewayID *string, armoireID *int) error
     UpdateLastLogin(userID int) error
     EnsureTableExists() error
     GetUsersByMachineID(machineID int) ([]*models.User, error)
@@ -47,12 +47,14 @@ func (s *PostgresUserStore) EnsureTableExists() error {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_login TIMESTAMP,
         linked_machine_id INT,
-        linked_gateway_id VARCHAR(255)
+        linked_gateway_id VARCHAR(255),
+        linked_armoire_id INT
     );
     
     -- Migrations for existing tables
     ALTER TABLE users ADD COLUMN IF NOT EXISTS linked_machine_id INT;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS linked_gateway_id VARCHAR(255);
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS linked_armoire_id INT;
     `
     _, err := s.db.Exec(query)
     return err
@@ -97,7 +99,7 @@ func (s *PostgresUserStore) UpdateLastLogin(userID int) error {
 
 func (s *PostgresUserStore) GetAllUsers() ([]*models.User, error) {
     var users []*models.User
-    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id FROM users ORDER BY created_at DESC`
+    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id, linked_armoire_id FROM users ORDER BY created_at DESC`
     err := s.db.Select(&users, query)
     return users, err
 }
@@ -108,15 +110,15 @@ func (s *PostgresUserStore) UpdateUserRole(userID int, role string) error {
     return err
 }
 
-func (s *PostgresUserStore) UpdateUserLinks(userID int, machineID *int, gatewayID *string) error {
-    query := `UPDATE users SET linked_machine_id = $1, linked_gateway_id = $2 WHERE id = $3`
-    _, err := s.db.Exec(query, machineID, gatewayID, userID)
+func (s *PostgresUserStore) UpdateUserLinks(userID int, machineID *int, gatewayID *string, armoireID *int) error {
+    query := `UPDATE users SET linked_machine_id = $1, linked_gateway_id = $2, linked_armoire_id = $3 WHERE id = $4`
+    _, err := s.db.Exec(query, machineID, gatewayID, armoireID, userID)
     return err
 }
 
 func (s *PostgresUserStore) GetUsersByMachineID(machineID int) ([]*models.User, error) {
     var users []*models.User
-    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id FROM users WHERE linked_machine_id = $1 ORDER BY created_at DESC`
+    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id, linked_armoire_id FROM users WHERE linked_machine_id = $1 ORDER BY created_at DESC`
     err := s.db.Select(&users, query, machineID)
     return users, err
 }

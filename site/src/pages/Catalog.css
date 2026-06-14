@@ -274,6 +274,10 @@ tbody td {
     color: #9ca3af;
 }
 
+.modal-content-wide {
+    max-width: 640px;
+}
+
 .empty-state {
     text-align: center;
     color: #9ca3af;

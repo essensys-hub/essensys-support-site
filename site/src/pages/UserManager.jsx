@@ -22,6 +22,25 @@ const findPortalGateway = (sessions, linkedGatewayId) => {
     )) ?? null;
 };
 
+const findMachineById = (machines, id) => {
+    if (!id) return null;
+    return machines.find((m) => m.id === id) ?? null;
+};
+
+const formatMachineLabel = (m) => `${m.no_serie} · inv. #${m.id} · IP ${m.ip || '—'}`;
+
+const sortMachinesForPicker = (machines, gatewayStatus) => {
+    const gwIp = gatewayStatus?.ip;
+    const onGateway = gwIp ? machines.filter((m) => m.ip === gwIp) : [];
+    const onLan = machines.filter(
+        (m) => m.ip?.startsWith('10.0.1.') && !onGateway.some((x) => x.id === m.id),
+    );
+    const others = machines
+        .filter((m) => !onGateway.some((x) => x.id === m.id) && !onLan.some((x) => x.id === m.id))
+        .sort((a, b) => new Date(b.last_seen || 0) - new Date(a.last_seen || 0));
+    return { onGateway, onLan, others };
+};
+
 const findArmoireForGateway = (machines, gatewayStatus) => {
     if (!gatewayStatus?.ip) return null;
     const gatewayIp = gatewayStatus.ip;
@@ -39,7 +58,9 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
     const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
     const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
     const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
-    const armoire = findArmoireForGateway(machines, gatewayStatus);
+    const armoire = user.linked_armoire_id
+        ? findMachineById(machines, user.linked_armoire_id)
+        : findArmoireForGateway(machines, gatewayStatus);
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
     const gatewaySubtitle = [
@@ -85,6 +106,7 @@ const UserManager = ({ token }) => {
     const [editingUser, setEditingUser] = useState(null);
     const [editMachine, setEditMachine] = useState('');
     const [editGateway, setEditGateway] = useState('');
+    const [editArmoire, setEditArmoire] = useState('');
 
     // Default form state
     const [newUser, setNewUser] = useState({
@@ -191,8 +213,10 @@ const UserManager = ({ token }) => {
         setEditingUser(user);
         const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
         const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
+        const detected = findArmoireForGateway(machines, gatewayStatus);
         setEditGateway(gatewayStatus?.hostname || user.linked_gateway_id || '');
         setEditMachine(String(portalGw?.machine_id ?? user.linked_machine_id ?? ''));
+        setEditArmoire(String(user.linked_armoire_id ?? detected?.id ?? ''));
     };
 
     const handleGatewayChange = (value) => {
@@ -200,6 +224,11 @@ const UserManager = ({ token }) => {
         const portalGw = findPortalGateway(portalGateways, value);
         if (portalGw?.machine_id) {
             setEditMachine(String(portalGw.machine_id));
+        }
+        const gw = findGateway(gateways, value);
+        const detected = findArmoireForGateway(machines, gw);
+        if (detected) {
+            setEditArmoire(String(detected.id));
         }
     };
 
@@ -210,6 +239,7 @@ const UserManager = ({ token }) => {
             const body = {
                 linked_machine_id: editMachine ? parseInt(editMachine, 10) : null,
                 linked_gateway_id: portalGw?.gateway_id || editGateway || null,
+                linked_armoire_id: editArmoire ? parseInt(editArmoire, 10) : null,
             };
 
             const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
@@ -387,14 +417,19 @@ const UserManager = ({ token }) => {
                 {error && <p className="empty-state">{error}</p>}
             </section>
 
-            {editingUser && (
+            {editingUser && (() => {
+                const gw = findGateway(gateways, editGateway);
+                const { onGateway, onLan, others } = sortMachinesForPicker(machines, gw);
+                const selectedArmoire = findMachineById(machines, editArmoire ? parseInt(editArmoire, 10) : null);
+
+                return (
                 <div className="modal-overlay">
-                    <div className="modal-content">
+                    <div className="modal-content modal-content-wide">
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
-                            Le serveur cloud (machine_id) est dérivé de la gateway enregistrée sur le portail.
-                            L&apos;armoire est détectée sur le même site que la gateway.
+                            Gateway et serveur cloud pilotent le portail distant.
+                            L&apos;armoire (inventaire OVH) sert au repérage admin — choisissez-la dans la liste.
                         </p>
 
                         <label className="field">
@@ -440,17 +475,41 @@ const UserManager = ({ token }) => {
                             />
                         </label>
 
-                        {editGateway && (() => {
-                            const gw = findGateway(gateways, editGateway);
-                            const armoire = findArmoireForGateway(machines, gw);
-                            return armoire ? (
-                                <p className="device-meta">
-                                    Armoire détectée : {armoire.no_serie} · IP {armoire.ip || '—'}
-                                </p>
-                            ) : (
-                                <p className="device-meta">Aucune armoire détectée sur cette gateway.</p>
-                            );
-                        })()}
+                        <label className="field">
+                            <span>Armoire (inventaire OVH)</span>
+                            <select
+                                value={editArmoire}
+                                onChange={(e) => setEditArmoire(e.target.value)}
+                            >
+                                <option value="">-- Choisir une armoire --</option>
+                                {onGateway.length > 0 && (
+                                    <optgroup label={`Sur la gateway (${gw?.ip || 'IP'})`}>
+                                        {onGateway.map((m) => (
+                                            <option key={m.id} value={m.id}>{formatMachineLabel(m)}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {onLan.length > 0 && (
+                                    <optgroup label="Segment armoire 10.0.1.x">
+                                        {onLan.map((m) => (
+                                            <option key={m.id} value={m.id}>{formatMachineLabel(m)}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                <optgroup label="Toutes les armoires">
+                                    {others.map((m) => (
+                                        <option key={m.id} value={m.id}>{formatMachineLabel(m)}</option>
+                                    ))}
+                                </optgroup>
+                            </select>
+                        </label>
+
+                        {selectedArmoire && (
+                            <p className="device-meta">
+                                Armoire sélectionnée : {selectedArmoire.no_serie} · inv. #{selectedArmoire.id}
+                                {selectedArmoire.ip ? ` · IP ${selectedArmoire.ip}` : ''}
+                            </p>
+                        )}
 
                         <div className="modal-actions">
                             <button onClick={() => setEditingUser(null)} className="catalog-button ghost">Annuler</button>
@@ -458,7 +517,8 @@ const UserManager = ({ token }) => {
                         </div>
                     </div>
                 </div>
-            )}
+                );
+            })()}
         </div>
     );
 };
