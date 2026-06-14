@@ -9,6 +9,7 @@ import (
     "time"
 
     "github.com/go-chi/chi/v5"
+	"github.com/essensys-hub/essensys-support-site/backend/internal/gatewayrules"
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
     "golang.org/x/crypto/bcrypt"
 )
@@ -303,6 +304,15 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         http.Error(w, "Bad Request", http.StatusBadRequest)
         return
+    }
+
+    if req.GatewayID != nil && !gatewayrules.IsRemoteEligible(req.GatewayID) {
+        if req.ArmoireID != nil || req.MachineID != nil {
+            http.Error(w, gatewayrules.RemoteBlockedMessage(), http.StatusBadRequest)
+            return
+        }
+        req.ArmoireID = nil
+        req.MachineID = nil
     }
 
     // Admins can link whatever they want, no IP check

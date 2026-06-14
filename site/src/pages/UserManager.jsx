@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './Catalog.css';
 
-const normalizeGatewayKey = (value) => (value ? value.replace(/^gw-/, '') : '');
+const normalizeGatewayKey = (value) => (value ? value.replace(/^gw-/, '').toLowerCase() : '');
+
+const REMOTE_INELIGIBLE_GATEWAY = 'essensys-server';
+
+const isRemoteEligibleGateway = (gatewayId) => {
+    if (!gatewayId) return true;
+    return normalizeGatewayKey(gatewayId) !== REMOTE_INELIGIBLE_GATEWAY;
+};
 
 const findGateway = (gateways, linkedGatewayId) => {
     if (!linkedGatewayId) return null;
@@ -58,9 +65,12 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
     const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
     const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
     const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
-    const armoire = user.linked_armoire_id
+    const remoteEligible = isRemoteEligibleGateway(user.linked_gateway_id);
+    const armoire = remoteEligible && user.linked_armoire_id
         ? findMachineById(machines, user.linked_armoire_id)
-        : findArmoireForGateway(machines, gatewayStatus);
+        : remoteEligible
+            ? findArmoireForGateway(machines, gatewayStatus)
+            : null;
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
     const gatewaySubtitle = [
@@ -79,6 +89,7 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
         cloudMachineId,
         serverSubtitle,
         armoire,
+        remoteEligible,
     };
 };
 
@@ -221,6 +232,11 @@ const UserManager = ({ token }) => {
 
     const handleGatewayChange = (value) => {
         setEditGateway(value);
+        if (!isRemoteEligibleGateway(value)) {
+            setEditMachine('');
+            setEditArmoire('');
+            return;
+        }
         const portalGw = findPortalGateway(portalGateways, value);
         if (portalGw?.machine_id) {
             setEditMachine(String(portalGw.machine_id));
@@ -236,10 +252,12 @@ const UserManager = ({ token }) => {
         if (!editingUser) return;
         try {
             const portalGw = findPortalGateway(portalGateways, editGateway);
+            const gatewayId = portalGw?.gateway_id || editGateway || null;
+            const remoteEligible = isRemoteEligibleGateway(gatewayId || editGateway);
             const body = {
-                linked_machine_id: editMachine ? parseInt(editMachine, 10) : null,
-                linked_gateway_id: portalGw?.gateway_id || editGateway || null,
-                linked_armoire_id: editArmoire ? parseInt(editArmoire, 10) : null,
+                linked_machine_id: remoteEligible && editMachine ? parseInt(editMachine, 10) : null,
+                linked_gateway_id: gatewayId,
+                linked_armoire_id: remoteEligible && editArmoire ? parseInt(editArmoire, 10) : null,
             };
 
             const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
@@ -345,6 +363,7 @@ const UserManager = ({ token }) => {
                                         cloudMachineId,
                                         serverSubtitle,
                                         armoire,
+                                        remoteEligible,
                                     } = resolveUserDevices(u, machines, gateways, portalGateways);
 
                                     return (
@@ -382,18 +401,26 @@ const UserManager = ({ token }) => {
                                             />
                                         </td>
                                         <td>
-                                            <DeviceCell
-                                                title={cloudMachineId ? `ID ${cloudMachineId}` : undefined}
-                                                subtitle={serverSubtitle || undefined}
-                                                fallback={u.linked_machine_id ? String(u.linked_machine_id) : undefined}
-                                            />
+                                            {!remoteEligible ? (
+                                                <span className="device-meta">Portail distant N/A</span>
+                                            ) : (
+                                                <DeviceCell
+                                                    title={cloudMachineId ? `ID ${cloudMachineId}` : undefined}
+                                                    subtitle={serverSubtitle || undefined}
+                                                    fallback={u.linked_machine_id ? String(u.linked_machine_id) : undefined}
+                                                />
+                                            )}
                                         </td>
                                         <td>
-                                            <DeviceCell
-                                                title={armoire?.no_serie}
-                                                subtitle={armoire?.ip ? `IP ${armoire.ip}` : undefined}
-                                                fallback={armoire ? `ID ${armoire.id}` : undefined}
-                                            />
+                                            {!remoteEligible ? (
+                                                <span className="device-meta">— (essensys-server)</span>
+                                            ) : (
+                                                <DeviceCell
+                                                    title={armoire?.no_serie}
+                                                    subtitle={armoire?.ip ? `IP ${armoire.ip}` : undefined}
+                                                    fallback={armoire ? `ID ${armoire.id}` : undefined}
+                                                />
+                                            )}
                                         </td>
                                         <td className="table-actions">
                                             {localStorage.getItem('adminRole') === 'admin_global' && (
@@ -421,6 +448,7 @@ const UserManager = ({ token }) => {
                 const gw = findGateway(gateways, editGateway);
                 const { onGateway, onLan, others } = sortMachinesForPicker(machines, gw);
                 const selectedArmoire = findMachineById(machines, editArmoire ? parseInt(editArmoire, 10) : null);
+                const remoteEligible = isRemoteEligibleGateway(editGateway);
 
                 return (
                 <div className="modal-overlay">
@@ -464,6 +492,13 @@ const UserManager = ({ token }) => {
                             </select>
                         </label>
 
+                        {!remoteEligible && editGateway && (
+                            <p className="device-warning">
+                                essensys-server : pas de portail distant mon.essensys.fr.
+                                Seule la gateway peut être enregistrée (sans armoire ni serveur cloud).
+                            </p>
+                        )}
+
                         <label className="field">
                             <span>Serveur cloud (machine_id)</span>
                             <input
@@ -472,6 +507,7 @@ const UserManager = ({ token }) => {
                                 value={editMachine}
                                 onChange={(e) => setEditMachine(e.target.value)}
                                 placeholder="Ex. 19"
+                                disabled={!remoteEligible}
                             />
                         </label>
 
@@ -480,8 +516,11 @@ const UserManager = ({ token }) => {
                             <select
                                 value={editArmoire}
                                 onChange={(e) => setEditArmoire(e.target.value)}
+                                disabled={!remoteEligible}
                             >
-                                <option value="">-- Choisir une armoire --</option>
+                                <option value="">
+                                    {remoteEligible ? '-- Choisir une armoire --' : '-- Non applicable (essensys-server) --'}
+                                </option>
                                 {onGateway.length > 0 && (
                                     <optgroup label={`Sur la gateway (${gw?.ip || 'IP'})`}>
                                         {onGateway.map((m) => (
