@@ -1,41 +1,36 @@
 # =============================================================================
-# HTTP CONFIGURATION ONLY (No SSL)
-# User requested full revert to HTTP
+# Essensys support-site + portail distant (mon.essensys.fr)
+# Snippet portail : /etc/nginx/snippets/essensys-portal.conf (Ansible portal_nginx)
+# Certificats : certbot certonly / enable-https-prod.yml
 # =============================================================================
 
-# 1. Test Environment (test.essensys.fr) & VPS Hostname
-# Serves: React Application (Full)
+# 1. Test (test.essensys.fr) — HTTP
 server {
     listen 80;
+    listen [::]:80;
     server_name vps-22806d02.vps.ovh.net test.essensys.fr;
-    
-    # Root for React App
+
     root /opt/essensys/frontend/dist;
     index index.html index.htm;
-    
+
     include /etc/nginx/mime.types;
     charset utf-8;
-    
-    # Logs
+
     access_log /var/log/nginx/essensys-access.log;
     error_log /var/log/nginx/essensys-error.log warn;
-    
-    # Compression
+
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
-    # Frontend Routing (SPA)
     location / {
         try_files $uri $uri/ /index.html;
     }
-    
-    # Static Assets
+
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 
-    # API Proxy
     location /api/ {
         proxy_pass http://127.0.0.1:8080/api/;
         proxy_http_version 1.1;
@@ -43,28 +38,46 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Connection "";
-        
         proxy_buffering on;
         gzip off;
     }
-    
-    # Certbot & Apple Verification
+
     location ^~ /.well-known/ {
         allow all;
         root /var/www/certbot;
     }
 }
 
-# 2. Production Environment (mon.essensys.fr, www.essensys.fr)
-# Serves: Support site SPA + portail (/portal/) + API legacy devices
+# 2. Production — HTTP → redirect HTTPS (sauf ACME)
 server {
     listen 80;
+    listen [::]:80;
     server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr essensys.fr;
-    
-    # Root for React App (login, admin, profile, …)
+
+    location ^~ /.well-known/ {
+        allow all;
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# 3. Production — HTTPS (support-site SPA + /portal/ + API)
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr essensys.fr;
+
+    ssl_certificate /etc/letsencrypt/live/mon.essensys.fr/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mon.essensys.fr/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
     root /opt/essensys/frontend/dist;
     index index.html index.htm;
-    
+
     include /etc/nginx/mime.types;
     charset utf-8;
     access_log /var/log/nginx/essensys-maint-access.log;
@@ -73,7 +86,6 @@ server {
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
-    # Frontend Routing (SPA)
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -82,20 +94,14 @@ server {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
-    
-    # API Proxy (Crucial for Legacy Devices & Newsletter)
+
     location /api/ {
         proxy_pass http://127.0.0.1:8080/api/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Connection "close";
-    }
-    
-    # Certbot & Apple Verification
-    location ^~ /.well-known/ {
-        allow all;
-        root /var/www/certbot;
     }
 }
