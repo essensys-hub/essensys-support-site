@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import './Auth.css';
+
+const persistAuth = (token, role) => {
+    // Portail /portal/ et admin lisent adminToken (localStorage + sessionStorage).
+    localStorage.setItem('adminToken', token);
+    localStorage.setItem('adminRole', role);
+    sessionStorage.setItem('adminToken', token);
+    sessionStorage.setItem('adminRole', role);
+};
 
 const Login = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const returnTo = searchParams.get('return') || '/admin';
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -25,18 +35,15 @@ const Login = () => {
             const data = await res.json();
 
             if (res.ok) {
-                if (rememberMe) {
-                    localStorage.setItem('adminToken', data.token);
-                    localStorage.setItem('adminRole', data.user.role);
-                } else {
-                    sessionStorage.setItem('adminToken', data.token);
-                    sessionStorage.setItem('adminRole', data.user.role);
-                }
+                persistAuth(data.token, data.user.role);
                 // Dispatch event to notify Layout
                 window.dispatchEvent(new Event('auth-change'));
 
-                // Redirect to admin
-                navigate('/admin');
+                if (returnTo.startsWith('/')) {
+                    window.location.href = returnTo;
+                } else {
+                    navigate(returnTo);
+                }
             } else {
                 setError(data.message || 'Login failed');
             }
