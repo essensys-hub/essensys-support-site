@@ -11,11 +11,15 @@ import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
 import Privacy from './pages/Privacy';
 import Catalog from './pages/Catalog';
+import NewRelicPageTracker from './observability/NewRelicPageTracker';
+import LinkClickTracker from './observability/LinkClickTracker';
 import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
+      <NewRelicPageTracker />
+      <LinkClickTracker />
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />

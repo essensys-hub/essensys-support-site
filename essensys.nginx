@@ -1,6 +1,7 @@
 # =============================================================================
 # Essensys support-site + portail distant (mon.essensys.fr)
-# Snippet portail : /etc/nginx/snippets/essensys-portal.conf (Ansible portal_nginx)
+# Snippet portail : /etc/nginx/snippets/essensys-portal.conf (Ansible portal_nginx ou cloud_nginx)
+# Consolidé : /api/* → :8080 cloud backend ; Legacy : /api/portal|gateway → :8081
 # Certificats : certbot certonly / enable-https-prod.yml
 # =============================================================================
 
@@ -15,6 +16,8 @@ server {
 
     include /etc/nginx/mime.types;
     charset utf-8;
+
+    include /etc/nginx/snippets/essensys-portal.conf;
 
     access_log /var/log/nginx/essensys-access.log;
     error_log /var/log/nginx/essensys-error.log warn;
@@ -74,6 +77,8 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/mon.essensys.fr/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    include /etc/nginx/snippets/essensys-portal.conf;
 
     root /opt/essensys/frontend/dist;
     index index.html index.htm;

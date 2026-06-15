@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { initNewRelic } from '../observability/newrelic';
 
 const CookieConsent = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -13,6 +14,7 @@ const CookieConsent = () => {
     const handleAccept = () => {
         localStorage.setItem('cookieConsent', 'true');
         setIsVisible(false);
+        initNewRelic();
     };
 
     const handleDecline = () => {

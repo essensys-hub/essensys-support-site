@@ -1,5 +1,8 @@
 package gatewayrules
 
+// Deprecated: use essensys-user-portal-backend/internal/domain/gateway.go after cloud backend consolidation.
+// This package remains until essensys-support-site/backend is removed (OpenSpec essensys-cloud-backend-consolidation).
+
 import "strings"
 
 const RemoteIneligibleHost = "essensys-server"
@@ -11,7 +14,7 @@ func NormalizeHost(gatewayID string) string {
 
 func IsRemoteEligible(gatewayID *string) bool {
 	if gatewayID == nil || *gatewayID == "" {
-		return true
+		return false
 	}
 	return NormalizeHost(*gatewayID) != RemoteIneligibleHost
 }

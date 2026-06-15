@@ -11,6 +11,7 @@ site/site-dist.tar.gz
 backend/essensys-passive-backend
 backend/essensys-passive-backend.gz
 backend/bin/
+backend/server
 
 # Editors
 .vscode/
