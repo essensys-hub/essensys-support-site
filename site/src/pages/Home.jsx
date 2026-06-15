@@ -4,6 +4,12 @@ import iosLighting from '../assets/ios-app-lighting.png';
 import android1 from '../assets/app_android_001.png';
 import android2 from '../assets/app_android_002.png';
 
+const REPORT_LINKS = {
+    bug: 'https://github.com/essensys-hub/essensys-support-site/issues/new?template=bug_report.yml',
+    incident: 'https://github.com/essensys-hub/essensys-support-site/issues/new?template=incident.yml',
+    board: 'https://github.com/orgs/essensys-hub/projects/6',
+};
+
 const Home = () => {
     return (
         <div className="page-content home-page">
@@ -14,6 +20,46 @@ const Home = () => {
                 <button onClick={() => window.location.href = '/support'}>Commencer</button>
                 <button className="secondary" onClick={() => window.open('https://github.com/orgs/essensys-hub/repositories', '_blank')}>Voir sur GitHub</button>
             </div>
+
+            <section id="signaler" className="content-section report-section">
+                <h2>Signaler un bug ou un incident</h2>
+                <p className="report-intro">
+                    La communauté maintient Essensys de façon ouverte. Tout le monde peut déclarer un problème :
+                    il sera suivi sur le tableau de bord GitHub et traité par les contributeurs.
+                </p>
+                <div className="features report-cards">
+                    <div
+                        className="feature-card clickable report-card report-card-bug"
+                        onClick={() => window.open(REPORT_LINKS.bug, '_blank', 'noopener,noreferrer')}
+                    >
+                        <h3>Bug logiciel</h3>
+                        <p>
+                            Comportement incorrect, régression après mise à jour, défaut reproductible
+                            (backend, interface web, apps, firmware…).
+                        </p>
+                        <span className="report-cta">Créer un signalement bug →</span>
+                    </div>
+                    <div
+                        className="feature-card clickable report-card report-card-incident"
+                        onClick={() => window.open(REPORT_LINKS.incident, '_blank', 'noopener,noreferrer')}
+                    >
+                        <h3>Incident production</h3>
+                        <p>
+                            Panne ou dégradation <strong>en cours</strong> sur votre installation
+                            (domotique indisponible, gateway, accès distant…).
+                        </p>
+                        <span className="report-cta">Déclarer un incident →</span>
+                    </div>
+                </div>
+                <p className="report-footnote">
+                    Consultez d'abord la{' '}
+                    <a href="/support">documentation support</a>
+                    {' '}si possible. Suivi public :{' '}
+                    <a href={REPORT_LINKS.board} target="_blank" rel="noopener noreferrer">
+                        projet GitHub n°6
+                    </a>.
+                </p>
+            </section>
 
             <section className="features">
                 <div

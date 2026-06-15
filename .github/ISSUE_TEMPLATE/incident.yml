@@ -1,0 +1,93 @@
+name: Incident production
+description: Panne ou dégradation en cours sur une installation Essensys (maison, gateway, cloud)
+title: "[Incident] "
+labels:
+  - incident
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Incident** = votre installation ne fonctionne plus normalement **maintenant** ou vient de cesser de fonctionner.
+        Pour un défaut logiciel reproductible sans urgence, utilisez plutôt **Bug logiciel**.
+
+        Tous les incidents sont suivis sur le [projet n°6](https://github.com/orgs/essensys-hub/projects/6).
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: État actuel
+      options:
+        - En cours — installation partiellement ou totalement indisponible
+        - Résolu — je documente pour la communauté
+        - Intermittent — le problème revient par moments
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact utilisateur
+      options:
+        - Un module (éclairage, volets, chauffage…)
+        - Toute la domotique locale
+        - Accès distant / portail cloud uniquement
+        - Matériel / alimentation / réseau
+        - Données / sauvegarde
+    validations:
+      required: true
+
+  - type: input
+    id: started
+    attributes:
+      label: Début approximatif
+      placeholder: "2026-05-31 ~14h, après mise à jour …"
+    validations:
+      required: false
+
+  - type: textarea
+    id: symptoms
+    attributes:
+      label: Symptômes
+      description: Que voyez-vous ? Que ne fonctionne plus ?
+      placeholder: |
+        - Plus de réponse des modules X
+        - Interface web inaccessible
+        - LED gateway …
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte récent
+      description: Mise à jour, coupure électrique, changement réseau, nouvelle carte…
+    validations:
+      required: false
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: Actions déjà tentées
+      placeholder: Redémarrage gateway, reboot routeur, rollback…
+    validations:
+      required: false
+
+  - type: dropdown
+    id: install_type
+    attributes:
+      label: Type d'installation
+      options:
+        - Gateway CM5 (double NIC)
+        - Raspberry Pi serveur classique
+        - Accès portail distant uniquement (sans serveur local)
+        - Je ne sais pas
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Confidentialité
+      options:
+        - label: Je confirme ne pas inclure de mots de passe, clés API ou données personnelles sensibles
+          required: true

@@ -97,6 +97,55 @@
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.1);
 }
+
+.report-section {
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.report-intro,
+.report-footnote {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 1.25rem;
+}
+
+.report-footnote {
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.report-footnote a {
+  color: #00C9FF;
+}
+
+.report-cards {
+  margin-top: 1rem;
+}
+
+.report-card h3 {
+  margin-top: 0;
+}
+
+.report-card-bug h3 {
+  color: #ffb74d;
+}
+
+.report-card-incident h3 {
+  color: #ef5350;
+}
+
+.report-cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: #00C9FF;
+  font-weight: 600;
+}
+
 /* Append styles for App Showcase */
 .apps-showcase {
     display: flex;

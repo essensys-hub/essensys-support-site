@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation Essensys
+    url: https://essensys-hub.github.io/essensys-raspberry-install/
+    about: Guides d'installation, dépannage et logs avant de signaler un problème.
+  - name: Tableau de bord incidents & bugs
+    url: https://github.com/orgs/essensys-hub/projects/6
+    about: Suivi communautaire de tous les signalements (bugs, incidents production).
