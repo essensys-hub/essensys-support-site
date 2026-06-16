@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewsletterManager from './NewsletterManager';
+import EmailTemplates from './EmailTemplates';
 import UserManager from './UserManager';
 import LinkRequestsPanel from './LinkRequestsPanel';
 import Catalog from './Catalog';
@@ -33,7 +34,7 @@ const Admin = () => {
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
-    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'newsletters', 'users', 'catalog', 'audit'
+    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'newsletters', 'email-templates', 'users', ...
 
     // Gateway Icon
     const gatewayIcon = new L.Icon({
@@ -229,6 +230,14 @@ const Admin = () => {
                         >
                             Newsletters
                         </button>
+                        {getStoredRole() === 'admin_global' && (
+                            <button
+                                onClick={() => setActiveTab('email-templates')}
+                                style={activeTab === 'email-templates' ? activeTabStyle : inactiveTabStyle}
+                            >
+                                Modèles email
+                            </button>
+                        )}
                         <button
                             onClick={() => setActiveTab('users')}
                             style={activeTab === 'users' ? activeTabStyle : inactiveTabStyle}
@@ -430,6 +439,8 @@ const Admin = () => {
                     </>
                 ) : activeTab === 'newsletters' ? (
                     <NewsletterManager token={token} />
+                ) : activeTab === 'email-templates' ? (
+                    <EmailTemplates token={token} />
                 ) : activeTab === 'users' ? (
                     <>
                     <LinkRequestsPanel token={token} />

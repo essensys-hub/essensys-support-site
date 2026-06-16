@@ -119,6 +119,11 @@ const UserManager = ({ token }) => {
     const [editGateway, setEditGateway] = useState('');
     const [editArmoire, setEditArmoire] = useState('');
 
+    // Resend email
+    const [resendUser, setResendUser] = useState(null);
+    const [resendTemplate, setResendTemplate] = useState('user_welcome');
+    const [resendPassword, setResendPassword] = useState('');
+
     // Default form state
     const [newUser, setNewUser] = useState({
         email: '',
@@ -290,6 +295,33 @@ const UserManager = ({ token }) => {
         }
     };
 
+    const handleResendEmail = async () => {
+        if (!resendUser) return;
+        try {
+            const res = await fetch(`/api/admin/users/${resendUser.id}/resend-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    template_slug: resendTemplate,
+                    password: resendPassword || undefined,
+                }),
+            });
+            if (res.ok) {
+                alert('Email renvoyé avec succès');
+                setResendUser(null);
+                setResendPassword('');
+            } else {
+                const text = await res.text();
+                alert(text || 'Échec envoi email');
+            }
+        } catch {
+            alert('Erreur réseau');
+        }
+    };
+
     return (
         <div className="catalog-page">
             <h2>Gestion des Utilisateurs</h2>
@@ -433,9 +465,23 @@ const UserManager = ({ token }) => {
                                         </td>
                                         <td className="table-actions">
                                             {localStorage.getItem('adminRole') === 'admin_global' && (
+                                                <>
                                                 <button onClick={() => openEditModal(u)} className="catalog-button ghost">
                                                     Lier Appareils
                                                 </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setResendUser(u);
+                                                        setResendTemplate('user_welcome');
+                                                        setResendPassword('');
+                                                    }}
+                                                    className="catalog-button ghost"
+                                                    style={{ marginLeft: '8px' }}
+                                                >
+                                                    Renvoyer email
+                                                </button>
+                                                </>
                                             )}
                                         </td>
                                     </tr>
@@ -567,6 +613,38 @@ const UserManager = ({ token }) => {
                 </div>
                 );
             })()}
+
+            {resendUser && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Renvoyer un email — {resendUser.email}</h3>
+                        <label className="field">
+                            <span>Modèle</span>
+                            <select value={resendTemplate} onChange={(e) => setResendTemplate(e.target.value)}>
+                                <option value="user_welcome">Bienvenue utilisateur</option>
+                                <option value="device_allocation">Allocation appareils</option>
+                                <option value="password_reset">Réinitialisation mot de passe</option>
+                                <option value="role_updated">Changement de rôle</option>
+                            </select>
+                        </label>
+                        {(resendTemplate === 'user_welcome' || resendTemplate === 'password_reset') && (
+                            <label className="field">
+                                <span>Mot de passe (optionnel, pour le corps du mail)</span>
+                                <input
+                                    type="text"
+                                    value={resendPassword}
+                                    onChange={(e) => setResendPassword(e.target.value)}
+                                    placeholder="Laisser vide si non requis"
+                                />
+                            </label>
+                        )}
+                        <div className="modal-actions">
+                            <button type="button" onClick={() => setResendUser(null)} className="catalog-button ghost">Annuler</button>
+                            <button type="button" onClick={handleResendEmail} className="catalog-button primary">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

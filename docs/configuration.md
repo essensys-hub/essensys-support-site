@@ -51,6 +51,8 @@ Le fichier `.env.template` sert de référence.
 - `SMTP_PASS`: Mot de passe SMTP.
 - `SMTP_FROM`: Alias d'envoi (optionnel).
 
+Ces variables servent à la fois aux **newsletters** et aux **emails transactionnels** gérés depuis l’admin (`/admin` → **Modèles email**). Les modèles sont stockés en base (`email_templates`) ; l’envoi automatique à la création d’utilisateur nécessite d’activer `user_welcome` dans l’interface admin.
+
 ### Sécurité Admin
 - `ADMIN_TOKEN`: Token statique pour les accès legacy.
 - `ADMIN_EMAILS`: **Liste blanche** des emails autorisés à se connecter via OAuth (Google/Apple). Séparés par des virgules.
