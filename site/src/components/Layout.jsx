@@ -34,6 +34,15 @@ const Layout = ({ children }) => {
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
+                        <li>
+                            <a
+                                href={import.meta.env.VITE_DOCS_URL || 'https://docs.essensys.fr'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Documentation
+                            </a>
+                        </li>
                         {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                             <li><Link to="/admin">Admin</Link></li>
                         )}
