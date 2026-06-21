@@ -8,7 +8,7 @@ const BlogPost = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('/blog/index.json')
+        fetch('/blog-data/index.json')
             .then((r) => r.json())
             .then((data) => {
                 const found = (data.posts || []).find((p) => p.slug === slug);

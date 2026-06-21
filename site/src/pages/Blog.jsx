@@ -7,7 +7,7 @@ const Blog = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('/blog/index.json')
+        fetch('/blog-data/index.json')
             .then((r) => {
                 if (!r.ok) throw new Error('Blog indisponible');
                 return r.json();
