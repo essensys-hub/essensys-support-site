@@ -36,7 +36,7 @@ const Layout = ({ children }) => {
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
                         <li>
                             <a
-                                href={import.meta.env.VITE_DOCS_URL || 'https://docs.essensys.fr'}
+                                href={import.meta.env.VITE_DOCS_URL || '/docs/'}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >

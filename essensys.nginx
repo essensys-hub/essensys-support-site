@@ -25,6 +25,15 @@ server {
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
+    location ^~ /docs/ {
+        alias /opt/essensys/docs-site/;
+        index index.html;
+    }
+
+    location = /docs {
+        return 301 /docs/;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -105,6 +114,15 @@ server {
 
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    location ^~ /docs/ {
+        alias /opt/essensys/docs-site/;
+        index index.html;
+    }
+
+    location = /docs {
+        return 301 /docs/;
+    }
 
     location / {
         try_files $uri $uri/ /index.html;
