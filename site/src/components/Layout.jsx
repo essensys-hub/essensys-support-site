@@ -33,6 +33,7 @@ const Layout = ({ children }) => {
                     <ul>
                         <li><Link to="/">Accueil</Link></li>
                         <li><Link to="/support">Support</Link></li>
+                        <li><Link to="/blog">Blog</Link></li>
                         <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
                         <li>
                             <a

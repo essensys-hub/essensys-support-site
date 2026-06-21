@@ -11,6 +11,8 @@ import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
 import Privacy from './pages/Privacy';
 import Catalog from './pages/Catalog';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import NewRelicPageTracker from './observability/NewRelicPageTracker';
 import LinkClickTracker from './observability/LinkClickTracker';
 import './App.css';
@@ -24,6 +26,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
