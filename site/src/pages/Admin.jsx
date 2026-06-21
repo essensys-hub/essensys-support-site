@@ -4,6 +4,7 @@ import NewsletterManager from './NewsletterManager';
 import EmailTemplates from './EmailTemplates';
 import UserManager from './UserManager';
 import LinkRequestsPanel from './LinkRequestsPanel';
+import SyncCloud from './SyncCloud';
 import Catalog from './Catalog';
 import './Catalog.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -244,6 +245,14 @@ const Admin = () => {
                         >
                             Utilisateurs
                         </button>
+                        {getStoredRole() === 'admin_global' && (
+                            <button
+                                onClick={() => setActiveTab('sync-cloud')}
+                                style={activeTab === 'sync-cloud' ? activeTabStyle : inactiveTabStyle}
+                            >
+                                Sync Cloud
+                            </button>
+                        )}
                         <button
                             onClick={() => setActiveTab('catalog')}
                             style={activeTab === 'catalog' ? activeTabStyle : inactiveTabStyle}
@@ -446,6 +455,8 @@ const Admin = () => {
                     <LinkRequestsPanel token={token} />
                     <UserManager token={token} />
                     </>
+                ) : activeTab === 'sync-cloud' ? (
+                    <SyncCloud token={token} />
                 ) : activeTab === 'catalog' ? (
                     <Catalog />
                 ) : activeTab === 'audit' && (
