@@ -61,7 +61,7 @@ const Home = () => {
                 <div className="features">
                     <div
                         className="feature-card clickable"
-                        onClick={() => window.open('/demo/dashboard/', '_blank')}
+                        onClick={() => window.open('https://demo.essensys.fr/', '_blank')}
                     >
                         <h3>Client Web</h3>
                         <p>Découvrez l'interface de contrôle domotique principale. (Mode démo sans backend)</p>
