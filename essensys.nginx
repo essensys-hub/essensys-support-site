@@ -34,6 +34,18 @@ server {
         return 301 /docs/;
     }
 
+    location ^~ /demo/server-frontend/ {
+        try_files $uri $uri/ /demo/server-frontend/index.html;
+    }
+
+    location ^~ /demo/control-plane/ {
+        try_files $uri $uri/ /demo/control-plane/index.html;
+    }
+
+    location ^~ /dashboard {
+        return 302 /demo/server-frontend$request_uri;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -126,6 +138,20 @@ server {
 
     location ^~ /blog {
         try_files $uri /index.html;
+    }
+
+    # Démo domotique mockée (build essensys-server-frontend → public/demo/server-frontend/)
+    location ^~ /demo/server-frontend/ {
+        try_files $uri $uri/ /demo/server-frontend/index.html;
+    }
+
+    location ^~ /demo/control-plane/ {
+        try_files $uri $uri/ /demo/control-plane/index.html;
+    }
+
+    # Alias public : /dashboard → démo server-frontend (pas le portail /portal/)
+    location ^~ /dashboard {
+        return 302 /demo/server-frontend$request_uri;
     }
 
     location / {
