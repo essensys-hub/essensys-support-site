@@ -34,16 +34,28 @@ server {
         return 301 /docs/;
     }
 
-    location ^~ /demo/server-frontend/ {
-        try_files $uri $uri/ /demo/server-frontend/index.html;
+    location ^~ /demo/dashboard/ {
+        try_files $uri $uri/ /demo/dashboard/index.html;
+    }
+
+    location = /demo/dashboard {
+        return 301 /demo/dashboard/;
+    }
+
+    location ~ ^/demo/(heating|security|lighting|scenarios|shutters|water-heater|sprinkler|notifications|settings|unifi-protect)(/|$) {
+        try_files $uri /demo/dashboard/index.html;
     }
 
     location ^~ /demo/control-plane/ {
         try_files $uri $uri/ /demo/control-plane/index.html;
     }
 
-    location ^~ /dashboard {
-        return 302 /demo/server-frontend$request_uri;
+    location ^~ /demo/server-frontend {
+        rewrite ^/demo/server-frontend(.*)$ /demo/dashboard$1 permanent;
+    }
+
+    location = /dashboard {
+        return 301 /demo/dashboard;
     }
 
     location / {
@@ -140,18 +152,29 @@ server {
         try_files $uri /index.html;
     }
 
-    # Démo domotique mockée (build essensys-server-frontend → public/demo/server-frontend/)
-    location ^~ /demo/server-frontend/ {
-        try_files $uri $uri/ /demo/server-frontend/index.html;
+    # Démo domotique mockée (build essensys-server-frontend → public/demo/dashboard/)
+    location ^~ /demo/dashboard/ {
+        try_files $uri $uri/ /demo/dashboard/index.html;
+    }
+
+    location = /demo/dashboard {
+        return 301 /demo/dashboard/;
+    }
+
+    location ~ ^/demo/(heating|security|lighting|scenarios|shutters|water-heater|sprinkler|notifications|settings|unifi-protect)(/|$) {
+        try_files $uri /demo/dashboard/index.html;
     }
 
     location ^~ /demo/control-plane/ {
         try_files $uri $uri/ /demo/control-plane/index.html;
     }
 
-    # Alias public : /dashboard → démo server-frontend (pas le portail /portal/)
-    location ^~ /dashboard {
-        return 302 /demo/server-frontend$request_uri;
+    location ^~ /demo/server-frontend {
+        rewrite ^/demo/server-frontend(.*)$ /demo/dashboard$1 permanent;
+    }
+
+    location = /dashboard {
+        return 301 /demo/dashboard;
     }
 
     location / {
