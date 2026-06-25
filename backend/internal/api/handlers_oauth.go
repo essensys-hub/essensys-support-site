@@ -45,12 +45,10 @@ func getOAuthConfig() *oauth2.Config {
 }
 
 func getJWTKey() []byte {
+    // JWT_SECRET is validated at startup (cmd/server/main.go); no insecure
+    // fallback is provided on purpose.
     if len(jwtKey) == 0 {
-        key := os.Getenv("JWT_SECRET")
-        if key == "" {
-            key = "default-insecure-jwt-secret-change-me"
-        }
-        jwtKey = []byte(key)
+        jwtKey = []byte(os.Getenv("JWT_SECRET"))
     }
     return jwtKey
 }
@@ -176,7 +174,9 @@ func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) 
     })
     
     // Redirect to Admin Dashboard
-    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString + "&role=" + role, http.StatusTemporaryRedirect)
+    // Token delivered in the URL fragment (not query string): not sent to the
+    // server, not logged, and not leaked via Referer. SPA reads location.hash.
+    http.Redirect(w, req, frontendURL + "admin#token=" + tokenString + "&role=" + role, http.StatusTemporaryRedirect)
 }
 
 func getUserDataFromGoogle(code string) ([]byte, error) {
@@ -430,5 +430,7 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
     }
     
     // Important: Apple callback is a POST, so we must redirect with 303 See Other to turn it into a GET
-    http.Redirect(w, req, frontendURL + "admin?token=" + tokenString + "&role=" + role, http.StatusSeeOther)
+    // Token delivered in the URL fragment (not query string): not sent to the
+    // server, not logged, and not leaked via Referer. SPA reads location.hash.
+    http.Redirect(w, req, frontendURL + "admin#token=" + tokenString + "&role=" + role, http.StatusSeeOther)
 }

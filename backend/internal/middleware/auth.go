@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/base64"
     "fmt"
 	"log"
@@ -135,11 +136,9 @@ func JWTKeyFunc(token *jwt.Token) (interface{}, error) {
     if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
         return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
     }
-    key := os.Getenv("JWT_SECRET")
-    if key == "" {
-        key = "default-insecure-jwt-secret-change-me"
-    }
-    return []byte(key), nil
+    // JWT_SECRET is validated at startup (see cmd/server/main.go); no insecure
+    // fallback is provided on purpose.
+    return []byte(os.Getenv("JWT_SECRET")), nil
 }
 
 // AdminTokenMiddleware validates the admin token (Static or JWT)
@@ -151,12 +150,10 @@ func AdminTokenMiddleware(next http.Handler) http.Handler {
 		
 		// 1. Check Static Token (Legacy/Script access)
 		// TODO: Eventually deprecate this in favor of Service Accounts with JWTs
+		// ADMIN_TOKEN is validated at startup; never accept a missing/empty
+		// expected token, and compare in constant time.
 		expectedToken := os.Getenv("ADMIN_TOKEN")
-		if expectedToken == "" {
-			expectedToken = "essensys-admin-secret"
-		}
-
-		if tokenStr == expectedToken {
+		if expectedToken != "" && subtle.ConstantTimeCompare([]byte(tokenStr), []byte(expectedToken)) == 1 {
             // Valid Static Token -> Assumed Admin (System)
 			next.ServeHTTP(w, r)
             return

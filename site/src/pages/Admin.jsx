@@ -49,10 +49,14 @@ const Admin = () => {
 
     // Initial check
     React.useEffect(() => {
-        // 1. Check URL for token (Google Auth Callback)
-        const params = new URLSearchParams(window.location.search);
-        const urlToken = params.get('token');
-        const urlRole = params.get('role');
+        // 1. Check URL for token (OAuth Callback).
+        // Token is delivered in the fragment (#token=...&role=...) so it is not
+        // sent to the server, logged, or leaked via Referer. A legacy ?token=
+        // query is still accepted for backward compatibility.
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const queryParams = new URLSearchParams(window.location.search);
+        const urlToken = hashParams.get('token') || queryParams.get('token');
+        const urlRole = hashParams.get('role') || queryParams.get('role');
 
         if (urlToken) {
             // Social Login defaults to LocalStorage currently in handlers, but we can default frontend to session if preferable.

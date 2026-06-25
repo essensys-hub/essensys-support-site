@@ -20,6 +20,11 @@ import (
 func main() {
 	log.Println("Starting Essensys Passive Monitoring Server...")
 
+	// 0. Fail closed: refuse to start with missing/weak security secrets.
+	if err := validateSecrets(); err != nil {
+		log.Fatalf("config: %v", err)
+	}
+
 	// 1. Init Store (File-based persistence)
 	store := data.NewMemoryStore("./data/machines.json")
     
@@ -160,4 +165,33 @@ func main() {
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// insecureSecrets are well-known placeholder values that must never reach
+// production.
+var insecureSecrets = map[string]bool{
+	"":                                      true,
+	"insecure-dev-secret":                   true,
+	"default-insecure-jwt-secret-change-me": true,
+	"essensys-admin-secret":                 true,
+	"changeme_random_secret":                true,
+	"changeme":                              true,
+	"1234567890":                            true,
+}
+
+// validateSecrets fails closed: it returns an error when JWT_SECRET or
+// ADMIN_TOKEN is missing, too short, or set to a known-insecure placeholder, so
+// the service never runs with guessable credentials.
+func validateSecrets() error {
+	const minLen = 16
+	for _, name := range []string{"JWT_SECRET", "ADMIN_TOKEN"} {
+		v := os.Getenv(name)
+		if insecureSecrets[v] {
+			return fmt.Errorf("%s is missing or set to a known-insecure default; set a strong unique value", name)
+		}
+		if len(v) < minLen {
+			return fmt.Errorf("%s is too short (%d chars); require at least %d", name, len(v), minLen)
+		}
+	}
+	return nil
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -22,13 +23,10 @@ func (rt *Router) HandleAdminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Simple Token Validation (Hardcoded or Env)
+	// ADMIN_TOKEN is validated at startup; never accept a missing/empty
+	// expected token, and compare in constant time.
 	expectedToken := os.Getenv("ADMIN_TOKEN")
-	if expectedToken == "" {
-		expectedToken = "essensys-admin-secret" // Default dev token
-	}
-
-	if req.Token != expectedToken {
+	if expectedToken == "" || subtle.ConstantTimeCompare([]byte(req.Token), []byte(expectedToken)) != 1 {
 		http.Error(w, "Invalid Token", http.StatusUnauthorized)
 		return
 	}
