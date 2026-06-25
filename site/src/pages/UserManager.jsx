@@ -105,6 +105,16 @@ const DeviceCell = ({ title, subtitle, fallback }) => {
     );
 };
 
+const canModerateUser = (target, adminRole) => {
+    if (adminRole === 'admin_global') {
+        return true;
+    }
+    if (adminRole === 'admin_local') {
+        return ['user', 'guest_local'].includes(target.role);
+    }
+    return false;
+};
+
 const UserManager = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [machines, setMachines] = useState([]);
@@ -322,6 +332,66 @@ const UserManager = ({ token }) => {
         }
     };
 
+    const handleForbidUser = async (user) => {
+        if (!window.confirm(`Interdire l'accès à ${user.email} ? L'utilisateur sera redirigé vers la page en construction.`)) {
+            return;
+        }
+        try {
+            const res = await fetch(`/api/admin/users/${user.id}/forbid`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok || res.status === 204) {
+                fetchUsers();
+            } else {
+                alert(await res.text() || 'Échec interdiction');
+            }
+        } catch {
+            alert('Erreur réseau');
+        }
+    };
+
+    const handleUnforbidUser = async (user) => {
+        if (!window.confirm(`Réautoriser ${user.email} ?`)) {
+            return;
+        }
+        try {
+            const res = await fetch(`/api/admin/users/${user.id}/unforbid`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok || res.status === 204) {
+                fetchUsers();
+            } else {
+                alert(await res.text() || 'Échec réautorisation');
+            }
+        } catch {
+            alert('Erreur réseau');
+        }
+    };
+
+    const handleDeleteUser = async (user) => {
+        const confirmEmail = window.prompt(`Supprimer définitivement ${user.email} ? Saisissez l'email pour confirmer :`);
+        if (confirmEmail !== user.email) {
+            return;
+        }
+        try {
+            const res = await fetch(`/api/admin/users/${user.id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok || res.status === 204) {
+                fetchUsers();
+            } else {
+                alert(await res.text() || 'Échec suppression');
+            }
+        } catch {
+            alert('Erreur réseau');
+        }
+    };
+
+    const adminRole = localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole');
+
     return (
         <div className="catalog-page">
             <h2>Gestion des Utilisateurs</h2>
@@ -410,15 +480,20 @@ const UserManager = ({ token }) => {
                                     return (
                                     <tr key={u.id}>
                                         <td>{u.id}</td>
-                                        <td>{u.email}</td>
+                                        <td>
+                                            {u.email}
+                                            {u.forbidden_at && (
+                                                <span className="device-warning" style={{ marginLeft: '8px' }}>Interdit</span>
+                                            )}
+                                        </td>
                                         <td>{u.first_name} {u.last_name}</td>
                                         <td>
                                             <select
                                                 value={u.role}
                                                 onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                                                disabled={u.role === 'admin_global' || (localStorage.getItem('adminRole') === 'admin_local' && u.role === 'admin_local')}
+                                                disabled={!!u.forbidden_at || u.role === 'admin_global' || (adminRole === 'admin_local' && u.role === 'admin_local')}
                                             >
-                                                {localStorage.getItem('adminRole') === 'admin_global' ? (
+                                                {adminRole === 'admin_global' ? (
                                                     <>
                                                         <option value="admin_global">Admin Global</option>
                                                         <option value="admin_local">Admin Local</option>
@@ -464,9 +539,9 @@ const UserManager = ({ token }) => {
                                             )}
                                         </td>
                                         <td className="table-actions">
-                                            {localStorage.getItem('adminRole') === 'admin_global' && (
+                                            {adminRole === 'admin_global' && (
                                                 <>
-                                                <button onClick={() => openEditModal(u)} className="catalog-button ghost">
+                                                <button onClick={() => openEditModal(u)} className="catalog-button ghost" disabled={!!u.forbidden_at}>
                                                     Lier Appareils
                                                 </button>
                                                 <button
@@ -478,9 +553,41 @@ const UserManager = ({ token }) => {
                                                     }}
                                                     className="catalog-button ghost"
                                                     style={{ marginLeft: '8px' }}
+                                                    disabled={!!u.forbidden_at}
                                                 >
                                                     Renvoyer email
                                                 </button>
+                                                </>
+                                            )}
+                                            {canModerateUser(u, adminRole) && (
+                                                <>
+                                                    {u.forbidden_at ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleUnforbidUser(u)}
+                                                            className="catalog-button ghost"
+                                                            style={{ marginLeft: '8px' }}
+                                                        >
+                                                            Réautoriser
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleForbidUser(u)}
+                                                            className="catalog-button ghost"
+                                                            style={{ marginLeft: '8px' }}
+                                                        >
+                                                            Interdire
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteUser(u)}
+                                                        className="catalog-button ghost"
+                                                        style={{ marginLeft: '8px', color: '#b91c1c' }}
+                                                    >
+                                                        Supprimer
+                                                    </button>
                                                 </>
                                             )}
                                         </td>

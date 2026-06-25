@@ -153,46 +153,8 @@ func (rt *Router) HandleAdminUpdateUserRole(w http.ResponseWriter, r *http.Reque
     }
 
     // Permission Check
-    allowed := false
-    
-    if currentUser.Role == models.RoleAdminGlobal {
-        // Global can set any role (except maybe invalid ones)
-        allowed = true
-    } else if currentUser.Role == models.RoleAdminLocal {
-        // Local can ONLY promote guest_local <-> user
-        // They CANNOT touch other admins or themselves (usually)
-        // And they must own the user (checked below)
-        
-        // Check if target user belongs to same machine
-        // We could fetch target user, but simpler: verify target is in My Users list?
-        // Let's fetch target user to be safe.
-        // Optimization: We could rely on GetUsersByMachineID check, but explicit fetch is safer.
-        // However, we don't have GetUserByID exposed on Store yet?
-        // Wait, UserStore interface doesn't have GetUserByID. It has GetUserByEmail.
-        // I need GetUserByID to verify relationship!
-        // or I can call UpdateUserRole blindly but that's insecure.
-        // Let's assume for now I add GetUserByID to store, or fetch all and filter.
-        // Or blindly trust ID? No.
-        
-        // WORKAROUND: Iterate over GetUsersByMachineID results to find ID.
-        if currentUser.LinkedMachineID != nil {
-             myUsers, _ := rt.UserStore.GetUsersByMachineID(*currentUser.LinkedMachineID)
-             for _, u := range myUsers {
-                 if u.ID == targetUserID {
-                     allowed = true
-                     break
-                 }
-             }
-        }
-        
-        // Scope Check: Can only set 'user' or 'guest_local'
-        if req.Role != models.RoleUser && req.Role != models.RoleGuestLocal {
-            allowed = false
-        }
-    }
-
-    if !allowed {
-        http.Error(w, "Forbidden: Insufficient Permissions", http.StatusForbidden)
+    if _, err := authorizeAdminTarget(rt.UserStore, currentUser, targetUserID, actionUpdateRole, req.Role); err != nil {
+        writeAuthzError(w, err)
         return
     }
 
@@ -292,10 +254,22 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
         return
     }
 
+    email := r.Context().Value("user_email").(string)
+    currentUser, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || currentUser == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
     idStr := chi.URLParam(r, "id")
     id, err := strconv.Atoi(idStr)
     if err != nil {
         http.Error(w, "Invalid User ID", http.StatusBadRequest)
+        return
+    }
+
+    if _, err := authorizeAdminTarget(rt.UserStore, currentUser, id, actionUpdateLinks, ""); err != nil {
+        writeAuthzError(w, err)
         return
     }
 
@@ -318,7 +292,7 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
         req.MachineID = nil
     }
 
-    // Admins can link whatever they want, no IP check
+    // Admins can link within authorized scope
     if err := rt.UserStore.UpdateUserLinks(id, req.MachineID, req.GatewayID, req.ArmoireID); err != nil {
         log.Printf("[API] Failed to update user links (Admin): %v", err)
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -326,6 +300,78 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
     }
 
     w.WriteHeader(http.StatusOK)
+}
+
+func (rt *Router) HandleAdminForbidUser(w http.ResponseWriter, r *http.Request) {
+    caller, target, idStr, ok := rt.authorizeAdminUserAction(w, r, actionForbid)
+    if !ok {
+        return
+    }
+    if models.IsUserForbidden(target) {
+        http.Error(w, "User already forbidden", http.StatusConflict)
+        return
+    }
+    if err := rt.UserStore.ForbidUser(target.ID); err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+    rt.LogAudit(caller.ID, caller.Email, "FORBID_USER", "USER", idStr, getIP(r), "Forbidden user "+target.Email)
+    w.WriteHeader(http.StatusNoContent)
+}
+
+func (rt *Router) HandleAdminUnforbidUser(w http.ResponseWriter, r *http.Request) {
+    caller, target, idStr, ok := rt.authorizeAdminUserAction(w, r, actionUnforbid)
+    if !ok {
+        return
+    }
+    if !models.IsUserForbidden(target) {
+        http.Error(w, "User is not forbidden", http.StatusConflict)
+        return
+    }
+    if err := rt.UserStore.UnforbidUser(target.ID); err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+    rt.LogAudit(caller.ID, caller.Email, "UNFORBID_USER", "USER", idStr, getIP(r), "Re-enabled user "+target.Email)
+    w.WriteHeader(http.StatusNoContent)
+}
+
+func (rt *Router) HandleAdminDeleteUser(w http.ResponseWriter, r *http.Request) {
+    caller, target, idStr, ok := rt.authorizeAdminUserAction(w, r, actionDelete)
+    if !ok {
+        return
+    }
+    if err := rt.UserStore.DeleteUser(target.ID); err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+    rt.LogAudit(caller.ID, caller.Email, "DELETE_USER", "USER", idStr, getIP(r), "Deleted user "+target.Email)
+    w.WriteHeader(http.StatusNoContent)
+}
+
+func (rt *Router) authorizeAdminUserAction(w http.ResponseWriter, r *http.Request, action adminAction) (*models.User, *models.User, string, bool) {
+    if rt.UserStore == nil {
+        http.Error(w, "User Store not initialized", http.StatusServiceUnavailable)
+        return nil, nil, "", false
+    }
+    email := r.Context().Value("user_email").(string)
+    caller, err := rt.UserStore.GetUserByEmail(email)
+    if err != nil || caller == nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return nil, nil, "", false
+    }
+    idStr := chi.URLParam(r, "id")
+    targetID, err := strconv.Atoi(idStr)
+    if err != nil {
+        http.Error(w, "Invalid User ID", http.StatusBadRequest)
+        return nil, nil, "", false
+    }
+    target, err := authorizeAdminTarget(rt.UserStore, caller, targetID, action, "")
+    if err != nil {
+        writeAuthzError(w, err)
+        return nil, nil, "", false
+    }
+    return caller, target, idStr, true
 }
 
 // GET /api/admin/audit

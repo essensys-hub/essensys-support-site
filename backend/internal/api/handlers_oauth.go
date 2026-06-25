@@ -137,7 +137,10 @@ func (r *Router) HandleGoogleCallback(w http.ResponseWriter, req *http.Request) 
         }
         userDB = newUser // for ID
     } else {
-        // User exists, update login
+        if models.IsUserForbidden(userDB) {
+            http.Redirect(w, req, models.ForbiddenRedirectPath, http.StatusTemporaryRedirect)
+            return
+        }
         r.UserStore.UpdateLastLogin(userDB.ID)
         role = userDB.Role
     }
@@ -403,11 +406,14 @@ func (r *Router) HandleAppleCallback(w http.ResponseWriter, req *http.Request) {
         }
         userDB = newUser
     } else {
+        if models.IsUserForbidden(userDB) {
+            http.Redirect(w, req, models.ForbiddenRedirectPath, http.StatusTemporaryRedirect)
+            return
+        }
         r.UserStore.UpdateLastLogin(userDB.ID)
         role = userDB.Role
     }
 
-    // 6. Generate Session JWT
     // 6. Generate Session JWT
     expirationTime := time.Now().Add(24 * time.Hour)
     tokenString, err := GenerateJWT(email, role, expirationTime)

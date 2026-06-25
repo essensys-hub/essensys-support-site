@@ -58,6 +58,15 @@ server {
         return 301 /demo/dashboard;
     }
 
+    location ^~ /maintenance/ {
+        alias /opt/essensys/maintenance/;
+        index index.html;
+    }
+
+    location = /maintenance {
+        return 301 /maintenance/;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -175,6 +184,15 @@ server {
 
     location = /dashboard {
         return 301 /demo/dashboard;
+    }
+
+    location ^~ /maintenance/ {
+        alias /opt/essensys/maintenance/;
+        index index.html;
+    }
+
+    location = /maintenance {
+        return 301 /maintenance/;
     }
 
     location / {

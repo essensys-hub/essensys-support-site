@@ -112,7 +112,7 @@ func main() {
             
             // 3. User Profile Routes (Any Logged In User)
             r.Group(func(r chi.Router) {
-                r.Use(middleware.UserTokenMiddleware)
+                r.Use(middleware.UserTokenMiddlewareWithStore(userStore))
                 r.Get("/profile", apiRouter.HandleGetProfile)
                 r.Put("/profile", apiRouter.HandleUpdateProfile) // Edit
                 r.Delete("/profile", apiRouter.HandleDeleteProfile) // Delete
@@ -123,7 +123,7 @@ func main() {
             
             // Protected Admin endpoints
             r.Group(func(r chi.Router) {
-                r.Use(middleware.AdminTokenMiddleware)
+                r.Use(middleware.AdminTokenMiddlewareWithStore(userStore))
                 r.Get("/admin/stats", apiRouter.HandleAdminStats)
                 r.Get("/admin/audit", apiRouter.HandleGetAuditLogs) // New
                 r.Get("/admin/machines", apiRouter.HandleAdminMachines)
@@ -144,6 +144,9 @@ func main() {
                 r.Post("/admin/users", apiRouter.HandleAdminCreateUser)
                 r.Put("/admin/users/{id}/role", apiRouter.HandleAdminUpdateUserRole)
                 r.Put("/admin/users/{id}/links", apiRouter.HandleAdminUpdateUserLinks)
+                r.Post("/admin/users/{id}/forbid", apiRouter.HandleAdminForbidUser)
+                r.Post("/admin/users/{id}/unforbid", apiRouter.HandleAdminUnforbidUser)
+                r.Delete("/admin/users/{id}", apiRouter.HandleAdminDeleteUser)
             })
         })
 	})

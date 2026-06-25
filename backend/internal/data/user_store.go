@@ -14,6 +14,7 @@ import (
 type UserStore interface {
     CreateUser(u *models.User) error
     GetUserByEmail(email string) (*models.User, error)
+    GetUserByID(id int) (*models.User, error)
     GetAllUsers() ([]*models.User, error)
     UpdateUserRole(userID int, role string) error
     UpdateUserLinks(userID int, machineID *int, gatewayID *string, armoireID *int) error
@@ -23,6 +24,9 @@ type UserStore interface {
     HasLocalAdmin(machineID int) (bool, error)
     UpdateUser(userID int, firstName, lastName, passwordHash string) error
     DeleteUser(userID int) error
+    ForbidUser(userID int) error
+    UnforbidUser(userID int) error
+    CountAdminGlobal() (int, error)
 }
 
 type PostgresUserStore struct {
@@ -55,6 +59,7 @@ func (s *PostgresUserStore) EnsureTableExists() error {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS linked_machine_id INT;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS linked_gateway_id VARCHAR(255);
     ALTER TABLE users ADD COLUMN IF NOT EXISTS linked_armoire_id INT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS forbidden_at TIMESTAMPTZ NULL;
     `
     _, err := s.db.Exec(query)
     return err
@@ -91,6 +96,18 @@ func (s *PostgresUserStore) GetUserByEmail(email string) (*models.User, error) {
     return &user, nil
 }
 
+func (s *PostgresUserStore) GetUserByID(id int) (*models.User, error) {
+    var user models.User
+    err := s.db.Get(&user, `SELECT * FROM users WHERE id = $1`, id)
+    if err == sql.ErrNoRows {
+        return nil, nil
+    }
+    if err != nil {
+        return nil, err
+    }
+    return &user, nil
+}
+
 func (s *PostgresUserStore) UpdateLastLogin(userID int) error {
     query := `UPDATE users SET last_login = $1 WHERE id = $2`
     _, err := s.db.Exec(query, time.Now(), userID)
@@ -99,7 +116,7 @@ func (s *PostgresUserStore) UpdateLastLogin(userID int) error {
 
 func (s *PostgresUserStore) GetAllUsers() ([]*models.User, error) {
     var users []*models.User
-    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id, linked_armoire_id FROM users ORDER BY created_at DESC`
+    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, forbidden_at, linked_machine_id, linked_gateway_id, linked_armoire_id FROM users ORDER BY created_at DESC`
     err := s.db.Select(&users, query)
     return users, err
 }
@@ -118,7 +135,7 @@ func (s *PostgresUserStore) UpdateUserLinks(userID int, machineID *int, gatewayI
 
 func (s *PostgresUserStore) GetUsersByMachineID(machineID int) ([]*models.User, error) {
     var users []*models.User
-    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, linked_machine_id, linked_gateway_id, linked_armoire_id FROM users WHERE linked_machine_id = $1 ORDER BY created_at DESC`
+    query := `SELECT id, email, role, first_name, last_name, created_at, last_login, forbidden_at, linked_machine_id, linked_gateway_id, linked_armoire_id FROM users WHERE linked_machine_id = $1 ORDER BY created_at DESC`
     err := s.db.Select(&users, query, machineID)
     return users, err
 }
@@ -142,13 +159,23 @@ func (s *PostgresUserStore) UpdateUser(userID int, firstName, lastName, password
 }
 
 func (s *PostgresUserStore) DeleteUser(userID int) error {
-    // Hard delete or Soft delete? GDPR Right to Erasure usually implies hard delete or anonymization.
-    // We will do hard delete. Linked audit logs might constrain this via FK?
-    // Audit logs user_id is NOT a foreign key in schema (Step 1065 check: `user_id INT NOT NULL`, no REFERENCES).
-    // So hard delete of user works, audit logs remain but pointing to ID.
-    // Ideally we should maybe anonymize audit logs too, but keeping them for security/traceability is often a permitted exception (balance of interests).
-    // Let's just delete the user.
     query := `DELETE FROM users WHERE id = $1`
     _, err := s.db.Exec(query, userID)
     return err
+}
+
+func (s *PostgresUserStore) ForbidUser(userID int) error {
+    _, err := s.db.Exec(`UPDATE users SET forbidden_at = $1 WHERE id = $2`, time.Now(), userID)
+    return err
+}
+
+func (s *PostgresUserStore) UnforbidUser(userID int) error {
+    _, err := s.db.Exec(`UPDATE users SET forbidden_at = NULL WHERE id = $1`, userID)
+    return err
+}
+
+func (s *PostgresUserStore) CountAdminGlobal() (int, error) {
+    var count int
+    err := s.db.Get(&count, `SELECT count(*) FROM users WHERE role = $1`, models.RoleAdminGlobal)
+    return count, err
 }

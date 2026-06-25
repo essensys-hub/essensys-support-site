@@ -96,6 +96,13 @@ const Admin = () => {
             const res = await fetch('/api/admin/stats', {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
+            if (res.status === 403) {
+                const data = await res.json().catch(() => ({}));
+                if (data.error === 'account_forbidden' && data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+            }
             if (res.ok) {
                 const data = await res.json();
                 setStats(data);

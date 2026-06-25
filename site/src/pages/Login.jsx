@@ -32,11 +32,10 @@ const Login = () => {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
 
             if (res.ok) {
                 persistAuth(data.token, data.user.role);
-                // Dispatch event to notify Layout
                 window.dispatchEvent(new Event('auth-change'));
 
                 if (returnTo.startsWith('/')) {
@@ -44,8 +43,10 @@ const Login = () => {
                 } else {
                     navigate(returnTo);
                 }
+            } else if (data.error === 'account_forbidden' && data.redirect) {
+                window.location.href = data.redirect;
             } else {
-                setError(data.message || 'Login failed');
+                setError(data.message || data.error || 'Login failed');
             }
         } catch (err) {
             setError('Connection error. Please try again.');

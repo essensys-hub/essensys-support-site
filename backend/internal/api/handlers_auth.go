@@ -119,6 +119,12 @@ func (router *Router) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if models.IsUserForbidden(user) {
+        router.LogAudit(user.ID, user.Email, "LOGIN_FAILED", "USER", "", getIP(r), "Account forbidden")
+		models.WriteAccountForbidden(w)
+		return
+	}
+
     // Check provider
     if user.Provider != models.ProviderEmail && user.PasswordHash == "" {
          http.Error(w, "Please login with "+user.Provider, http.StatusUnauthorized)
