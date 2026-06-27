@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import './Auth.css';
+import logo from '../assets/logosml.png';
+import fondImage from '../assets/fond-inprogress.png';
 
 /** OAuth cloud — désactivé temporairement (réactiver quand les providers sont prêts). */
 const OAUTH_PROVIDERS_ENABLED = false;
 
 const persistAuth = (token, role) => {
-    // Portail /portal/ et admin lisent adminToken (localStorage + sessionStorage).
     localStorage.setItem('adminToken', token);
     localStorage.setItem('adminRole', role);
     sessionStorage.setItem('adminToken', token);
@@ -59,85 +60,105 @@ const Login = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <h2>Bienvenue</h2>
-                    <p>Connectez-vous pour accéder à l'administration</p>
-                </div>
+        <div
+            className="auth-login-root auth-login-aurora"
+            style={{ '--auth-fond': `url(${fondImage})` }}
+        >
+            <div className="auth-aurora__mesh" aria-hidden />
+            <div className="auth-aurora__content">
+                <div className="auth-aurora__panel">
+                    <div className="auth-card">
+                        <div className="auth-header">
+                            <img src={logo} alt="mon Essensys" className="auth-card-logo" />
+                            <h1>Bienvenue</h1>
+                            <p>Connectez-vous pour accéder à l&apos;administration</p>
+                        </div>
 
-                {error && <div className="error-msg">{error}</div>}
+                        {error && <div className="error-msg">{error}</div>}
 
-                <form className="auth-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            className="auth-input"
-                            placeholder="exemple@email.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
+                        <form className="auth-form" onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="login-email">Email</label>
+                                <input
+                                    id="login-email"
+                                    type="email"
+                                    className="auth-input"
+                                    placeholder="exemple@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    autoComplete="username"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="login-password">Mot de passe</label>
+                                <input
+                                    id="login-password"
+                                    type="password"
+                                    className="auth-input"
+                                    placeholder="Votre mot de passe"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    autoComplete="current-password"
+                                />
+                            </div>
+
+                            <label className="auth-remember" htmlFor="rememberMe">
+                                <input
+                                    type="checkbox"
+                                    id="rememberMe"
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                />
+                                <span>Se souvenir de moi</span>
+                            </label>
+
+                            <button type="submit" className="auth-btn btn-primary" disabled={loading}>
+                                {loading ? 'Connexion...' : 'Se connecter'}
+                            </button>
+                        </form>
+
+                        <div className="divider" aria-hidden>
+                            <span>OU</span>
+                        </div>
+
+                        <div className="oauth-buttons">
+                            <button
+                                type="button"
+                                className="auth-btn btn-oauth btn-google"
+                                disabled={!OAUTH_PROVIDERS_ENABLED}
+                                title={OAUTH_PROVIDERS_ENABLED ? undefined : 'Bientôt disponible'}
+                                aria-disabled={!OAUTH_PROVIDERS_ENABLED}
+                            >
+                                <span className="oauth-icon" aria-hidden>G</span>
+                                Continuer avec Google
+                            </button>
+                            <button
+                                type="button"
+                                className="auth-btn btn-oauth btn-apple"
+                                disabled={!OAUTH_PROVIDERS_ENABLED}
+                                title={OAUTH_PROVIDERS_ENABLED ? undefined : 'Bientôt disponible'}
+                                aria-disabled={!OAUTH_PROVIDERS_ENABLED}
+                            >
+                                <span className="oauth-icon" aria-hidden></span>
+                                Continuer avec Apple
+                            </button>
+                        </div>
+
+                        <div className="auth-footer">
+                            Pas encore de compte ?
+                            <Link to="/register" className="auth-link">S&apos;inscrire</Link>
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label>Mot de passe</label>
-                        <input
-                            type="password"
-                            className="auth-input"
-                            placeholder="Votre mot de passe"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group checkbox-group auth-remember">
-                        <input
-                            type="checkbox"
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                        />
-                        <label htmlFor="rememberMe">Se souvenir de moi</label>
-                    </div>
-
-                    <button type="submit" className="auth-btn btn-primary" disabled={loading}>
-                        {loading ? 'Connexion...' : 'Se connecter'}
-                    </button>
-                </form>
-
-                <div className="divider" aria-hidden>
-                    <span>OU</span>
                 </div>
-
-                <div className="oauth-buttons">
-                    <button
-                        type="button"
-                        className="auth-btn btn-oauth btn-google"
-                        disabled={!OAUTH_PROVIDERS_ENABLED}
-                        title={OAUTH_PROVIDERS_ENABLED ? undefined : 'Bientôt disponible'}
-                        aria-disabled={!OAUTH_PROVIDERS_ENABLED}
-                    >
-                        <span className="oauth-icon" aria-hidden>G</span>
-                        Continuer avec Google
-                    </button>
-                    <button
-                        type="button"
-                        className="auth-btn btn-oauth btn-apple"
-                        disabled={!OAUTH_PROVIDERS_ENABLED}
-                        title={OAUTH_PROVIDERS_ENABLED ? undefined : 'Bientôt disponible'}
-                        aria-disabled={!OAUTH_PROVIDERS_ENABLED}
-                    >
-                        <span className="oauth-icon" aria-hidden></span>
-                        Continuer avec Apple
-                    </button>
-                </div>
-
-                <div className="auth-footer">
-                    Pas encore de compte ?
-                    <Link to="/register" className="auth-link">S'inscrire</Link>
-                </div>
+                <aside className="auth-aurora__hero">
+                    <h2>Votre domotique Essensys, partout</h2>
+                    <p>
+                        Même expérience que sur votre gateway locale — optimisé pour iPhone, iPad,
+                        écran mural et poste de contrôle.
+                    </p>
+                </aside>
             </div>
         </div>
     );

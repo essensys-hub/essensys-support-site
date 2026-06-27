@@ -22,14 +22,14 @@ function App() {
     <BrowserRouter>
       <NewRelicPageTracker />
       <LinkClickTracker />
-      <Layout>
-        <Routes>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/support" element={<Support />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -55,12 +55,9 @@ function App() {
               />
             }
           />
-          <Route
-            path="raspberrypi"
-            element={<RaspberryPi />}
-          />
-        </Routes>
-      </Layout>
+          <Route path="raspberrypi" element={<RaspberryPi />} />
+        </Route>
+      </Routes>
       <CookieConsent />
     </BrowserRouter>
   );
