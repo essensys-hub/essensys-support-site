@@ -21,3 +21,6 @@ backend/server
 clients.txt
 
 .env
+
+# Security/test artifacts
+.artifacts/
