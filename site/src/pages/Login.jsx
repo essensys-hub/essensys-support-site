@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import './Auth.css';
 
+/** OAuth cloud — désactivé temporairement (réactiver quand les providers sont prêts). */
+const OAUTH_PROVIDERS_ENABLED = false;
+
 const persistAuth = (token, role) => {
     // Portail /portal/ et admin lisent adminToken (localStorage + sessionStorage).
     localStorage.setItem('adminToken', token);
@@ -89,15 +92,14 @@ const Login = () => {
                         />
                     </div>
 
-                    <div className="form-group checkbox-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                    <div className="form-group checkbox-group auth-remember">
                         <input
                             type="checkbox"
                             id="rememberMe"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
-                            style={{ width: 'auto' }}
                         />
-                        <label htmlFor="rememberMe" style={{ marginBottom: 0, cursor: 'pointer' }}>Se souvenir de moi</label>
+                        <label htmlFor="rememberMe">Se souvenir de moi</label>
                     </div>
 
                     <button type="submit" className="auth-btn btn-primary" disabled={loading}>
@@ -105,17 +107,31 @@ const Login = () => {
                     </button>
                 </form>
 
-                <div className="divider">
+                <div className="divider" aria-hidden>
                     <span>OU</span>
                 </div>
 
                 <div className="oauth-buttons">
-                    <a href="/api/auth/google/login" className="auth-btn btn-oauth btn-google">
-                        <span style={{ marginRight: '10px' }}>G</span> Continuer avec Google
-                    </a>
-                    <a href="/api/auth/apple/login" className="auth-btn btn-oauth btn-apple">
-                        <span style={{ marginRight: '10px' }}></span> Continuer avec Apple
-                    </a>
+                    <button
+                        type="button"
+                        className="auth-btn btn-oauth btn-google"
+                        disabled={!OAUTH_PROVIDERS_ENABLED}
+                        title={OAUTH_PROVIDERS_ENABLED ? undefined : 'Bientôt disponible'}
+                        aria-disabled={!OAUTH_PROVIDERS_ENABLED}
+                    >
+                        <span className="oauth-icon" aria-hidden>G</span>
+                        Continuer avec Google
+                    </button>
+                    <button
+                        type="button"
+                        className="auth-btn btn-oauth btn-apple"
+                        disabled={!OAUTH_PROVIDERS_ENABLED}
+                        title={OAUTH_PROVIDERS_ENABLED ? undefined : 'Bientôt disponible'}
+                        aria-disabled={!OAUTH_PROVIDERS_ENABLED}
+                    >
+                        <span className="oauth-icon" aria-hidden></span>
+                        Continuer avec Apple
+                    </button>
                 </div>
 
                 <div className="auth-footer">

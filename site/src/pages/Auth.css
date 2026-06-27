@@ -89,9 +89,28 @@
     color: #1a1a1a;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 201, 255, 0.4);
+}
+
+.auth-remember {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.auth-remember input {
+    width: auto;
+    accent-color: #00C9FF;
+    cursor: pointer;
+}
+
+.auth-remember label {
+    margin-bottom: 0;
+    cursor: pointer;
 }
 
 .divider {
@@ -128,12 +147,22 @@
     color: #333;
     font-weight: 500;
     text-decoration: none;
-    /* For anchor tags acting as buttons */
 }
 
-.btn-oauth:hover {
+.btn-oauth:not(:disabled):hover {
     background: #f0f0f0;
     transform: translateY(-1px);
+}
+
+.btn-oauth:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.oauth-icon {
+    margin-right: 10px;
+    font-weight: 600;
 }
 
 .btn-google {
@@ -146,7 +175,7 @@
     border: 1px solid #333;
 }
 
-.btn-apple:hover {
+.btn-apple:not(:disabled):hover {
     background: #222;
 }
 
