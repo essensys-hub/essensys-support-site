@@ -65,7 +65,7 @@ const findMachineById = (machines, id) => {
     return machines.find((m) => m.id === id) ?? null;
 };
 
-const formatMachineLabel = (m) => `${m.no_serie} · inv. #${m.id} · IP ${m.ip || '—'}`;
+const formatMachineLabel = (m) => `IP ${m.ip || '—'} · ${m.no_serie} · inv. #${m.id}`;
 
 const sortMachinesForPicker = (machines, gatewayStatus) => {
     const gwIp = gatewayStatus?.ip;
