@@ -4,9 +4,9 @@ import './Layout.css';
 import logo from '../assets/logosml.png';
 
 const Layout = () => {
-    // Check for admin token in both storages
     const [adminToken, setAdminToken] = React.useState(localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken'));
     const [adminRole, setAdminRole] = React.useState(localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole'));
+    const [menuOpen, setMenuOpen] = React.useState(false);
 
     React.useEffect(() => {
         const handleAuthChange = () => {
@@ -15,7 +15,7 @@ const Layout = () => {
         };
 
         window.addEventListener('auth-change', handleAuthChange);
-        window.addEventListener('storage', handleAuthChange); // Also listen to cross-tab storage changes
+        window.addEventListener('storage', handleAuthChange);
 
         return () => {
             window.removeEventListener('auth-change', handleAuthChange);
@@ -23,32 +23,48 @@ const Layout = () => {
         };
     }, []);
 
+    const closeMenu = () => setMenuOpen(false);
+
     return (
         <div className="layout-container">
             <header className="main-header">
                 <div className="logo">
                     <img src={logo} alt="Essensys" />
                 </div>
-                <nav>
+
+                {/* Hamburger button — visible on mobile only (CSS controls display) */}
+                <button
+                    className="hamburger-btn"
+                    aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                    aria-expanded={menuOpen}
+                    aria-controls="main-nav"
+                    onClick={() => setMenuOpen(prev => !prev)}
+                >
+                    {menuOpen ? '✕' : '☰'}
+                </button>
+
+                <nav id="main-nav" className={menuOpen ? 'nav-open' : ''}>
                     <ul>
-                        <li><Link to="/">Accueil</Link></li>
-                        <li><Link to="/support">Support</Link></li>
-                        <li><Link to="/blog">Blog</Link></li>
-                        <li><Link to="/raspberrypi">Raspberry Pi</Link></li>
+                        <li><Link to="/" onClick={closeMenu}>Accueil</Link></li>
+                        <li><Link to="/support" onClick={closeMenu}>Support</Link></li>
+                        <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
+                        <li><Link to="/raspberrypi" onClick={closeMenu}>Raspberry Pi</Link></li>
                         <li>
                             <a
                                 href={import.meta.env.VITE_DOCS_URL || '/docs/'}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={closeMenu}
                             >
                                 Documentation
                             </a>
                         </li>
                         {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
-                            <li><Link to="/admin">Admin</Link></li>
+                            <li><Link to="/admin" onClick={closeMenu}>Admin</Link></li>
                         )}
                     </ul>
                 </nav>
+
                 <div className="auth-buttons-header">
                     {!adminToken ? (
                         <>
@@ -56,11 +72,11 @@ const Layout = () => {
                             <Link to="/login" className="nav-btn-login">Log in</Link>
                         </>
                     ) : (
-                        <div className="user-menu">
-                            <a href="/portal/" className="nav-btn-login" style={{ marginRight: '10px' }}>
+                        <div className="user-menu" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                            <a href="/portal/" className="nav-btn-login">
                                 Portail remote
                             </a>
-                            <Link to="/profile" className="nav-btn-login" style={{ marginRight: '10px' }}>Profil</Link>
+                            <Link to="/profile" className="nav-btn-login">Profil</Link>
                             {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                                 <Link to="/admin" className="nav-btn-login">Dashboard</Link>
                             )}
@@ -74,21 +90,20 @@ const Layout = () => {
                                     window.location.reload();
                                 }}
                                 className="nav-btn-logout"
-                                style={{ marginLeft: '10px', background: 'transparent', border: '1px solid white', borderRadius: '20px', padding: '6px 16px', color: 'white', cursor: 'pointer' }}
                             >
                                 Logout
                             </button>
                         </div>
                     )}
                 </div>
-            </header >
+            </header>
             <main className="main-content">
                 <Outlet />
             </main>
             <footer className="main-footer">
                 <p>© 2026 Projet Communautaire Essensys - v1.0.0</p>
             </footer>
-        </div >
+        </div>
     );
 };
 export default Layout;

@@ -1,0 +1,117 @@
+{
+  "$schema": "./schema/feature.schema.json",
+  "id": "essensys-support-nav-responsive-2026-06-032",
+  "title": "Support site — navigation responsive iPhone/iPad/desktop",
+  "status": "in-progress",
+  "owner": "hermes",
+  "jira": {
+    "issue": "TBD",
+    "test_plan": null
+  },
+  "git": {
+    "branch": "feat/essensys-support-nav-responsive-2026-06-032",
+    "pr_url": null
+  },
+  "openspec": {
+    "change_id": "essensys-support-nav-responsive-2026-06-032",
+    "path": "openspec/changes/essensys-support-nav-responsive-2026-06-032",
+    "proposal": "openspec/changes/essensys-support-nav-responsive-2026-06-032/proposal.md",
+    "design": "openspec/changes/essensys-support-nav-responsive-2026-06-032/design.md",
+    "tasks": "openspec/changes/essensys-support-nav-responsive-2026-06-032/tasks.md",
+    "specs": [
+      "openspec/changes/essensys-support-nav-responsive-2026-06-032/specs/support-nav-mobile/spec.md",
+      "openspec/changes/essensys-support-nav-responsive-2026-06-032/specs/support-page-responsive/spec.md",
+      "openspec/changes/essensys-support-nav-responsive-2026-06-032/specs/ux-regression-matrix/spec.md"
+    ]
+  },
+  "implementation": {
+    "paths": [
+      "site/src/components/Layout.jsx",
+      "site/src/components/Layout.css",
+      "site/src/pages/Support.css"
+    ],
+    "primary_surface": "react-user"
+  },
+  "userguide": {
+    "pages": [
+      "docs/features/support-nav-responsive.md"
+    ],
+    "language": "fr",
+    "i18n_keys": [],
+    "screenshots": []
+  },
+  "tests": {
+    "playwright": [
+      "site/e2e/support-responsive.spec.js"
+    ],
+    "pytest": [],
+    "testthat": [],
+    "coverage_must_test": [
+      "bouton hamburger visible sur iPhone (≤768px)",
+      "liens nav masqués avant ouverture menu mobile",
+      "ouvrir menu hamburger affiche tous les liens",
+      "fermer menu au clic sur un lien",
+      "pas de scroll horizontal sur iPhone",
+      "page Support affiche Installation et Dépannage sur desktop",
+      "bouton hamburger invisible sur desktop"
+    ],
+    "smoke_tags": ["@responsive", "@ux"],
+    "ux_matrix": {
+      "required": true,
+      "devices": ["desktop", "iphone", "ipad"],
+      "targets": ["support"],
+      "required_projects": ["support-desktop", "support-iphone", "support-ipad"],
+      "screenshots_required": true,
+      "visual_regression_required": true,
+      "no_armoire_required": false
+    },
+    "ux_evidence": {
+      "playwright_report": "site/playwright-report/index.html",
+      "screenshots": [
+        "site/ux-evidence/screenshots/nav-desktop.png",
+        "site/ux-evidence/screenshots/support-desktop.png",
+        "site/ux-evidence/screenshots/nav-iphone-closed.png",
+        "site/ux-evidence/screenshots/nav-iphone-open.png",
+        "site/ux-evidence/screenshots/support-iphone.png",
+        "site/ux-evidence/screenshots/nav-ipad.png",
+        "site/ux-evidence/screenshots/support-ipad.png"
+      ],
+      "last_run_at": "2026-06-28T11:55:56Z",
+      "devices_validated": ["desktop", "iphone", "ipad"],
+      "status": "passed",
+      "reviewer": "hermes"
+    }
+  },
+  "confluence": {
+    "space": "ESSENSYS",
+    "parent_page": "0",
+    "template": "feature",
+    "draft_page_id": null,
+    "published_page_id": null
+  },
+  "release": {
+    "changelog_entry": "Fix responsive navigation hamburger et page Support pour iPhone, iPad et desktop",
+    "target_tag": null,
+    "surfaces": ["essensys-support-site"],
+    "paths": ["site/src/components/Layout.jsx", "site/src/components/Layout.css", "site/src/pages/Support.css"]
+  },
+  "security": {
+    "sca_tool": "dependabot",
+    "dependabot_alerts_url": null,
+    "last_scan_at": null,
+    "cve_findings": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "secret_scan": {
+      "status": "clean",
+      "tool": "gitleaks",
+      "last_scan_at": null
+    },
+    "muted_findings": [],
+    "threat_model_url": null,
+    "owner_security": "hermes"
+  }
+}

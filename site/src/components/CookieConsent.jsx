@@ -56,6 +56,8 @@ const styles = {
         zIndex: 9999,
         display: 'flex',
         justifyContent: 'center',
+        boxSizing: 'border-box',
+        overflowX: 'hidden',
     },
     content: {
         display: 'flex',
@@ -65,6 +67,7 @@ const styles = {
         width: '100%',
         flexWrap: 'wrap',
         gap: '10px',
+        boxSizing: 'border-box',
     },
     buttons: {
         display: 'flex',
