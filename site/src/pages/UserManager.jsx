@@ -12,6 +12,35 @@ const isRemoteEligibleGateway = (gatewayId) => {
 
 const userHasPortalGateway = (user) => !!(user?.linked_gateway_id);
 
+const LINK_MODE = {
+    ARMOIRE: 'armoire',
+    GATEWAY: 'gateway',
+    SERVER: 'server',
+};
+
+const inferLinkMode = (user) => {
+    if (user?.linked_gateway_id) {
+        return isRemoteEligibleGateway(user.linked_gateway_id)
+            ? LINK_MODE.GATEWAY
+            : LINK_MODE.SERVER;
+    }
+    if (user?.linked_armoire_id || user?.linked_machine_id) {
+        return LINK_MODE.ARMOIRE;
+    }
+    return LINK_MODE.ARMOIRE;
+};
+
+const linkModeLabel = (mode) => {
+    switch (mode) {
+        case LINK_MODE.GATEWAY:
+            return 'Armoire + gateway (portail + local)';
+        case LINK_MODE.SERVER:
+            return 'Serveur legacy (essensys-server)';
+        default:
+            return 'Armoire seule (portail cloud OVH)';
+    }
+};
+
 const findGateway = (gateways, linkedGatewayId) => {
     if (!linkedGatewayId) return null;
     const key = normalizeGatewayKey(linkedGatewayId);
@@ -64,17 +93,18 @@ const findArmoireForGateway = (machines, gatewayStatus) => {
 };
 
 const resolveUserDevices = (user, machines, gateways, portalGateways) => {
+    const linkMode = inferLinkMode(user);
     const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
     const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
     const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
     const remoteEligible = isRemoteEligibleGateway(user.linked_gateway_id);
-    const armoire = remoteEligible && user.linked_armoire_id
-        ? findMachineById(machines, user.linked_armoire_id)
-        : null;
+    const armoireId = user.linked_armoire_id ?? (linkMode === LINK_MODE.ARMOIRE ? user.linked_machine_id : null);
+    const armoire = armoireId ? findMachineById(machines, armoireId) : null;
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
 
     return {
+        linkMode,
         gatewayLabel,
         gatewayIp: gatewayStatus?.ip,
         portalGatewayId: portalGw?.gateway_id,
@@ -82,38 +112,43 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
         armoire,
         remoteEligible,
         hasGateway: !!(user.linked_gateway_id),
+        hasLinks: linkMode === LINK_MODE.ARMOIRE
+            ? !!(armoire || user.linked_machine_id)
+            : !!(user.linked_gateway_id),
     };
 };
 
 const UserLinksSummary = ({
     user,
+    linkMode,
     gatewayLabel,
     gatewayIp,
     portalGatewayId,
     cloudMachineId,
     armoire,
-    remoteEligible,
-    hasGateway,
+    hasLinks,
 }) => {
-    if (!hasGateway) {
+    if (!hasLinks) {
         return <span className="links-empty">Aucune liaison</span>;
     }
-
-    const gatewayName = portalGatewayId || gatewayLabel || user.linked_gateway_id;
 
     return (
         <div className="user-links-summary">
             <div className="link-row">
-                <span className="link-tag">GW</span>
+                <span className="link-tag">Mode</span>
                 <div className="link-body">
-                    <span className="link-primary">{gatewayName}</span>
-                    {gatewayIp && <span className="link-meta">{gatewayIp}</span>}
+                    <span className="link-primary">{linkModeLabel(linkMode)}</span>
                 </div>
             </div>
-            {!remoteEligible ? (
-                <span className="link-hint">Portail distant N/A (essensys-server)</span>
-            ) : (
+            {linkMode === LINK_MODE.GATEWAY && (
                 <>
+                    <div className="link-row">
+                        <span className="link-tag">GW</span>
+                        <div className="link-body">
+                            <span className="link-primary">{portalGatewayId || gatewayLabel || user.linked_gateway_id}</span>
+                            {gatewayIp && <span className="link-meta">{gatewayIp}</span>}
+                        </div>
+                    </div>
                     <div className="link-row">
                         <span className="link-tag">Cloud</span>
                         <div className="link-body">
@@ -122,21 +157,30 @@ const UserLinksSummary = ({
                             </span>
                         </div>
                     </div>
-                    <div className="link-row">
-                        <span className="link-tag">Armoire</span>
-                        <div className="link-body">
-                            {armoire ? (
-                                <>
-                                    <span className="link-primary">{armoire.no_serie}</span>
-                                    {armoire.ip && <span className="link-meta">IP {armoire.ip}</span>}
-                                </>
-                            ) : (
-                                <span className="link-muted">repère admin non renseigné</span>
-                            )}
-                        </div>
-                    </div>
                 </>
             )}
+            {linkMode === LINK_MODE.SERVER && (
+                <div className="link-row">
+                    <span className="link-tag">Srv</span>
+                    <div className="link-body">
+                        <span className="link-primary">essensys-server</span>
+                        <span className="link-meta">local uniquement</span>
+                    </div>
+                </div>
+            )}
+            <div className="link-row">
+                <span className="link-tag">Armoire</span>
+                <div className="link-body">
+                    {armoire ? (
+                        <>
+                            <span className="link-primary">{armoire.no_serie}</span>
+                            {armoire.ip && <span className="link-meta">IP {armoire.ip}</span>}
+                        </>
+                    ) : (
+                        <span className="link-muted">non renseignée</span>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
@@ -302,6 +346,7 @@ const UserManager = ({ token }) => {
     const [editMachine, setEditMachine] = useState('');
     const [editGateway, setEditGateway] = useState('');
     const [editArmoire, setEditArmoire] = useState('');
+    const [editLinkMode, setEditLinkMode] = useState(LINK_MODE.ARMOIRE);
 
     // Resend email
     const [resendUser, setResendUser] = useState(null);
@@ -420,13 +465,28 @@ const UserManager = ({ token }) => {
     };
 
     const openEditModal = (user) => {
+        const mode = inferLinkMode(user);
         setEditingUser(user);
+        setEditLinkMode(mode);
         const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
         const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
         const detected = findArmoireForGateway(machines, gatewayStatus);
+        const armoireId = user.linked_armoire_id
+            ?? (mode === LINK_MODE.ARMOIRE ? user.linked_machine_id : detected?.id);
         setEditGateway(gatewayStatus?.hostname || user.linked_gateway_id || '');
         setEditMachine(String(portalGw?.machine_id ?? user.linked_machine_id ?? ''));
-        setEditArmoire(String(user.linked_armoire_id ?? detected?.id ?? ''));
+        setEditArmoire(armoireId ? String(armoireId) : '');
+    };
+
+    const handleLinkModeChange = (mode) => {
+        setEditLinkMode(mode);
+        if (mode === LINK_MODE.ARMOIRE) {
+            setEditGateway('');
+            setEditMachine('');
+        } else if (mode === LINK_MODE.SERVER) {
+            setEditGateway('essensys-server');
+            setEditMachine('');
+        }
     };
 
     const handleGatewayChange = (value) => {
@@ -465,49 +525,57 @@ const UserManager = ({ token }) => {
     const handleSaveLinks = async () => {
         if (!editingUser) return;
         try {
-            const portalLinkLocked = userHasPortalGateway(editingUser);
-            const portalGw = findPortalGateway(portalGateways, editGateway);
-            let gatewayId = portalGw?.gateway_id || editGateway || null;
-            const remoteEligible = isRemoteEligibleGateway(gatewayId || editGateway);
-            let machineId = remoteEligible && editMachine ? parseInt(editMachine, 10) : null;
+            const portalLinkLocked = userHasPortalGateway(editingUser) && editLinkMode === LINK_MODE.GATEWAY;
+            let body;
 
-            if (portalLinkLocked) {
-                gatewayId = editingUser.linked_gateway_id;
-                if (isRemoteEligibleGateway(editingUser.linked_gateway_id) && editingUser.linked_machine_id) {
-                    machineId = editingUser.linked_machine_id;
+            if (editLinkMode === LINK_MODE.ARMOIRE) {
+                if (!editArmoire) {
+                    alert('Sélectionnez une armoire (inventaire OVH)');
+                    return;
                 }
-            } else if (!gatewayId) {
-                alert('Sélectionnez une gateway');
-                return;
-            } else if (remoteEligible && !machineId) {
-                alert('Renseignez le serveur cloud (machine_id)');
-                return;
-            }
-
-            const body = {
-                linked_machine_id: machineId,
-                linked_gateway_id: gatewayId,
-                linked_armoire_id: remoteEligible && editArmoire ? parseInt(editArmoire, 10) : null,
-            };
-
-            const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (res.ok) {
-                alert('Links updated successfully');
-                setEditingUser(null);
-                fetchUsers(); // Refresh
+                const armoireId = parseInt(editArmoire, 10);
+                body = {
+                    linked_gateway_id: null,
+                    linked_machine_id: armoireId,
+                    linked_armoire_id: armoireId,
+                };
+            } else if (editLinkMode === LINK_MODE.SERVER) {
+                body = {
+                    linked_gateway_id: 'essensys-server',
+                    linked_machine_id: null,
+                    linked_armoire_id: editArmoire ? parseInt(editArmoire, 10) : null,
+                };
             } else {
-                alert('Failed to update links');
+                const portalGw = findPortalGateway(portalGateways, editGateway);
+                let gatewayId = portalGw?.gateway_id || editGateway || null;
+                let machineId = editMachine ? parseInt(editMachine, 10) : null;
+
+                if (portalLinkLocked) {
+                    gatewayId = editingUser.linked_gateway_id;
+                    if (editingUser.linked_machine_id) {
+                        machineId = editingUser.linked_machine_id;
+                    }
+                } else if (!gatewayId) {
+                    alert('Sélectionnez une gateway CM5');
+                    return;
+                } else if (!machineId) {
+                    alert('Renseignez le serveur cloud (machine_id)');
+                    return;
+                }
+
+                body = {
+                    linked_machine_id: machineId,
+                    linked_gateway_id: gatewayId,
+                    linked_armoire_id: editArmoire ? parseInt(editArmoire, 10) : null,
+                };
             }
+
+            await putUserLinks(editingUser.id, body);
+            alert('Liaisons enregistrées');
+            setEditingUser(null);
+            fetchUsers();
         } catch (err) {
-            alert('Error updating links');
+            alert(err.message || 'Error updating links');
         }
     };
 
@@ -808,8 +876,8 @@ const UserManager = ({ token }) => {
                 const gw = findGateway(gateways, editGateway);
                 const { onGateway, onLan, others } = sortMachinesForPicker(machines, gw);
                 const selectedArmoire = findMachineById(machines, editArmoire ? parseInt(editArmoire, 10) : null);
-                const remoteEligible = isRemoteEligibleGateway(editGateway);
-                const portalLinkLocked = userHasPortalGateway(editingUser);
+                const portalLinkLocked = userHasPortalGateway(editingUser) && editLinkMode === LINK_MODE.GATEWAY;
+                const showGatewayFields = editLinkMode === LINK_MODE.GATEWAY;
 
                 return (
                 <div className="modal-overlay">
@@ -817,20 +885,36 @@ const UserManager = ({ token }) => {
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
-                            <strong>Gateway + serveur cloud</strong> : pilotent le portail distant (commandes, scénarios).
-                            Protégés contre un effacement accidentel dans les listes.
+                            <strong>1. Armoire seule</strong> — portail <a href="https://mon.essensys.fr/portal/">mon.essensys.fr/portal</a>
+                            {' '}(armoire en HTTPS vers OVH, sans CM5).
                             <br />
-                            <strong>Armoire</strong> (optionnel) : repère admin dans l&apos;inventaire OVH — sans impact sur le portail.
+                            <strong>2. Armoire + gateway</strong> — portail cloud + interface locale{' '}
+                            <code>mon.essensys.local/login</code>.
+                            <br />
+                            <strong>3. Serveur legacy</strong> — essensys-server, local uniquement (pas de portail distant).
                         </p>
+
+                        <label className="field">
+                            <span>Mode de liaison</span>
+                            <select
+                                value={editLinkMode}
+                                onChange={(e) => handleLinkModeChange(e.target.value)}
+                            >
+                                <option value={LINK_MODE.ARMOIRE}>1 — Armoire seule (portail OVH)</option>
+                                <option value={LINK_MODE.GATEWAY}>2 — Armoire + gateway CM5</option>
+                                <option value={LINK_MODE.SERVER}>3 — Serveur legacy (essensys-server)</option>
+                            </select>
+                        </label>
 
                         {portalLinkLocked && (
                             <p className="link-hint" style={{ marginBottom: '1rem' }}>
-                                Gateway et serveur verrouillés dans les listes. Utilisez le bouton ci-dessous pour tout retirer.
+                                Gateway et serveur cloud verrouillés dans les listes. Utilisez le bouton pour tout retirer.
                             </p>
                         )}
 
+                        {showGatewayFields && (
                         <label className="field">
-                            <span>Gateway</span>
+                            <span>Gateway CM5</span>
                             <select
                                 value={editGateway}
                                 onChange={(e) => handleGatewayChange(e.target.value)}
@@ -861,14 +945,15 @@ const UserManager = ({ token }) => {
                                     ))}
                             </select>
                         </label>
+                        )}
 
-                        {!remoteEligible && editGateway && (
+                        {editLinkMode === LINK_MODE.SERVER && (
                             <p className="device-warning">
-                                essensys-server : pas de portail distant mon.essensys.fr.
-                                Seule la gateway peut être enregistrée (sans armoire ni serveur cloud).
+                                Mode serveur legacy : pas d&apos;accès au portail distant mon.essensys.fr.
                             </p>
                         )}
 
+                        {showGatewayFields && (
                         <label className="field">
                             <span>Serveur cloud (machine_id)</span>
                             <input
@@ -877,20 +962,22 @@ const UserManager = ({ token }) => {
                                 value={editMachine}
                                 onChange={(e) => setEditMachine(e.target.value)}
                                 placeholder="Ex. 19"
-                                disabled={!remoteEligible || portalLinkLocked}
-                                readOnly={portalLinkLocked && remoteEligible}
+                                disabled={portalLinkLocked}
+                                readOnly={portalLinkLocked}
                             />
                         </label>
+                        )}
 
                         <label className="field">
-                            <span>Armoire (inventaire OVH)</span>
+                            <span>Armoire (inventaire OVH){editLinkMode === LINK_MODE.ARMOIRE ? '' : ' — optionnel'}</span>
                             <select
                                 value={editArmoire}
                                 onChange={(e) => setEditArmoire(e.target.value)}
-                                disabled={!remoteEligible}
                             >
                                 <option value="">
-                                    {remoteEligible ? '-- Choisir une armoire --' : '-- Non applicable (essensys-server) --'}
+                                    {editLinkMode === LINK_MODE.ARMOIRE
+                                        ? '-- Choisir une armoire --'
+                                        : '-- Aucune --'}
                                 </option>
                                 {onGateway.length > 0 && (
                                     <optgroup label={`Sur la gateway (${gw?.ip || 'IP'})`}>
@@ -933,7 +1020,7 @@ const UserManager = ({ token }) => {
                             </div>
                         )}
 
-                        {remoteEligible && (editArmoire || editingUser.linked_armoire_id) && (
+                        {(editArmoire || editingUser.linked_armoire_id) && (
                             <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
                                 <button
                                     type="button"
