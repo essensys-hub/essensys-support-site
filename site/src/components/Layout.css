@@ -7,19 +7,25 @@
 .main-header {
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(10px);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 0.75rem 1.5rem;
     position: sticky;
     top: 0;
     z-index: 1000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
 .logo {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .logo img {
@@ -27,10 +33,20 @@
     width: auto;
 }
 
+.header-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    gap: 1rem;
+    min-width: 0;
+}
+
 nav ul {
     list-style: none;
     display: flex;
-    gap: 1.5rem;
+    flex-wrap: nowrap;
+    gap: 1.25rem;
     padding: 0;
     margin: 0;
 }
@@ -39,6 +55,8 @@ nav a {
     color: #e0e0e0;
     text-decoration: none;
     font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
     transition: color 0.3s;
 }
 
@@ -52,6 +70,7 @@ nav a:hover {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .main-footer {
@@ -62,18 +81,27 @@ nav a:hover {
     font-size: 0.9rem;
 }
 
-/* Auth Buttons in Header */
 .auth-buttons-header {
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
 }
 
 .nav-btn-signup {
     color: #ffffff;
     text-decoration: none;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    white-space: nowrap;
     transition: color 0.2s;
 }
 
@@ -84,10 +112,12 @@ nav a:hover {
 .nav-btn-login {
     background-color: #0f172a;
     color: white;
-    padding: 8px 24px;
+    padding: 7px 16px;
     border-radius: 9999px;
     text-decoration: none;
     font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
     transition: background-color 0.2s, transform 0.1s;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -98,14 +128,14 @@ nav a:hover {
 }
 
 .nav-btn-logout {
-    margin-left: 10px;
     background: transparent;
     border: 1px solid white;
     border-radius: 20px;
-    padding: 6px 16px;
+    padding: 6px 14px;
     color: white;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
     transition: background-color 0.2s;
 }
 
@@ -113,7 +143,6 @@ nav a:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* ── Hamburger button (mobile only) ─────────────────────────────── */
 .hamburger-btn {
     display: none;
     background: transparent;
@@ -126,6 +155,7 @@ nav a:hover {
     cursor: pointer;
     z-index: 1100;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .hamburger-btn:focus-visible {
@@ -133,71 +163,68 @@ nav a:hover {
     outline-offset: 2px;
 }
 
-/* ── Mobile nav overlay ──────────────────────────────────────────── */
 .nav-overlay {
     display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 999;
 }
 
-/* ── iPad breakpoint (768–1024px) ────────────────────────────────── */
-@media (max-width: 1024px) and (min-width: 769px) {
-    .main-header {
-        padding: 0.85rem 1.25rem;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
+.nav-overlay.visible {
+    display: block;
+}
 
+/* iPad landscape / compact desktop */
+@media (max-width: 1100px) {
     nav ul {
         gap: 1rem;
-        flex-wrap: wrap;
     }
 
-    .auth-buttons-header {
-        gap: 12px;
+    nav a,
+    .nav-btn-login {
+        font-size: 0.85rem;
     }
 
     .nav-btn-login {
-        padding: 6px 16px;
-        font-size: 0.9rem;
-    }
-
-    .main-content {
-        padding: 1.25rem;
+        padding: 6px 12px;
     }
 }
 
-/* ── Mobile breakpoint (≤ 768px) ─────────────────────────────────── */
-@media (max-width: 768px) {
+/* Tablet + mobile: hamburger drawer */
+@media (max-width: 1024px) {
     .main-header {
         padding: 0.75rem 1rem;
-        flex-wrap: nowrap;
-        gap: 0;
-        justify-content: space-between;
-        align-items: center;
     }
 
-    /* Show hamburger, hide standard nav */
+    .header-inner {
+        flex-wrap: wrap;
+    }
+
     .hamburger-btn {
         display: block;
-        order: 2;
     }
 
-    /* Nav collapses to drawer */
-    nav {
-        order: 3;
+    .header-menu {
+        flex-direction: column;
+        align-items: stretch;
         width: 100%;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+        padding-top: 0;
     }
 
-    nav.nav-open {
-        max-height: 400px;
+    .header-menu.menu-open {
+        max-height: 600px;
+        opacity: 1;
+        padding-top: 0.75rem;
     }
 
     nav ul {
         flex-direction: column;
         gap: 0;
-        padding: 0.5rem 0;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -205,27 +232,35 @@ nav a:hover {
         display: block;
         padding: 12px 0;
         min-height: 44px;
-        line-height: 44px;
+        line-height: 20px;
         font-size: 1rem;
     }
 
-    /* Auth buttons below nav on mobile */
     .auth-buttons-header {
-        order: 4;
         width: 100%;
-        justify-content: center;
+        justify-content: flex-start;
         flex-wrap: wrap;
         gap: 10px;
-        padding: 0.5rem 0;
+        padding-top: 0.75rem;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
+    .user-menu {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .main-content {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
     .main-content {
         padding: 1rem;
     }
 }
 
-/* ── iPhone (≤ 480px) ────────────────────────────────────────────── */
 @media (max-width: 480px) {
     .main-header {
         padding: 0.6rem 0.75rem;
@@ -233,11 +268,6 @@ nav a:hover {
 
     .logo img {
         height: 32px;
-    }
-
-    .nav-btn-login {
-        padding: 6px 14px;
-        font-size: 0.85rem;
     }
 
     .main-content {

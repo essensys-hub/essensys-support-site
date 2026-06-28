@@ -7,6 +7,7 @@ import LinkRequestsPanel from './LinkRequestsPanel';
 import SyncCloud from './SyncCloud';
 import Catalog from './Catalog';
 import './Catalog.css';
+import './Admin.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -228,56 +229,77 @@ const Admin = () => {
             <h1>Administration</h1>
 
             <div className="admin-dashboard">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="admin-toolbar">
+                    <div className="admin-tabs" role="tablist" aria-label="Sections administration">
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'dashboard'}
+                            className={`admin-tab${activeTab === 'dashboard' ? ' active' : ''}`}
                             onClick={() => setActiveTab('dashboard')}
-                            style={activeTab === 'dashboard' ? activeTabStyle : inactiveTabStyle}
                         >
                             Tableau de Bord
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'newsletters'}
+                            className={`admin-tab${activeTab === 'newsletters' ? ' active' : ''}`}
                             onClick={() => setActiveTab('newsletters')}
-                            style={activeTab === 'newsletters' ? activeTabStyle : inactiveTabStyle}
                         >
                             Newsletters
                         </button>
                         {getStoredRole() === 'admin_global' && (
                             <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === 'email-templates'}
+                                className={`admin-tab${activeTab === 'email-templates' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('email-templates')}
-                                style={activeTab === 'email-templates' ? activeTabStyle : inactiveTabStyle}
                             >
                                 Modèles email
                             </button>
                         )}
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'users'}
+                            className={`admin-tab${activeTab === 'users' ? ' active' : ''}`}
                             onClick={() => setActiveTab('users')}
-                            style={activeTab === 'users' ? activeTabStyle : inactiveTabStyle}
                         >
                             Utilisateurs
                         </button>
                         {getStoredRole() === 'admin_global' && (
                             <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === 'sync-cloud'}
+                                className={`admin-tab${activeTab === 'sync-cloud' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('sync-cloud')}
-                                style={activeTab === 'sync-cloud' ? activeTabStyle : inactiveTabStyle}
                             >
                                 Sync Cloud
                             </button>
                         )}
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'catalog'}
+                            className={`admin-tab${activeTab === 'catalog' ? ' active' : ''}`}
                             onClick={() => setActiveTab('catalog')}
-                            style={activeTab === 'catalog' ? activeTabStyle : inactiveTabStyle}
                         >
                             Catalogue
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'audit'}
+                            className={`admin-tab${activeTab === 'audit' ? ' active' : ''}`}
                             onClick={() => setActiveTab('audit')}
-                            style={activeTab === 'audit' ? activeTabStyle : inactiveTabStyle}
                         >
                             Audit Trail
                         </button>
                     </div>
-                    <button onClick={handleLogout} style={{ padding: '5px 10px', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    <button type="button" onClick={handleLogout} className="admin-logout-btn">
                         Déconnexion
                     </button>
                 </div>
@@ -515,25 +537,6 @@ const Admin = () => {
             </div>
         </div>
     );
-};
-
-const activeTabStyle = {
-    padding: '10px 20px',
-    background: '#00C9FF',
-    color: 'black',
-    border: 'none',
-    borderRadius: '4px',
-    fontWeight: 'bold',
-    cursor: 'pointer'
-};
-
-const inactiveTabStyle = {
-    padding: '10px 20px',
-    background: '#333',
-    color: '#ccc',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer'
 };
 
 export default Admin;
