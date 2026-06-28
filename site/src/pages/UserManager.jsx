@@ -68,9 +68,7 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
     const remoteEligible = isRemoteEligibleGateway(user.linked_gateway_id);
     const armoire = remoteEligible && user.linked_armoire_id
         ? findMachineById(machines, user.linked_armoire_id)
-        : remoteEligible
-            ? findArmoireForGateway(machines, gatewayStatus)
-            : null;
+        : null;
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
     const gatewaySubtitle = [
@@ -302,6 +300,44 @@ const UserManager = ({ token }) => {
             }
         } catch (err) {
             alert('Error updating links');
+        }
+    };
+
+    const handleRemoveArmoire = async () => {
+        if (!editingUser) return;
+        if (!window.confirm(`Retirer l'armoire liée pour ${editingUser.email} ?`)) {
+            return;
+        }
+        try {
+            const portalGw = findPortalGateway(portalGateways, editGateway);
+            const gatewayId = portalGw?.gateway_id || editGateway || null;
+            const remoteEligible = isRemoteEligibleGateway(gatewayId || editGateway);
+            const body = {
+                linked_machine_id: remoteEligible && editMachine ? parseInt(editMachine, 10) : null,
+                linked_gateway_id: gatewayId,
+                linked_armoire_id: null,
+            };
+
+            const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(body),
+            });
+
+            if (res.ok) {
+                alert('Armoire retirée');
+                setEditArmoire('');
+                setEditingUser(null);
+                fetchUsers();
+            } else {
+                const text = await res.text();
+                alert(text || 'Échec retrait armoire');
+            }
+        } catch {
+            alert('Erreur réseau');
         }
     };
 
@@ -710,6 +746,18 @@ const UserManager = ({ token }) => {
                                 Armoire sélectionnée : {selectedArmoire.no_serie} · inv. #{selectedArmoire.id}
                                 {selectedArmoire.ip ? ` · IP ${selectedArmoire.ip}` : ''}
                             </p>
+                        )}
+
+                        {remoteEligible && (editArmoire || editingUser.linked_armoire_id) && (
+                            <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveArmoire}
+                                    className="catalog-button danger"
+                                >
+                                    Enlever armoire du user
+                                </button>
+                            </div>
                         )}
 
                         <div className="modal-actions">
