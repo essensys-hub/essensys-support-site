@@ -1,0 +1,32 @@
+[Unit]
+Description=Essensys Backend Server
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+# User can be overridden by install script or manual setup, defaulting to current user or specific service user
+User=root
+# Ideally runs as essensys user, but valid installation is required first.
+# The install script handles creating the user or running as specific user.
+# For generic systemd file, we might leave User commented or standard.
+# However, our manual deployment used 'root' or 'essensys'? 
+# The manual command used: sudo chown -R essensys:essensys /opt/essensys
+# So better to run as root or essensys? 
+# Let's set it to run as root for now to avoid permission issues with ports < 1024 (though 8080 is fine).
+# Best practice is dedicated user.
+# Let's leave User unset here and rely on the installer or manual edits, O
+# OR matching the VPS:
+User=essensys
+Group=essensys
+WorkingDirectory=/opt/essensys/backend
+ExecStart=/opt/essensys/backend/server
+Restart=always
+RestartSec=5
+EnvironmentFile=/opt/essensys/backend/.env
+
+# Security
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

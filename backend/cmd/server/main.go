@@ -1,0 +1,197 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/essensys-hub/essensys-support-site/backend/internal/api"
+	"github.com/essensys-hub/essensys-support-site/backend/internal/data"
+	"github.com/essensys-hub/essensys-support-site/backend/internal/middleware"
+
+	
+	"fmt"
+
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/jmoiron/sqlx"
+)
+
+func main() {
+	log.Println("Starting Essensys Passive Monitoring Server...")
+
+	// 0. Fail closed: refuse to start with missing/weak security secrets.
+	if err := validateSecrets(); err != nil {
+		log.Fatalf("config: %v", err)
+	}
+
+	// 1. Init Store (File-based persistence)
+	store := data.NewMemoryStore("./data/machines.json")
+    
+
+
+	// 2. Init Router
+	r := chi.NewRouter()
+    r.Use(chimiddleware.RealIP) // Must be before Logger to fix IP in logs
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
+
+	// 1b. Init Postgres (User Store)
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+
+    var userStore data.UserStore
+    var auditStore data.AuditStore
+
+    // Only connect if DB envs are set (Graceful degradation or Fatal?)
+    // For now, let's try to connect if configured.
+    if dbHost != "" {
+        dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
+            dbHost, dbPort, dbUser, dbPass, dbName)
+        
+        db, err := sqlx.Connect("postgres", dsn)
+        if err != nil {
+             log.Printf("WARNING: Failed to connect to database: %v. User Registration will fail.", err)
+             userStore = &data.PostgresUserStore{} // Empty struct or nil handling? 
+             auditStore = &data.PostgresAuditStore{}
+        } else {
+             log.Println("Connected to PostgreSQL")
+             uStore := data.NewPostgresUserStore(db)
+             if err := uStore.EnsureTableExists(); err != nil {
+                 log.Fatalf("Failed to init user table: %v", err)
+             }
+             userStore = uStore
+
+             aStore := data.NewPostgresAuditStore(db)
+             if err := aStore.EnsureTableExists(); err != nil {
+                 log.Fatalf("Failed to init audit table: %v", err)
+             }
+             auditStore = aStore
+        }
+    } else {
+        log.Println("WARNING: DB configuration missing. User Store disable.")
+    }
+
+	// 3. API Routes with Auth
+	apiRouter := api.NewRouter(store, userStore, auditStore)
+	
+	r.Route("/api", func(r chi.Router) {
+        // 1a. IoT Routes - Strict Auth
+		r.Group(func(r chi.Router) {
+            r.Use(middleware.BasicAuthMiddleware(store, true))
+		    r.Post("/mystatus", apiRouter.HandleMyStatus)
+		    r.Get("/myactions", apiRouter.HandleMyActions)
+        })
+
+        // 1b. IoT Routes - Optional Auth (Public Access allowed)
+        r.Group(func(r chi.Router) {
+            r.Use(middleware.BasicAuthMiddleware(store, false))
+		    r.Get("/serverinfos", apiRouter.HandleServerInfos)
+		    r.Post("/infos", apiRouter.HandleGatewayInfos)
+        })
+        
+        // 3. Newsletter (Public)
+        r.Post("/newsletter/subscribe", apiRouter.HandleSubscribe)
+        
+        // 2. Admin Routes (Token Auth & OAuth)
+        r.Group(func(r chi.Router) {
+            // OAuth Endpoints (Public)
+            r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
+            r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
+            r.Get("/auth/google/callback", apiRouter.HandleGoogleCallback)
+            
+            // Email Auth
+            r.Post("/auth/register", apiRouter.HandleRegister)
+            r.Post("/auth/login", apiRouter.HandleLogin)
+            r.Post("/auth/logout", apiRouter.HandleLogout) // New
+            
+            // Apple OAuth
+            r.Get("/auth/apple/login", apiRouter.HandleAppleLogin)
+            r.Post("/auth/apple/callback", apiRouter.HandleAppleCallback) // Note: Apple uses POST for callback
+
+            // Public Login endpoint (checks token in body - Legacy)
+            r.Post("/admin/login", apiRouter.HandleAdminLogin)
+            
+            // 3. User Profile Routes (Any Logged In User)
+            r.Group(func(r chi.Router) {
+                r.Use(middleware.UserTokenMiddlewareWithStore(userStore))
+                r.Get("/profile", apiRouter.HandleGetProfile)
+                r.Put("/profile", apiRouter.HandleUpdateProfile) // Edit
+                r.Delete("/profile", apiRouter.HandleDeleteProfile) // Delete
+                r.Get("/profile/export", apiRouter.HandleExportProfile) // Export
+                r.Get("/devices/nearby", apiRouter.HandleGetNearbyDevices)
+                r.Put("/profile/links", apiRouter.HandleUpdateProfileLinks)
+            })
+            
+            // Protected Admin endpoints
+            r.Group(func(r chi.Router) {
+                r.Use(middleware.AdminTokenMiddlewareWithStore(userStore))
+                r.Get("/admin/stats", apiRouter.HandleAdminStats)
+                r.Get("/admin/audit", apiRouter.HandleGetAuditLogs) // New
+                r.Get("/admin/machines", apiRouter.HandleAdminMachines)
+                r.Get("/admin/gateways", apiRouter.HandleAdminGateways)
+                r.Get("/admin/subscribers", apiRouter.HandleAdminSubscribers)
+                r.Post("/admin/subscribers", apiRouter.HandleAdminAddSubscriber)
+                r.Delete("/admin/subscribers", apiRouter.HandleDeleteSubscriber)
+                
+                // Newsletter Manager
+                r.Get("/admin/newsletters", apiRouter.HandleGetNewsletters)
+                r.Post("/admin/newsletters", apiRouter.HandleCreateNewsletter)
+                r.Put("/admin/newsletters/{id}", apiRouter.HandleUpdateNewsletter)
+                r.Delete("/admin/newsletters/{id}", apiRouter.HandleDeleteNewsletter)
+                r.Post("/admin/newsletters/{id}/send", apiRouter.HandleSendNewsletter)
+
+                // User Management
+                r.Get("/admin/users", apiRouter.HandleAdminGetUsers)
+                r.Post("/admin/users", apiRouter.HandleAdminCreateUser)
+                r.Put("/admin/users/{id}/role", apiRouter.HandleAdminUpdateUserRole)
+                r.Put("/admin/users/{id}/links", apiRouter.HandleAdminUpdateUserLinks)
+                r.Post("/admin/users/{id}/forbid", apiRouter.HandleAdminForbidUser)
+                r.Post("/admin/users/{id}/unforbid", apiRouter.HandleAdminUnforbidUser)
+                r.Delete("/admin/users/{id}", apiRouter.HandleAdminDeleteUser)
+            })
+        })
+	})
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("Listening on port %s", port)
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// insecureSecrets are well-known placeholder values that must never reach
+// production.
+var insecureSecrets = map[string]bool{
+	"":                                      true,
+	"insecure-dev-secret":                   true,
+	"default-insecure-jwt-secret-change-me": true,
+	"essensys-admin-secret":                 true,
+	"changeme_random_secret":                true,
+	"changeme":                              true,
+	"1234567890":                            true,
+}
+
+// validateSecrets fails closed: it returns an error when JWT_SECRET or
+// ADMIN_TOKEN is missing, too short, or set to a known-insecure placeholder, so
+// the service never runs with guessable credentials.
+func validateSecrets() error {
+	const minLen = 16
+	for _, name := range []string{"JWT_SECRET", "ADMIN_TOKEN"} {
+		v := os.Getenv(name)
+		if insecureSecrets[v] {
+			return fmt.Errorf("%s is missing or set to a known-insecure default; set a strong unique value", name)
+		}
+		if len(v) < minLen {
+			return fmt.Errorf("%s is too short (%d chars); require at least %d", name, len(v), minLen)
+		}
+	}
+	return nil
+}

@@ -1,0 +1,251 @@
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-header {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    padding: 0;
+    margin: 0;
+}
+
+nav a {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #4CAF50;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Auth Buttons in Header */
+.auth-buttons-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-btn-signup {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.nav-btn-signup:hover {
+    color: #ddd;
+}
+
+.nav-btn-login {
+    background-color: #0f172a;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-btn-login:hover {
+    background-color: #1e293b;
+    transform: scale(1.02);
+}
+
+.nav-btn-logout {
+    margin-left: 10px;
+    background: transparent;
+    border: 1px solid white;
+    border-radius: 20px;
+    padding: 6px 16px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+}
+
+.nav-btn-logout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Hamburger button (mobile only) ─────────────────────────────── */
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: white;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 6px 10px;
+    cursor: pointer;
+    z-index: 1100;
+    flex-shrink: 0;
+}
+
+.hamburger-btn:focus-visible {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+}
+
+/* ── Mobile nav overlay ──────────────────────────────────────────── */
+.nav-overlay {
+    display: none;
+}
+
+/* ── iPad breakpoint (768–1024px) ────────────────────────────────── */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .main-header {
+        padding: 0.85rem 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    nav ul {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .auth-buttons-header {
+        gap: 12px;
+    }
+
+    .nav-btn-login {
+        padding: 6px 16px;
+        font-size: 0.9rem;
+    }
+
+    .main-content {
+        padding: 1.25rem;
+    }
+}
+
+/* ── Mobile breakpoint (≤ 768px) ─────────────────────────────────── */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 0.75rem 1rem;
+        flex-wrap: nowrap;
+        gap: 0;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Show hamburger, hide standard nav */
+    .hamburger-btn {
+        display: block;
+        order: 2;
+    }
+
+    /* Nav collapses to drawer */
+    nav {
+        order: 3;
+        width: 100%;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    nav.nav-open {
+        max-height: 400px;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 0;
+        padding: 0.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    nav ul li a {
+        display: block;
+        padding: 12px 0;
+        min-height: 44px;
+        line-height: 44px;
+        font-size: 1rem;
+    }
+
+    /* Auth buttons below nav on mobile */
+    .auth-buttons-header {
+        order: 4;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 0.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* ── iPhone (≤ 480px) ────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .main-header {
+        padding: 0.6rem 0.75rem;
+    }
+
+    .logo img {
+        height: 32px;
+    }
+
+    .nav-btn-login {
+        padding: 6px 14px;
+        font-size: 0.85rem;
+    }
+
+    .main-content {
+        padding: 0.75rem;
+    }
+
+    .page-content {
+        width: 100%;
+        max-width: 100%;
+    }
+}

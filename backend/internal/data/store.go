@@ -1,0 +1,528 @@
+package data
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"sync"
+	"time"
+
+	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
+	"github.com/jmoiron/sqlx"
+)
+
+// Store defines the data access interface
+type Store interface {
+    // Auth
+    GetMachineByHashedPkey(hashedPkey string) (*models.Machine, error)
+    
+    // Data Capture
+    SaveClientData(clientID string, data []models.ExchangeKeyValue) error
+    
+    // Admin
+    GetStats() (*models.AdminStatsResponse, error)
+    GetMachines() ([]*models.MachineDetail, error)
+    GetGateways() ([]*models.GatewayStatus, error) // Added
+    UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string)
+    RegisterUnknownMachine(hashedPkey string) (*models.Machine, error)
+    SaveGateway(gw *models.GatewayStatus) error // Added
+    
+    // Newsletter
+    AddSubscriber(email string) error
+    DeleteSubscriber(email string) error
+    GetSubscribers() ([]models.Subscriber, error)
+    
+    // Newsletter Management
+    GetNewsletters() ([]models.Newsletter, error)
+    GetNewsletter(id string) (*models.Newsletter, error)
+    SaveNewsletter(n models.Newsletter) error
+    DeleteNewsletter(id string) error
+}
+
+// PersistenceData wraps the data we want to save
+type PersistenceData struct {
+    Machines    map[string]*models.Machine       `json:"machines"`
+    Details     map[string]*models.MachineDetail `json:"details"`
+    Gateways    map[string]*models.GatewayStatus `json:"gateways"` // Added
+    Subscribers []models.Subscriber              `json:"subscribers"`
+    Newsletters []models.Newsletter              `json:"newsletters"`
+}
+
+// MemoryStore implementation with File Persistence
+type MemoryStore struct {
+    mu          sync.RWMutex
+    machines    map[string]*models.Machine // hashedPkey -> Machine
+    data        map[string][]models.ExchangeKeyValue // clientID -> last data
+    details     map[string]*models.MachineDetail // hashedPkey -> Connection Details
+    gateways    map[string]*models.GatewayStatus // hostname -> GatewayStatus (Added)
+    subscribers []models.Subscriber
+    newsletters map[string]models.Newsletter // id -> Newsletter
+    filePath    string
+}
+
+func NewMemoryStore(storagePath string) *MemoryStore {
+    // Ensure directory exists
+    dir := filepath.Dir(storagePath)
+    if err := os.MkdirAll(dir, 0755); err != nil {
+        log.Printf("Failed to create storage dir: %v", err)
+    }
+
+    store := &MemoryStore{
+        machines:    make(map[string]*models.Machine),
+        data:        make(map[string][]models.ExchangeKeyValue),
+        details:     make(map[string]*models.MachineDetail),
+        gateways:    make(map[string]*models.GatewayStatus), // Init
+        newsletters: make(map[string]models.Newsletter),
+        filePath:    storagePath,
+    }
+    
+    store.load()
+    return store
+}
+
+func (s *MemoryStore) load() {
+    file, err := os.Open(s.filePath)
+    if err != nil {
+        if os.IsNotExist(err) {
+            log.Println("No existing storage file, starting fresh.")
+            return
+        }
+        log.Printf("Failed to open storage file: %v", err)
+        return
+    }
+    defer file.Close()
+
+    var pd PersistenceData
+    if err := json.NewDecoder(file).Decode(&pd); err != nil {
+        log.Printf("Failed to decode storage file: %v", err)
+        return
+    }
+
+    s.machines = pd.Machines
+    s.details = pd.Details
+    // Load Gateways with check
+    if pd.Gateways != nil {
+        s.gateways = pd.Gateways
+    } else {
+        s.gateways = make(map[string]*models.GatewayStatus)
+    }
+    s.subscribers = pd.Subscribers
+    
+    // Load Newsletters list into map
+    s.newsletters = make(map[string]models.Newsletter)
+    for _, n := range pd.Newsletters {
+        s.newsletters[n.ID] = n
+    }
+    
+    log.Printf("Loaded %d machines, %d gateways, %d subscribers, %d newsletters.", len(s.machines), len(s.gateways), len(s.subscribers), len(s.newsletters))
+}
+
+func (s *MemoryStore) save() {
+    // Convert newsletters map to slice
+    nlList := make([]models.Newsletter, 0, len(s.newsletters))
+    for _, n := range s.newsletters {
+        nlList = append(nlList, n)
+    }
+
+    pd := PersistenceData{
+        Machines:    s.machines,
+        Details:     s.details,
+        Gateways:    s.gateways, // Save Gateways
+        Subscribers: s.subscribers,
+        Newsletters: nlList,
+    }
+
+    file, err := os.Create(s.filePath)
+    if err != nil {
+        log.Printf("Failed to create storage file: %v", err)
+        return
+    }
+    defer file.Close()
+
+    if err := json.NewEncoder(file).Encode(pd); err != nil {
+        log.Printf("Failed to encode storage file: %v", err)
+    }
+}
+
+// Pre-load some test data
+func (s *MemoryStore) AddTestMachine(m *models.Machine) {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    // Only add if not exists (to respect persistence)
+    if _, ok := s.machines[m.HashedPkey]; !ok {
+        s.machines[m.HashedPkey] = m
+        s.details[m.HashedPkey] = &models.MachineDetail{
+            ID:      m.ID,
+            NoSerie: m.NoSerie,
+        }
+        s.save()
+    }
+}
+
+func (s *MemoryStore) GetMachineByHashedPkey(hashedPkey string) (*models.Machine, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    if m, ok := s.machines[hashedPkey]; ok {
+        return m, nil
+    }
+    return nil, fmt.Errorf("machine not found")
+}
+
+func (s *MemoryStore) RegisterUnknownMachine(hashedPkey string) (*models.Machine, error) {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+
+    if m, ok := s.machines[hashedPkey]; ok {
+        return m, nil
+    }
+
+    newID := len(s.machines) + 1
+    noSerie := fmt.Sprintf("UNKNOWN-%s", hashedPkey[:8])
+
+    m := &models.Machine{
+        ID:         newID,
+        NoSerie:    noSerie,
+        IsActive:   false,
+        HashedPkey: hashedPkey,
+    }
+
+    s.machines[hashedPkey] = m
+    s.details[hashedPkey] = &models.MachineDetail{
+        ID:      m.ID,
+        NoSerie: m.NoSerie,
+        IP:      "-",
+        LastSeen: time.Now(),
+    }
+    
+    s.save()
+    log.Printf("[STORE] Registered Unknown Machine: %s", noSerie)
+    return m, nil
+}
+
+func (s *MemoryStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string) {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    if detail, ok := s.details[hashedPkey]; ok {
+        triggerGeo := (detail.IP != ip && ip != "" && ip != "127.0.0.1") || (detail.GeoLocation == "" && ip != "" && ip != "127.0.0.1")
+
+        detail.IP = ip
+        detail.RawAuth = rawAuth
+        detail.RawDecoded = rawDecoded
+        detail.LastSeen = time.Now()
+        
+        s.save() // Persist updates (IP/LastSeen)
+        
+        if triggerGeo {
+            go s.fetchGeoLocation(hashedPkey, ip, false)
+        }
+    }
+}
+
+// fetchGeoLocation updates geo info for machine (isGateway=false) or gateway (isGateway=true)
+func (s *MemoryStore) fetchGeoLocation(key, ip string, isGateway bool) {
+    time.Sleep(1 * time.Second) 
+    
+    url := fmt.Sprintf("http://ip-api.com/json/%s", ip)
+    resp, err := http.Get(url)
+    if err != nil {
+        log.Printf("Geo Fetch Error: %v", err)
+        return
+    }
+    defer resp.Body.Close()
+    
+    var geo models.GeoAPIResponse
+    if err := json.NewDecoder(resp.Body).Decode(&geo); err != nil {
+        log.Printf("Geo Decode Error: %v", err)
+        return
+    }
+    
+    if geo.Status == "success" {
+        location := fmt.Sprintf("%s, %s (%s)", geo.City, geo.Country, geo.ISP)
+        
+        s.mu.Lock()
+        if isGateway {
+            if gw, ok := s.gateways[key]; ok {
+                gw.GeoLocation = location
+                gw.Lat = geo.Lat
+                gw.Lon = geo.Lon
+                s.save()
+            }
+        } else {
+            if detail, ok := s.details[key]; ok {
+                detail.GeoLocation = location
+                detail.Lat = geo.Lat
+                detail.Lon = geo.Lon
+                s.save()
+            }
+        }
+        s.mu.Unlock()
+        log.Printf("Geo Update for %s (%s): %s", key, ip, location)
+    }
+}
+
+func (s *MemoryStore) SaveClientData(clientID string, data []models.ExchangeKeyValue) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    s.data[clientID] = data
+    log.Printf("[STORE] Saved %d data points for client %s", len(data), clientID)
+    return nil
+}
+
+func (s *MemoryStore) SaveGateway(gw *models.GatewayStatus) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    // Check if existing to handle Geo trigger
+    existing, exists := s.gateways[gw.Hostname]
+    triggerGeo := false
+    
+    if exists {
+        // preserve old geo if ip same, or trigger new if ip changed
+        if gw.IP != existing.IP && gw.IP != "" && gw.IP != "127.0.0.1" {
+            triggerGeo = true
+        } else {
+            // Keep existing geo data
+            gw.GeoLocation = existing.GeoLocation
+            gw.Lat = existing.Lat
+            gw.Lon = existing.Lon
+        }
+        // If geo was missing
+        if gw.GeoLocation == "" && gw.IP != "" && gw.IP != "127.0.0.1" {
+            triggerGeo = true
+        }
+    } else {
+         if gw.IP != "" && gw.IP != "127.0.0.1" {
+            triggerGeo = true
+         }
+    }
+    
+    s.gateways[gw.Hostname] = gw
+    s.save()
+    
+    if triggerGeo {
+        go s.fetchGeoLocation(gw.Hostname, gw.IP, true)
+    }
+    
+    return nil
+}
+
+func (s *MemoryStore) GetStats() (*models.AdminStatsResponse, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    return &models.AdminStatsResponse{
+        ConnectedClients: len(s.data),
+        TotalMachines:    len(s.machines),
+        TotalGateways:    len(s.gateways),
+    }, nil
+}
+
+func (s *MemoryStore) GetMachines() ([]*models.MachineDetail, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    list := make([]*models.MachineDetail, 0, len(s.details))
+    for _, d := range s.details {
+        list = append(list, d)
+    }
+    return list, nil
+}
+
+func (s *MemoryStore) GetGateways() ([]*models.GatewayStatus, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    list := make([]*models.GatewayStatus, 0, len(s.gateways))
+    for _, g := range s.gateways {
+        list = append(list, g)
+    }
+    return list, nil
+}
+
+// AddSubscriber adds a new email to the list
+func (s *MemoryStore) AddSubscriber(email string) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    // Check duplicates
+    for _, sub := range s.subscribers {
+        if sub.Email == email {
+            return nil // Already exists
+        }
+    }
+    
+    s.subscribers = append(s.subscribers, models.Subscriber{
+        Email:      email,
+        DateJoined: time.Now(),
+    })
+    
+    s.save()
+    return nil
+}
+
+// DeleteSubscriber removes an email from the list
+func (s *MemoryStore) DeleteSubscriber(email string) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    newSubs := make([]models.Subscriber, 0, len(s.subscribers))
+    found := false
+    
+    for _, sub := range s.subscribers {
+        if sub.Email == email {
+            found = true
+            continue
+        }
+        newSubs = append(newSubs, sub)
+    }
+    
+    if !found {
+        return fmt.Errorf("subscriber not found")
+    }
+    
+    s.subscribers = newSubs
+    s.save()
+    return nil
+}
+
+func (s *MemoryStore) GetSubscribers() ([]models.Subscriber, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    // Return copy
+    list := make([]models.Subscriber, len(s.subscribers))
+    copy(list, s.subscribers)
+    
+    return list, nil
+}
+
+// Newsletter Management Implementation
+func (s *MemoryStore) GetNewsletters() ([]models.Newsletter, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    list := make([]models.Newsletter, 0, len(s.newsletters))
+    for _, n := range s.newsletters {
+        list = append(list, n)
+    }
+    return list, nil
+}
+
+func (s *MemoryStore) GetNewsletter(id string) (*models.Newsletter, error) {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    if n, ok := s.newsletters[id]; ok {
+        return &n, nil
+    }
+    return nil, fmt.Errorf("newsletter not found")
+}
+
+func (s *MemoryStore) SaveNewsletter(n models.Newsletter) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    s.newsletters[n.ID] = n
+    s.save()
+    return nil
+}
+
+func (s *MemoryStore) DeleteNewsletter(id string) error {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    if _, ok := s.newsletters[id]; !ok {
+        return fmt.Errorf("newsletter not found")
+    }
+    
+    delete(s.newsletters, id)
+    s.save()
+    return nil
+}
+
+// DatabaseStore implementation (Future / Production)
+type DatabaseStore struct {
+    db *sqlx.DB
+}
+
+func NewDatabaseStore(db *sqlx.DB) *DatabaseStore {
+    return &DatabaseStore{db: db}
+}
+
+func (s *DatabaseStore) GetMachineByHashedPkey(hashedPkey string) (*models.Machine, error) {
+    var machine models.Machine
+	// Note: in real implementation we should check is_active = true
+	query := `SELECT * FROM es_machine WHERE hashed_pkey = $1 AND is_active = true`
+	err := s.db.Get(&machine, query, hashedPkey)
+	if err != nil {
+		return nil, err
+	}
+	return &machine, nil
+}
+
+func (s *DatabaseStore) RegisterUnknownMachine(hashedPkey string) (*models.Machine, error) {
+    // Stub
+    return nil, fmt.Errorf("not implemented in database store")
+}
+
+func (s *DatabaseStore) UpdateMachineStatus(hashedPkey, ip, rawAuth, rawDecoded string) {
+    // No-op for DB store in passive mode for now
+}
+
+func (s *DatabaseStore) SaveClientData(clientID string, data []models.ExchangeKeyValue) error {
+    // In passive mode, we might just log to Redis or update a 'latest_state' table
+    // For now, simple logging
+    log.Printf("[DB STORE] (Simulated) Saved data for %s", clientID)
+    return nil
+}
+
+func (s *DatabaseStore) SaveGateway(gw *models.GatewayStatus) error {
+    return nil
+}
+
+func (s *DatabaseStore) GetGateways() ([]*models.GatewayStatus, error) {
+    return []*models.GatewayStatus{}, nil
+}
+
+func (s *DatabaseStore) GetStats() (*models.AdminStatsResponse, error) {
+    // Mock implementation for now as we don't have full DB setup in this file context yet
+    return &models.AdminStatsResponse{
+        ConnectedClients: 0,
+        TotalMachines:    0,
+        TotalGateways:    0,
+    }, nil
+}
+
+func (s *DatabaseStore) GetMachines() ([]*models.MachineDetail, error) {
+    return []*models.MachineDetail{}, nil
+}
+
+func (s *DatabaseStore) AddSubscriber(email string) error {
+    return nil
+}
+
+func (s *DatabaseStore) GetSubscribers() ([]models.Subscriber, error) {
+    return []models.Subscriber{}, nil
+}
+
+func (s *DatabaseStore) GetNewsletters() ([]models.Newsletter, error) {
+    return []models.Newsletter{}, nil
+}
+
+func (s *DatabaseStore) GetNewsletter(id string) (*models.Newsletter, error) {
+    return nil, fmt.Errorf("not implemented")
+}
+
+func (s *DatabaseStore) SaveNewsletter(n models.Newsletter) error {
+    return nil
+}
+
+func (s *DatabaseStore) DeleteNewsletter(id string) error {
+    return nil
+}

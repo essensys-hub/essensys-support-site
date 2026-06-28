@@ -1,0 +1,70 @@
+.raspberry-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    color: white;
+}
+
+.raspberry-title {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.raspberry-subtitle {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-bottom: 40px;
+}
+
+.raspberry-diagram {
+    width: 100%;
+    max-width: 1000px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.raspberry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 60px;
+}
+
+.raspberry-install-card {
+    background: #111;
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid #333;
+}
+
+.raspberry-install-command {
+    background: #000;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 1.1em;
+    color: #00C9FF;
+    overflow-x: auto;
+    border: 1px solid #444;
+    margin: 20px 0;
+    display: inline-block;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .raspberry-title {
+        font-size: 1.8rem;
+    }
+    .raspberry-subtitle {
+        font-size: 1rem;
+        margin-bottom: 24px;
+    }
+    .raspberry-grid {
+        grid-template-columns: 1fr;
+        margin-bottom: 40px;
+    }
+    .raspberry-install-card {
+        padding: 20px;
+    }
+}

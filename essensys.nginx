@@ -1,0 +1,216 @@
+# =============================================================================
+# Essensys support-site + portail distant (mon.essensys.fr)
+# Snippet portail : /etc/nginx/snippets/essensys-portal.conf (Ansible portal_nginx ou cloud_nginx)
+# Consolidé : /api/* → :8080 cloud backend ; Legacy : /api/portal|gateway → :8081
+# Certificats : certbot certonly / enable-https-prod.yml
+# =============================================================================
+
+# 1. Test (test.essensys.fr) — HTTP
+server {
+    listen 80;
+    listen [::]:80;
+    server_name vps-22806d02.vps.ovh.net test.essensys.fr;
+
+    root /opt/essensys/frontend/dist;
+    index index.html index.htm;
+
+    include /etc/nginx/mime.types;
+    charset utf-8;
+
+    include /etc/nginx/snippets/essensys-portal.conf;
+
+    access_log /var/log/nginx/essensys-access.log;
+    error_log /var/log/nginx/essensys-error.log warn;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    location ^~ /docs/ {
+        alias /opt/essensys/docs-site/;
+        index index.html;
+    }
+
+    location = /docs {
+        return 301 /docs/;
+    }
+
+    location ^~ /demo/dashboard/ {
+        try_files $uri $uri/ /demo/dashboard/index.html;
+    }
+
+    location = /demo/dashboard {
+        return 301 /demo/dashboard/;
+    }
+
+    location ~ ^/demo/(heating|security|lighting|scenarios|shutters|water-heater|sprinkler|notifications|settings|unifi-protect)(/|$) {
+        try_files $uri /demo/dashboard/index.html;
+    }
+
+    location ^~ /demo/control-plane/ {
+        try_files $uri $uri/ /demo/control-plane/index.html;
+    }
+
+    location ^~ /demo/server-frontend {
+        rewrite ^/demo/server-frontend(.*)$ /demo/dashboard$1 permanent;
+    }
+
+    location = /dashboard {
+        return 301 /demo/dashboard;
+    }
+
+    location ^~ /maintenance/ {
+        alias /opt/essensys/maintenance/;
+        index index.html;
+    }
+
+    location = /maintenance {
+        return 301 /maintenance/;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Connection "";
+        proxy_buffering on;
+        gzip off;
+    }
+
+    location ^~ /.well-known/ {
+        allow all;
+        root /var/www/certbot;
+    }
+}
+
+# 2. Production — HTTP : exception /api/ pour firmware legacy (BP_MQX_ETH, port 80)
+# Le reste du site redirige vers HTTPS. Voir essensys-client.md et setup_ssl.sh.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr essensys.fr;
+
+    access_log /var/log/nginx/essensys-legacy-api-access.log;
+    error_log /var/log/nginx/essensys-legacy-api-error.log warn;
+
+    location ^~ /.well-known/ {
+        allow all;
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Connection "close";
+        proxy_buffering on;
+        gzip off;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# 3. Production — HTTPS (support-site SPA + /portal/ + API)
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr essensys.fr;
+
+    ssl_certificate /etc/letsencrypt/live/mon.essensys.fr/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mon.essensys.fr/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    include /etc/nginx/snippets/essensys-portal.conf;
+
+    root /opt/essensys/frontend/dist;
+    index index.html index.htm;
+
+    include /etc/nginx/mime.types;
+    charset utf-8;
+    access_log /var/log/nginx/essensys-maint-access.log;
+    error_log /var/log/nginx/essensys-maint-error.log;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    location ^~ /docs/ {
+        alias /opt/essensys/docs-site/;
+        index index.html;
+    }
+
+    location = /docs {
+        return 301 /docs/;
+    }
+
+    location ^~ /blog {
+        try_files $uri /index.html;
+    }
+
+    # Démo domotique mockée (build essensys-server-frontend → public/demo/dashboard/)
+    location ^~ /demo/dashboard/ {
+        try_files $uri $uri/ /demo/dashboard/index.html;
+    }
+
+    location = /demo/dashboard {
+        return 301 /demo/dashboard/;
+    }
+
+    location ~ ^/demo/(heating|security|lighting|scenarios|shutters|water-heater|sprinkler|notifications|settings|unifi-protect)(/|$) {
+        try_files $uri /demo/dashboard/index.html;
+    }
+
+    location ^~ /demo/control-plane/ {
+        try_files $uri $uri/ /demo/control-plane/index.html;
+    }
+
+    location ^~ /demo/server-frontend {
+        rewrite ^/demo/server-frontend(.*)$ /demo/dashboard$1 permanent;
+    }
+
+    location = /dashboard {
+        return 301 /demo/dashboard;
+    }
+
+    location ^~ /maintenance/ {
+        alias /opt/essensys/maintenance/;
+        index index.html;
+    }
+
+    location = /maintenance {
+        return 301 /maintenance/;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "close";
+    }
+}

@@ -1,0 +1,26 @@
+
+# Mac
+.DS_Store
+
+# Node / Frontend
+site/node_modules/
+site/dist/
+site/site-dist.tar.gz
+
+# Go / Backend
+backend/essensys-passive-backend
+backend/essensys-passive-backend.gz
+backend/bin/
+backend/server
+
+# Editors
+.vscode/
+.idea/
+
+# Clients (Privacy)
+clients.txt
+
+.env
+
+# Security/test artifacts
+.artifacts/
