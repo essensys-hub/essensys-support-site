@@ -71,7 +71,6 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
         : null;
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
-    const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
 
     return {
         gatewayLabel,
