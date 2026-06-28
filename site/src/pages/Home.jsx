@@ -63,15 +63,29 @@ const Home = () => {
                         className="feature-card clickable"
                         onClick={() => window.open('https://demo.essensys.fr/', '_blank')}
                     >
-                        <h3>Client Web</h3>
-                        <p>Découvrez l'interface de contrôle domotique principale. (Mode démo sans backend)</p>
+                        <h3>Site support</h3>
+                        <p>Accueil, login Aurora et administration — démo sans backend armoire.</p>
+                    </div>
+                    <div
+                        className="feature-card clickable"
+                        onClick={() => window.open('/demo/dashboard/', '_blank')}
+                    >
+                        <h3>Domotique locale</h3>
+                        <p>Interface gateway CM5/Raspberry mockée (VITE_DEMO_MODE).</p>
+                    </div>
+                    <div
+                        className="feature-card clickable"
+                        onClick={() => window.open('https://demo.portal.essensys.fr/', '_blank')}
+                    >
+                        <h3>Portail distant</h3>
+                        <p>Interface remote jumelle — mocks portail, zéro action armoire.</p>
                     </div>
                     <div
                         className="feature-card clickable"
                         onClick={() => window.open('/demo/control-plane/', '_blank')}
                     >
                         <h3>Control Plane</h3>
-                        <p>Explorez l'interface d'administration système. (Mode démo sans backend)</p>
+                        <p>Administration système gateway (mode démo).</p>
                     </div>
                 </div>
             </section>
