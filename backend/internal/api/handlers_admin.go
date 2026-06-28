@@ -271,6 +271,12 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
         return
     }
 
+    target, err := rt.UserStore.GetUserByID(id)
+    if err != nil || target == nil {
+        http.Error(w, "User not found", http.StatusNotFound)
+        return
+    }
+
     var req struct {
         MachineID *int    `json:"linked_machine_id"`
         GatewayID *string `json:"linked_gateway_id"`
@@ -288,6 +294,11 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
         }
         req.ArmoireID = nil
         req.MachineID = nil
+    }
+
+    if err := gatewayrules.ValidateNoPortalLinkRemoval(target.LinkedGatewayID, target.LinkedMachineID, req.MachineID, req.GatewayID); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
     }
 
     // Admins can link within authorized scope

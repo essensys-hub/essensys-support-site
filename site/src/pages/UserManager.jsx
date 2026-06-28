@@ -10,6 +10,8 @@ const isRemoteEligibleGateway = (gatewayId) => {
     return normalizeGatewayKey(gatewayId) !== REMOTE_INELIGIBLE_GATEWAY;
 };
 
+const userHasPortalGateway = (user) => !!(user?.linked_gateway_id);
+
 const findGateway = (gateways, linkedGatewayId) => {
     if (!linkedGatewayId) return null;
     const key = normalizeGatewayKey(linkedGatewayId);
@@ -436,11 +438,27 @@ const UserManager = ({ token }) => {
     const handleSaveLinks = async () => {
         if (!editingUser) return;
         try {
+            const portalLinkLocked = userHasPortalGateway(editingUser);
             const portalGw = findPortalGateway(portalGateways, editGateway);
-            const gatewayId = portalGw?.gateway_id || editGateway || null;
+            let gatewayId = portalGw?.gateway_id || editGateway || null;
             const remoteEligible = isRemoteEligibleGateway(gatewayId || editGateway);
+            let machineId = remoteEligible && editMachine ? parseInt(editMachine, 10) : null;
+
+            if (portalLinkLocked) {
+                gatewayId = editingUser.linked_gateway_id;
+                if (isRemoteEligibleGateway(editingUser.linked_gateway_id) && editingUser.linked_machine_id) {
+                    machineId = editingUser.linked_machine_id;
+                }
+            } else if (!gatewayId) {
+                alert('Sélectionnez une gateway');
+                return;
+            } else if (remoteEligible && !machineId) {
+                alert('Renseignez le serveur cloud (machine_id)');
+                return;
+            }
+
             const body = {
-                linked_machine_id: remoteEligible && editMachine ? parseInt(editMachine, 10) : null,
+                linked_machine_id: machineId,
                 linked_gateway_id: gatewayId,
                 linked_armoire_id: remoteEligible && editArmoire ? parseInt(editArmoire, 10) : null,
             };
@@ -751,6 +769,7 @@ const UserManager = ({ token }) => {
                 const { onGateway, onLan, others } = sortMachinesForPicker(machines, gw);
                 const selectedArmoire = findMachineById(machines, editArmoire ? parseInt(editArmoire, 10) : null);
                 const remoteEligible = isRemoteEligibleGateway(editGateway);
+                const portalLinkLocked = userHasPortalGateway(editingUser);
 
                 return (
                 <div className="modal-overlay">
@@ -759,17 +778,25 @@ const UserManager = ({ token }) => {
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
                             <strong>Gateway + serveur cloud</strong> : pilotent le portail distant (commandes, scénarios).
+                            Une fois liés, ils ne peuvent plus être retirés.
                             <br />
-                            <strong>Armoire</strong> (optionnel) : repère admin dans l&apos;inventaire OVH — sans impact sur le portail.
+                            <strong>Armoire</strong> (optionnel) : repère admin dans l&apos;inventaire OVH — seule liaison modifiable ou retirable.
                         </p>
+
+                        {portalLinkLocked && (
+                            <p className="link-hint" style={{ marginBottom: '1rem' }}>
+                                Gateway et serveur cloud verrouillés pour cet utilisateur. Modifiez uniquement l&apos;armoire.
+                            </p>
+                        )}
 
                         <label className="field">
                             <span>Gateway</span>
                             <select
                                 value={editGateway}
                                 onChange={(e) => handleGatewayChange(e.target.value)}
+                                disabled={portalLinkLocked}
                             >
-                                <option value="">-- Aucune --</option>
+                                {!portalLinkLocked && <option value="">-- Choisir une gateway --</option>}
                                 {gateways.map((g) => {
                                     const portalGw = findPortalGateway(portalGateways, g.hostname)
                                         ?? findPortalGateway(portalGateways, `gw-${g.hostname}`);
@@ -810,7 +837,8 @@ const UserManager = ({ token }) => {
                                 value={editMachine}
                                 onChange={(e) => setEditMachine(e.target.value)}
                                 placeholder="Ex. 19"
-                                disabled={!remoteEligible}
+                                disabled={!remoteEligible || portalLinkLocked}
+                                readOnly={portalLinkLocked && remoteEligible}
                             />
                         </label>
 
