@@ -303,22 +303,29 @@ const UserManager = ({ token }) => {
         }
     };
 
-    const handleRemoveArmoire = async () => {
-        if (!editingUser) return;
-        if (!window.confirm(`Retirer l'armoire liée pour ${editingUser.email} ?`)) {
+    const handleRemoveArmoire = async (userFromRow) => {
+        const target = userFromRow || editingUser;
+        if (!target) return;
+        if (!window.confirm(`Retirer l'armoire liée pour ${target.email} ?`)) {
             return;
         }
         try {
-            const portalGw = findPortalGateway(portalGateways, editGateway);
-            const gatewayId = portalGw?.gateway_id || editGateway || null;
-            const remoteEligible = isRemoteEligibleGateway(gatewayId || editGateway);
+            const gatewayKey = userFromRow
+                ? target.linked_gateway_id
+                : (editGateway || target.linked_gateway_id);
+            const portalGw = findPortalGateway(portalGateways, gatewayKey);
+            const gatewayId = portalGw?.gateway_id || gatewayKey || null;
+            const remoteEligible = isRemoteEligibleGateway(gatewayId || gatewayKey);
+            const machineId = userFromRow
+                ? target.linked_machine_id
+                : (editMachine ? parseInt(editMachine, 10) : target.linked_machine_id);
             const body = {
-                linked_machine_id: remoteEligible && editMachine ? parseInt(editMachine, 10) : null,
+                linked_machine_id: remoteEligible && machineId ? machineId : null,
                 linked_gateway_id: gatewayId,
                 linked_armoire_id: null,
             };
 
-            const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
+            const res = await fetch(`/api/admin/users/${target.id}/links`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -329,8 +336,10 @@ const UserManager = ({ token }) => {
 
             if (res.ok) {
                 alert('Armoire retirée');
-                setEditArmoire('');
-                setEditingUser(null);
+                if (!userFromRow) {
+                    setEditArmoire('');
+                    setEditingUser(null);
+                }
                 fetchUsers();
             } else {
                 const text = await res.text();
@@ -593,6 +602,17 @@ const UserManager = ({ token }) => {
                                                 >
                                                     Renvoyer email
                                                 </button>
+                                                {remoteEligible && u.linked_armoire_id && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveArmoire(u)}
+                                                        className="catalog-button danger"
+                                                        style={{ marginLeft: '8px', marginTop: '8px' }}
+                                                        disabled={!!u.forbidden_at}
+                                                    >
+                                                        Enlever armoire du user
+                                                    </button>
+                                                )}
                                                 </>
                                             )}
                                             {canModerateUser(u, adminRole) && (
@@ -752,7 +772,7 @@ const UserManager = ({ token }) => {
                             <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
                                 <button
                                     type="button"
-                                    onClick={handleRemoveArmoire}
+                                    onClick={() => handleRemoveArmoire()}
                                     className="catalog-button danger"
                                 >
                                     Enlever armoire du user
