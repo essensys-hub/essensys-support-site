@@ -148,6 +148,7 @@ const UserRowActions = ({
     onEdit,
     onResend,
     onRemoveArmoire,
+    onRemovePortalLink,
     onForbid,
     onUnforbid,
     onDelete,
@@ -215,6 +216,17 @@ const UserRowActions = ({
                                         >
                                             Renvoyer email
                                         </button>
+                                        {user.linked_gateway_id && (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                className="danger-text"
+                                                disabled={!!user.forbidden_at}
+                                                onClick={() => { onCloseMenu(); onRemovePortalLink(); }}
+                                            >
+                                                Enlever gateway et serveur
+                                            </button>
+                                        )}
                                         {remoteEligible && user.linked_armoire_id && (
                                             <button
                                                 type="button"
@@ -435,6 +447,21 @@ const UserManager = ({ token }) => {
         }
     };
 
+    const putUserLinks = async (userId, body) => {
+        const res = await fetch(`/api/admin/users/${userId}/links`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || 'Échec mise à jour des liaisons');
+        }
+    };
+
     const handleSaveLinks = async () => {
         if (!editingUser) return;
         try {
@@ -484,6 +511,31 @@ const UserManager = ({ token }) => {
         }
     };
 
+    const handleRemovePortalLink = async (userFromRow) => {
+        const target = userFromRow || editingUser;
+        if (!target?.linked_gateway_id) return;
+        if (!window.confirm(
+            `Retirer la gateway et le serveur cloud pour ${target.email} ?\n\nLe portail distant sera désactivé pour cet utilisateur.`,
+        )) {
+            return;
+        }
+        try {
+            await putUserLinks(target.id, {
+                linked_gateway_id: null,
+                linked_machine_id: null,
+                linked_armoire_id: null,
+            });
+            alert('Gateway et serveur cloud retirés');
+            setEditGateway('');
+            setEditMachine('');
+            setEditArmoire('');
+            setEditingUser(null);
+            fetchUsers();
+        } catch (err) {
+            alert(err.message || 'Erreur réseau');
+        }
+    };
+
     const handleRemoveArmoire = async (userFromRow) => {
         const target = userFromRow || editingUser;
         if (!target) return;
@@ -506,28 +558,15 @@ const UserManager = ({ token }) => {
                 linked_armoire_id: null,
             };
 
-            const res = await fetch(`/api/admin/users/${target.id}/links`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(body),
-            });
-
-            if (res.ok) {
-                alert('Armoire retirée');
-                if (!userFromRow) {
-                    setEditArmoire('');
-                    setEditingUser(null);
-                }
-                fetchUsers();
-            } else {
-                const text = await res.text();
-                alert(text || 'Échec retrait armoire');
+            await putUserLinks(target.id, body);
+            alert('Armoire retirée');
+            if (!userFromRow) {
+                setEditArmoire('');
+                setEditingUser(null);
             }
-        } catch {
-            alert('Erreur réseau');
+            fetchUsers();
+        } catch (err) {
+            alert(err.message || 'Erreur réseau');
         }
     };
 
@@ -744,6 +783,7 @@ const UserManager = ({ token }) => {
                                                     setResendPassword('');
                                                 }}
                                                 onRemoveArmoire={() => handleRemoveArmoire(u)}
+                                                onRemovePortalLink={() => handleRemovePortalLink(u)}
                                                 onForbid={() => handleForbidUser(u)}
                                                 onUnforbid={() => handleUnforbidUser(u)}
                                                 onDelete={() => handleDeleteUser(u)}
@@ -778,14 +818,14 @@ const UserManager = ({ token }) => {
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
                             <strong>Gateway + serveur cloud</strong> : pilotent le portail distant (commandes, scénarios).
-                            Une fois liés, ils ne peuvent plus être retirés.
+                            Protégés contre un effacement accidentel dans les listes.
                             <br />
-                            <strong>Armoire</strong> (optionnel) : repère admin dans l&apos;inventaire OVH — seule liaison modifiable ou retirable.
+                            <strong>Armoire</strong> (optionnel) : repère admin dans l&apos;inventaire OVH — sans impact sur le portail.
                         </p>
 
                         {portalLinkLocked && (
                             <p className="link-hint" style={{ marginBottom: '1rem' }}>
-                                Gateway et serveur cloud verrouillés pour cet utilisateur. Modifiez uniquement l&apos;armoire.
+                                Gateway et serveur verrouillés dans les listes. Utilisez le bouton ci-dessous pour tout retirer.
                             </p>
                         )}
 
@@ -879,6 +919,18 @@ const UserManager = ({ token }) => {
                                 Armoire sélectionnée : {selectedArmoire.no_serie} · inv. #{selectedArmoire.id}
                                 {selectedArmoire.ip ? ` · IP ${selectedArmoire.ip}` : ''}
                             </p>
+                        )}
+
+                        {portalLinkLocked && (
+                            <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemovePortalLink()}
+                                    className="catalog-button danger"
+                                >
+                                    Enlever gateway et serveur du user
+                                </button>
+                            </div>
                         )}
 
                         {remoteEligible && (editArmoire || editingUser.linked_armoire_id) && (
