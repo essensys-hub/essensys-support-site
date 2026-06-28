@@ -271,7 +271,7 @@ const UserRowActions = ({
                                                 Enlever gateway et serveur
                                             </button>
                                         )}
-                                        {remoteEligible && user.linked_armoire_id && (
+                                        {remoteEligible && (user.linked_armoire_id || (inferLinkMode(user) === LINK_MODE.ARMOIRE && user.linked_machine_id)) && (
                                             <button
                                                 type="button"
                                                 role="menuitem"
@@ -611,25 +611,37 @@ const UserManager = ({ token }) => {
             return;
         }
         try {
-            const gatewayKey = userFromRow
-                ? target.linked_gateway_id
-                : (editGateway || target.linked_gateway_id);
-            const portalGw = findPortalGateway(portalGateways, gatewayKey);
-            const gatewayId = portalGw?.gateway_id || gatewayKey || null;
-            const remoteEligible = isRemoteEligibleGateway(gatewayId || gatewayKey);
-            const machineId = userFromRow
-                ? target.linked_machine_id
-                : (editMachine ? parseInt(editMachine, 10) : target.linked_machine_id);
-            const body = {
-                linked_machine_id: remoteEligible && machineId ? machineId : null,
-                linked_gateway_id: gatewayId,
-                linked_armoire_id: null,
-            };
+            const mode = userFromRow ? inferLinkMode(target) : editLinkMode;
+            let body;
+
+            if (mode === LINK_MODE.ARMOIRE) {
+                // Armoire seule : machine_id et armoire_id désignent la même ressource cloud.
+                body = {
+                    linked_gateway_id: null,
+                    linked_machine_id: null,
+                    linked_armoire_id: null,
+                };
+            } else {
+                const gatewayKey = userFromRow
+                    ? target.linked_gateway_id
+                    : (editGateway || target.linked_gateway_id);
+                const portalGw = findPortalGateway(portalGateways, gatewayKey);
+                const gatewayId = portalGw?.gateway_id || gatewayKey || null;
+                const machineId = userFromRow
+                    ? target.linked_machine_id
+                    : (editMachine ? parseInt(editMachine, 10) : target.linked_machine_id);
+                body = {
+                    linked_machine_id: machineId || null,
+                    linked_gateway_id: gatewayId,
+                    linked_armoire_id: null,
+                };
+            }
 
             await putUserLinks(target.id, body);
             alert('Armoire retirée');
+            setEditArmoire('');
+            setEditMachine('');
             if (!userFromRow) {
-                setEditArmoire('');
                 setEditingUser(null);
             }
             fetchUsers();
