@@ -71,34 +71,197 @@ const resolveUserDevices = (user, machines, gateways, portalGateways) => {
         : null;
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
-    const gatewaySubtitle = [
-        user.linked_gateway_id && user.linked_gateway_id !== gatewayLabel ? user.linked_gateway_id : null,
-        gatewayStatus?.ip,
-    ].filter(Boolean).join(' · ');
-
-    const serverSubtitle = [
-        portalGw?.eth0_mac ? `eth0 ${portalGw.eth0_mac}` : null,
-        portalGw?.eth1_mac ? `eth1 ${portalGw.eth1_mac}` : null,
-    ].filter(Boolean).join(' · ');
+    const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
 
     return {
         gatewayLabel,
-        gatewaySubtitle,
+        gatewayIp: gatewayStatus?.ip,
+        portalGatewayId: portalGw?.gateway_id,
         cloudMachineId,
-        serverSubtitle,
         armoire,
         remoteEligible,
+        hasGateway: !!(user.linked_gateway_id),
     };
 };
 
-const DeviceCell = ({ title, subtitle, fallback }) => {
-    if (!title && !fallback) {
-        return <span className="device-empty">—</span>;
+const UserLinksSummary = ({
+    user,
+    gatewayLabel,
+    gatewayIp,
+    portalGatewayId,
+    cloudMachineId,
+    armoire,
+    remoteEligible,
+    hasGateway,
+}) => {
+    if (!hasGateway) {
+        return <span className="links-empty">Aucune liaison</span>;
     }
+
+    const gatewayName = portalGatewayId || gatewayLabel || user.linked_gateway_id;
+
     return (
-        <div className="device-cell">
-            <div>{title || fallback}</div>
-            {subtitle && <div className="device-meta">{subtitle}</div>}
+        <div className="user-links-summary">
+            <div className="link-row">
+                <span className="link-tag">GW</span>
+                <div className="link-body">
+                    <span className="link-primary">{gatewayName}</span>
+                    {gatewayIp && <span className="link-meta">{gatewayIp}</span>}
+                </div>
+            </div>
+            {!remoteEligible ? (
+                <span className="link-hint">Portail distant N/A (essensys-server)</span>
+            ) : (
+                <>
+                    <div className="link-row">
+                        <span className="link-tag">Cloud</span>
+                        <div className="link-body">
+                            <span className="link-primary">
+                                {cloudMachineId ? `machine #${cloudMachineId}` : 'non renseigné'}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="link-row">
+                        <span className="link-tag">Armoire</span>
+                        <div className="link-body">
+                            {armoire ? (
+                                <>
+                                    <span className="link-primary">{armoire.no_serie}</span>
+                                    {armoire.ip && <span className="link-meta">IP {armoire.ip}</span>}
+                                </>
+                            ) : (
+                                <span className="link-muted">repère admin non renseigné</span>
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+const UserRowActions = ({
+    user,
+    adminRole,
+    remoteEligible,
+    onEdit,
+    onResend,
+    onRemoveArmoire,
+    onForbid,
+    onUnforbid,
+    onDelete,
+    menuOpen,
+    onToggleMenu,
+    onCloseMenu,
+}) => {
+    const isGlobalAdmin = adminRole === 'admin_global';
+    const canModerate = canModerateUser(user, adminRole);
+
+    return (
+        <div className="user-row-actions">
+            {isGlobalAdmin && (
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="catalog-button primary"
+                    disabled={!!user.forbidden_at}
+                >
+                    Gérer
+                </button>
+            )}
+            {(isGlobalAdmin || canModerate) && (
+                <div className="actions-dropdown">
+                    <button
+                        type="button"
+                        className="catalog-button ghost actions-dropdown-trigger"
+                        aria-expanded={menuOpen}
+                        aria-haspopup="menu"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleMenu();
+                        }}
+                    >
+                        ⋯
+                    </button>
+                    {menuOpen && (
+                        <>
+                            <button
+                                type="button"
+                                className="actions-dropdown-backdrop"
+                                aria-label="Fermer le menu"
+                                onClick={onCloseMenu}
+                            />
+                            <div
+                                className="actions-dropdown-panel"
+                                role="menu"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {isGlobalAdmin && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onEdit(); }}
+                                        >
+                                            Lier appareils…
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onResend(); }}
+                                        >
+                                            Renvoyer email
+                                        </button>
+                                        {remoteEligible && user.linked_armoire_id && (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                className="danger-text"
+                                                disabled={!!user.forbidden_at}
+                                                onClick={() => { onCloseMenu(); onRemoveArmoire(); }}
+                                            >
+                                                Enlever armoire
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                                {canModerate && (
+                                    <>
+                                        {(isGlobalAdmin) && <div className="actions-dropdown-divider" />}
+                                        {user.forbidden_at ? (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => { onCloseMenu(); onUnforbid(); }}
+                                            >
+                                                Réautoriser
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => { onCloseMenu(); onForbid(); }}
+                                            >
+                                                Interdire
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            className="danger-text"
+                                            onClick={() => { onCloseMenu(); onDelete(); }}
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
@@ -131,6 +294,7 @@ const UserManager = ({ token }) => {
     const [resendUser, setResendUser] = useState(null);
     const [resendTemplate, setResendTemplate] = useState('user_welcome');
     const [resendPassword, setResendPassword] = useState('');
+    const [openMenuUserId, setOpenMenuUserId] = useState(null);
 
     // Default form state
     const [newUser, setNewUser] = useState({
@@ -505,22 +669,13 @@ const UserManager = ({ token }) => {
                                     <th>Email</th>
                                     <th>Nom</th>
                                     <th>Rôle</th>
-                                    <th>Gateway</th>
-                                    <th>Serveur</th>
-                                    <th>Armoire</th>
+                                    <th>Liaisons portail</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {users.map((u) => {
-                                    const {
-                                        gatewayLabel,
-                                        gatewaySubtitle,
-                                        cloudMachineId,
-                                        serverSubtitle,
-                                        armoire,
-                                        remoteEligible,
-                                    } = resolveUserDevices(u, machines, gateways, portalGateways);
+                                    const devices = resolveUserDevices(u, machines, gateways, portalGateways);
 
                                     return (
                                     <tr key={u.id}>
@@ -555,104 +710,34 @@ const UserManager = ({ token }) => {
                                             </select>
                                         </td>
                                         <td>
-                                            <DeviceCell
-                                                title={gatewayLabel}
-                                                subtitle={gatewaySubtitle || undefined}
-                                                fallback={u.linked_gateway_id}
-                                            />
-                                        </td>
-                                        <td>
-                                            {!remoteEligible ? (
-                                                <span className="device-meta">Portail distant N/A</span>
-                                            ) : (
-                                                <DeviceCell
-                                                    title={cloudMachineId ? `ID ${cloudMachineId}` : undefined}
-                                                    subtitle={serverSubtitle || undefined}
-                                                    fallback={u.linked_machine_id ? String(u.linked_machine_id) : undefined}
-                                                />
-                                            )}
-                                        </td>
-                                        <td>
-                                            {!remoteEligible ? (
-                                                <span className="device-meta">— (essensys-server)</span>
-                                            ) : (
-                                                <DeviceCell
-                                                    title={armoire?.no_serie}
-                                                    subtitle={armoire?.ip ? `IP ${armoire.ip}` : undefined}
-                                                    fallback={armoire ? `ID ${armoire.id}` : undefined}
-                                                />
-                                            )}
+                                            <UserLinksSummary user={u} {...devices} />
                                         </td>
                                         <td className="table-actions">
-                                            {adminRole === 'admin_global' && (
-                                                <>
-                                                <button onClick={() => openEditModal(u)} className="catalog-button ghost" disabled={!!u.forbidden_at}>
-                                                    Lier Appareils
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setResendUser(u);
-                                                        setResendTemplate('user_welcome');
-                                                        setResendPassword('');
-                                                    }}
-                                                    className="catalog-button ghost"
-                                                    style={{ marginLeft: '8px' }}
-                                                    disabled={!!u.forbidden_at}
-                                                >
-                                                    Renvoyer email
-                                                </button>
-                                                {remoteEligible && u.linked_armoire_id && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveArmoire(u)}
-                                                        className="catalog-button danger"
-                                                        style={{ marginLeft: '8px', marginTop: '8px' }}
-                                                        disabled={!!u.forbidden_at}
-                                                    >
-                                                        Enlever armoire du user
-                                                    </button>
-                                                )}
-                                                </>
-                                            )}
-                                            {canModerateUser(u, adminRole) && (
-                                                <>
-                                                    {u.forbidden_at ? (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleUnforbidUser(u)}
-                                                            className="catalog-button ghost"
-                                                            style={{ marginLeft: '8px' }}
-                                                        >
-                                                            Réautoriser
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleForbidUser(u)}
-                                                            className="catalog-button ghost"
-                                                            style={{ marginLeft: '8px' }}
-                                                        >
-                                                            Interdire
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDeleteUser(u)}
-                                                        className="catalog-button ghost"
-                                                        style={{ marginLeft: '8px', color: '#b91c1c' }}
-                                                    >
-                                                        Supprimer
-                                                    </button>
-                                                </>
-                                            )}
+                                            <UserRowActions
+                                                user={u}
+                                                adminRole={adminRole}
+                                                remoteEligible={devices.remoteEligible}
+                                                menuOpen={openMenuUserId === u.id}
+                                                onToggleMenu={() => setOpenMenuUserId(openMenuUserId === u.id ? null : u.id)}
+                                                onCloseMenu={() => setOpenMenuUserId(null)}
+                                                onEdit={() => openEditModal(u)}
+                                                onResend={() => {
+                                                    setResendUser(u);
+                                                    setResendTemplate('user_welcome');
+                                                    setResendPassword('');
+                                                }}
+                                                onRemoveArmoire={() => handleRemoveArmoire(u)}
+                                                onForbid={() => handleForbidUser(u)}
+                                                onUnforbid={() => handleUnforbidUser(u)}
+                                                onDelete={() => handleDeleteUser(u)}
+                                            />
                                         </td>
                                     </tr>
                                     );
                                 })}
                                 {!loading && users.length === 0 && (
                                     <tr>
-                                        <td colSpan="8" className="empty-state">Aucun utilisateur trouvé.</td>
+                                        <td colSpan="6" className="empty-state">Aucun utilisateur trouvé.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -674,8 +759,9 @@ const UserManager = ({ token }) => {
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
-                            Gateway et serveur cloud pilotent le portail distant.
-                            L&apos;armoire (inventaire OVH) sert au repérage admin — choisissez-la dans la liste.
+                            <strong>Gateway + serveur cloud</strong> : pilotent le portail distant (commandes, scénarios).
+                            <br />
+                            <strong>Armoire</strong> (optionnel) : repère admin dans l&apos;inventaire OVH — sans impact sur le portail.
                         </p>
 
                         <label className="field">

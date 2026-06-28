@@ -284,6 +284,138 @@ tbody td {
     margin-bottom: 1rem;
 }
 
+.user-links-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 200px;
+    max-width: 280px;
+}
+
+.links-empty,
+.link-muted {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.link-hint {
+    font-size: 11px;
+    color: #b45309;
+    margin-top: 2px;
+}
+
+.link-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.link-tag {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #1e3a8a;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-top: 1px;
+}
+
+.link-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.link-primary {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1f2933;
+    word-break: break-word;
+}
+
+.link-meta {
+    font-size: 11px;
+    color: #6b7280;
+    font-family: 'SFMono-Regular', ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+.user-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.actions-dropdown {
+    position: relative;
+}
+
+.actions-dropdown-trigger {
+    min-width: 36px;
+    padding: 8px 10px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.actions-dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    border: none;
+    background: transparent;
+    cursor: default;
+}
+
+.actions-dropdown-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    z-index: 30;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+.actions-dropdown-panel button {
+    text-align: left;
+    border: none;
+    background: transparent;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #1f2933;
+    cursor: pointer;
+}
+
+.actions-dropdown-panel button:hover:not(:disabled) {
+    background: #f1f5f9;
+}
+
+.actions-dropdown-panel button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.actions-dropdown-panel .danger-text {
+    color: #b91c1c;
+}
+
+.actions-dropdown-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 4px 0;
+}
+
 .modal-content-wide {
     max-width: 640px;
 }
