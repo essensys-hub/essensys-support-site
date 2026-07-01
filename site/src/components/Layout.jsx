@@ -32,7 +32,7 @@ const Layout = () => {
         </>
     ) : (
         <div className="user-menu">
-            <a href="/portal/" className="nav-btn-login" onClick={closeMenu}>
+            <a href="https://mon.essensys.fr/" className="nav-btn-login" onClick={closeMenu} target="_blank" rel="noopener noreferrer">
                 Portail
             </a>
             <Link to="/profile" className="nav-btn-login" onClick={closeMenu}>Profil</Link>

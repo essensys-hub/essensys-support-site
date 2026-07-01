@@ -42,7 +42,11 @@ const Login = () => {
                 persistAuth(data.token, data.user.role);
                 window.dispatchEvent(new Event('auth-change'));
 
-                if (returnTo.startsWith('/')) {
+                if (returnTo.startsWith('http://') || returnTo.startsWith('https://')) {
+                    const target = new URL(returnTo);
+                    target.hash = `token=${encodeURIComponent(data.token)}&role=${encodeURIComponent(data.user.role)}`;
+                    window.location.href = target.toString();
+                } else if (returnTo.startsWith('/')) {
                     window.location.href = returnTo;
                 } else {
                     navigate(returnTo);

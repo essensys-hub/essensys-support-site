@@ -897,7 +897,7 @@ const UserManager = ({ token }) => {
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
-                            <strong>1. Armoire seule</strong> — portail <a href="https://mon.essensys.fr/portal/">mon.essensys.fr/portal</a>
+                            <strong>1. Armoire seule</strong> — portail <a href="https://mon.essensys.fr/">mon.essensys.fr</a>
                             {' '}(armoire en HTTPS vers OVH, sans CM5).
                             <br />
                             <strong>2. Armoire + gateway</strong> — portail cloud + interface locale{' '}

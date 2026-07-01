@@ -35,7 +35,7 @@ Le fichier `.env.template` sert de référence.
 
 ### Configuration Générale
 - `PORT`: Port d'écoute du backend (ex: 8080).
-- `FRONTEND_URL`: URL publique du frontend (ex: `https://mon.essensys.fr/`).
+- `FRONTEND_URL`: URL publique du site support (ex: `https://www.essensys.fr/`).
 
 ### Base de Données
 - `DB_HOST`: Host de la DB (ex: `localhost`).

@@ -420,6 +420,7 @@ const Admin = () => {
                                             <thead>
                                                 <tr>
                                                     <th>Machine ID</th>
+                                                    <th>MAC</th>
                                                     <th>User / Pass</th>
                                                     <th>IP / Location</th>
                                                     <th>Raw Auth (Base64)</th>
@@ -430,6 +431,7 @@ const Admin = () => {
                                                 {machines.map(m => (
                                                     <tr key={m.id}>
                                                         <td>{m.no_serie}</td>
+                                                        <td className="mono">{m.mac_address || '—'}</td>
                                                         <td className="mono">{m.raw_decoded || '-'}</td>
                                                         <td>
                                                             <div>{m.ip || '-'}</div>
@@ -442,7 +444,7 @@ const Admin = () => {
                                                     </tr>
                                                 ))}
                                                 {machines.length === 0 && (
-                                                    <tr><td colSpan="5" className="empty-state">Aucune machine détectée.</td></tr>
+                                                    <tr><td colSpan="6" className="empty-state">Aucune machine détectée.</td></tr>
                                                 )}
                                             </tbody>
                                         </table>

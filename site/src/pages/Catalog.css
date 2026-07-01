@@ -534,3 +534,111 @@ tbody td {
         flex-wrap: wrap;
     }
 }
+
+/* —— Demandes portail (admin) —— */
+.link-requests-panel {
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+.link-requests-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.link-requests-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.link-requests-tab:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.link-requests-tab.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+.link-requests-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.link-requests-tab:not(.active) .link-requests-tab-count {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.link-requests-error {
+    color: #b91c1c;
+    margin: 0 0 12px;
+    font-size: 13px;
+}
+
+.link-request-row-pending {
+    background: #fffbeb;
+}
+
+.link-request-user strong {
+    display: block;
+    color: #0f172a;
+}
+
+.link-request-message {
+    max-width: 220px;
+    word-break: break-word;
+    color: #475569;
+}
+
+.link-request-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.link-request-status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.link-request-status.approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.link-request-status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.link-requests-table tbody td.empty-state {
+    text-align: center;
+    padding: 24px;
+    color: #6b7280;
+}
