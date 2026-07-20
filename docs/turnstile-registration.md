@@ -16,9 +16,21 @@ Stop automated fictitious accounts on `POST /api/auth/register` (www.essensys.fr
 
 The legacy `essensys-support-site/backend` has parity code but is **not** deployed on OVH.
 
+## Cloudflare account (owner of verification)
+
+| Field | Value |
+|-------|--------|
+| **Account email** | `nicolas.rineau@gmail.com` |
+| **Status** | **Verified** (Cloudflare → My Profile → Settings) |
+| **Member since** | 20 July 2024 |
+
+This account owns the Turnstile widget, allowed hostnames, site key, and secret key.
+Rotate or change domains only from this account, then update SOPS / redeploy.
+Canonical doc also in `essensys-doc` → `archi/turnstile-registration.md`.
+
 ## Cloudflare setup
 
-1. Dashboard → Turnstile → Add widget (**managed**).
+1. Log in as `nicolas.rineau@gmail.com` → Dashboard → Turnstile → Add widget (**managed**).
 2. Hostnames: `www.essensys.fr`, `mon.essensys.fr`, `test.essensys.fr` (+ local if needed).
 3. Copy site key (public) and secret key (server-only).
 
