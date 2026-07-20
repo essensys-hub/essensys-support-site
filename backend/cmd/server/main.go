@@ -103,8 +103,8 @@ func main() {
             r.Get("/auth/google/login", apiRouter.HandleGoogleLogin)
             r.Get("/auth/google/callback", apiRouter.HandleGoogleCallback)
             
-            // Email Auth
-            r.Post("/auth/register", apiRouter.HandleRegister)
+            // Email Auth (Turnstile/honeypot inside handler; IP rate-limit on register)
+            r.With(api.DefaultRegisterRateLimitMiddleware()).Post("/auth/register", apiRouter.HandleRegister)
             r.Post("/auth/login", apiRouter.HandleLogin)
             r.Post("/auth/logout", apiRouter.HandleLogout) // New
             

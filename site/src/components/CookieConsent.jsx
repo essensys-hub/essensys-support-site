@@ -32,6 +32,7 @@ const CookieConsent = () => {
             <div style={styles.content}>
                 <p style={{ margin: 0 }}>
                     Nous utilisons des cookies pour améliorer votre expérience.
+                    L&apos;inscription peut aussi charger Cloudflare Turnstile (anti-spam).
                     <a href="/privacy" style={{ color: '#00C9FF', marginLeft: '5px' }}>En savoir plus</a>
                 </p>
                 <div style={styles.buttons}>

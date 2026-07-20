@@ -2,17 +2,20 @@ package api
 
 import (
 	"encoding/json"
-    "log"
+	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/essensys-hub/essensys-support-site/backend/internal/models"
-    "github.com/golang-jwt/jwt/v4"
+	"github.com/essensys-hub/essensys-support-site/backend/internal/turnstile"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// HandleRegister handles email/password registration
+// HandleRegister handles email/password registration.
+// Note: production OVH uses essensys-user-portal-backend; this handler is
+// parity-only if the legacy support-site backend is redeployed.
 func (router *Router) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -24,6 +27,27 @@ func (router *Router) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if req.Email == "" || req.Password == "" {
 		http.Error(w, "Email and password are required", http.StatusBadRequest)
 		return
+	}
+
+	ip := getIP(r)
+	if strings.TrimSpace(req.Website) != "" {
+		log.Printf("audit action=REGISTER_BLOCKED_HONEYPOT ip=%s", ip)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	if turnstile.Enforced() {
+		token := strings.TrimSpace(req.TurnstileToken)
+		if token == "" {
+			log.Printf("audit action=REGISTER_BLOCKED_TURNSTILE ip=%s reason=missing_token", ip)
+			http.Error(w, "Captcha verification required", http.StatusBadRequest)
+			return
+		}
+		client := turnstile.NewClientFromEnv()
+		if err := client.Verify(r.Context(), token, ip); err != nil {
+			log.Printf("audit action=REGISTER_BLOCKED_TURNSTILE ip=%s reason=verify_failed", ip)
+			http.Error(w, "Captcha verification failed", http.StatusForbidden)
+			return
+		}
 	}
 
 	// Check if user exists

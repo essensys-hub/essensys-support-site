@@ -3,6 +3,20 @@ import { Link, Outlet } from 'react-router-dom';
 import './Layout.css';
 import logo from '../assets/logosml.png';
 
+const PORTAL_ORIGIN = 'https://mon.essensys.fr';
+
+/** Transfère le JWT www → mon via fragment (#token=) — localStorage n'est pas partagé entre origines. */
+const portalHref = (token, role) => {
+    if (token) {
+        const params = new URLSearchParams({ token });
+        if (role) {
+            params.set('role', role);
+        }
+        return `${PORTAL_ORIGIN}/#${params.toString()}`;
+    }
+    return `https://www.essensys.fr/login?return=${encodeURIComponent(PORTAL_ORIGIN)}`;
+};
+
 const Layout = () => {
     const [adminToken, setAdminToken] = React.useState(localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken'));
     const [adminRole, setAdminRole] = React.useState(localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole'));
@@ -32,7 +46,7 @@ const Layout = () => {
         </>
     ) : (
         <div className="user-menu">
-            <a href="https://mon.essensys.fr/" className="nav-btn-login" onClick={closeMenu} target="_blank" rel="noopener noreferrer">
+            <a href={portalHref(adminToken, adminRole)} className="nav-btn-login" onClick={closeMenu} target="_blank" rel="noopener noreferrer">
                 Portail
             </a>
             <Link to="/profile" className="nav-btn-login" onClick={closeMenu}>Profil</Link>
