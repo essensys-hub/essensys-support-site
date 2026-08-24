@@ -191,6 +191,7 @@ const UserRowActions = ({
     remoteEligible,
     onEdit,
     onResend,
+    onSendPasswordReset,
     onRemoveArmoire,
     onRemovePortalLink,
     onForbid,
@@ -259,6 +260,14 @@ const UserRowActions = ({
                                             onClick={() => { onCloseMenu(); onResend(); }}
                                         >
                                             Renvoyer email
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onSendPasswordReset(); }}
+                                        >
+                                            Envoyer un lien de réinitialisation
                                         </button>
                                         {user.linked_gateway_id && (
                                             <button
@@ -677,6 +686,32 @@ const UserManager = ({ token }) => {
         }
     };
 
+    const handleSendPasswordReset = async (user) => {
+        if (!window.confirm(`Envoyer un lien de réinitialisation de mot de passe à ${user.email} ?`)) {
+            return;
+        }
+        try {
+            const res = await fetch(`/api/admin/users/${user.id}/password-reset`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error === 'account_forbidden'
+                    ? "Ce compte est interdit : levez l'interdiction avant d'envoyer un lien."
+                    : (data.error || 'Échec de la demande'));
+                return;
+            }
+            // The token is issued even when delivery fails, so surface the
+            // reason rather than implying nothing happened.
+            alert(data.email_sent
+                ? `Lien envoyé à ${user.email} (valable jusqu'au ${new Date(data.expires_at).toLocaleString()}).`
+                : `Lien créé mais email non envoyé : ${data.reason || 'raison inconnue'}`);
+        } catch {
+            alert('Erreur réseau');
+        }
+    };
+
     const handleForbidUser = async (user) => {
         if (!window.confirm(`Interdire l'accès à ${user.email} ? L'utilisateur sera redirigé vers la page en construction.`)) {
             return;
@@ -862,6 +897,7 @@ const UserManager = ({ token }) => {
                                                     setResendTemplate('user_welcome');
                                                     setResendPassword('');
                                                 }}
+                                                onSendPasswordReset={() => handleSendPasswordReset(u)}
                                                 onRemoveArmoire={() => handleRemoveArmoire(u)}
                                                 onRemovePortalLink={() => handleRemovePortalLink(u)}
                                                 onForbid={() => handleForbidUser(u)}

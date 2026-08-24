@@ -5,6 +5,7 @@ import Support from './pages/Support';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
@@ -24,6 +25,7 @@ function App() {
       <LinkClickTracker />
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/support" element={<Support />} />
