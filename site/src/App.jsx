@@ -5,6 +5,7 @@ import Support from './pages/Support';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import CookieConsent from './components/CookieConsent';
@@ -25,6 +26,9 @@ function App() {
       <LinkClickTracker />
       <Routes>
         <Route path="/login" element={<Login />} />
+        {/* Outside Layout, like /login: recovery must not offer the site nav
+            to someone who is mid-way through regaining access. */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />

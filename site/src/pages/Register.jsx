@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
-
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+import useTurnstile, { TURNSTILE_SITE_KEY } from '../hooks/useTurnstile';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -16,57 +15,12 @@ const Register = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [turnstileToken, setTurnstileToken] = useState('');
-    const widgetRef = useRef(null);
-    const widgetIdRef = useRef(null);
-
-    const resetTurnstile = useCallback(() => {
-        setTurnstileToken('');
-        if (window.turnstile && widgetIdRef.current != null) {
-            try {
-                window.turnstile.reset(widgetIdRef.current);
-            } catch {
-                /* ignore */
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!TURNSTILE_SITE_KEY) {
-            return undefined;
-        }
-
-        const renderWidget = () => {
-            if (!widgetRef.current || !window.turnstile || widgetIdRef.current != null) {
-                return;
-            }
-            widgetIdRef.current = window.turnstile.render(widgetRef.current, {
-                sitekey: TURNSTILE_SITE_KEY,
-                callback: (token) => setTurnstileToken(token || ''),
-                'expired-callback': () => setTurnstileToken(''),
-                'error-callback': () => setTurnstileToken(''),
-            });
-        };
-
-        if (window.turnstile) {
-            renderWidget();
-            return undefined;
-        }
-
-        const existing = document.querySelector('script[data-essensys-turnstile]');
-        if (existing) {
-            existing.addEventListener('load', renderWidget);
-            return () => existing.removeEventListener('load', renderWidget);
-        }
-
-        const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-        script.async = true;
-        script.dataset.essensysTurnstile = '1';
-        script.addEventListener('load', renderWidget);
-        document.head.appendChild(script);
-        return () => script.removeEventListener('load', renderWidget);
-    }, []);
+    const {
+        widgetRef,
+        token: turnstileToken,
+        ready: captchaReady,
+        reset: resetTurnstile,
+    } = useTurnstile();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -95,7 +49,7 @@ const Register = () => {
             return;
         }
 
-        if (TURNSTILE_SITE_KEY && !turnstileToken) {
+        if (!captchaReady) {
             setError('Please complete the captcha verification.');
             return;
         }

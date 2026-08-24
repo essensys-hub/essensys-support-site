@@ -145,15 +145,15 @@ const ResetPassword = () => {
                     <>
                         <div className="error-msg">{DEAD_LINK_COPY[status]}</div>
                         <p className="auth-hint">
-                            Demandez un nouveau lien de réinitialisation à{' '}
-                            <a href="mailto:support@essensys.fr" className="auth-link">
-                                support@essensys.fr
-                            </a>
-                            .
+                            Les liens expirent au bout d&apos;une heure et ne servent qu&apos;une
+                            fois. Demandez-en un nouveau pour continuer.
                         </p>
-                        <Link to="/login" className="auth-btn btn-primary auth-btn-link">
-                            Retour à la connexion
+                        <Link to="/forgot-password" className="auth-btn btn-primary auth-btn-link">
+                            Demander un nouveau lien
                         </Link>
+                        <div className="auth-footer">
+                            <Link to="/login" className="auth-link">Retour à la connexion</Link>
+                        </div>
                     </>
                 )}
 

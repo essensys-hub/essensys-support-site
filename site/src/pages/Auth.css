@@ -263,6 +263,27 @@
   cursor: pointer;
 }
 
+/* Pairs the "remember me" checkbox with the recovery link on one line. Wraps
+   rather than shrinks so the link stays legible on a narrow phone. */
+.auth-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 0.25rem;
+}
+
+.auth-form-row .auth-remember {
+  margin-top: 0;
+}
+
+.auth-link-forgot {
+  margin-left: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 .auth-remember label {
   margin-bottom: 0;
   cursor: pointer;
