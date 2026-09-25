@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import '../pages/Catalog.css';
 
 /**
@@ -8,6 +9,16 @@ import '../pages/Catalog.css';
  * only way the password leaves the admin's screen; nothing re-fetches the
  * user list while it's open — see the comment on this component's onClose
  * in UserManager.jsx for why that matters.
+ *
+ * Rendered via a portal into document.body rather than in place: Admin.jsx's
+ * .page-content has `backdrop-filter: blur(5px)`, and backdrop-filter (like
+ * transform, filter, perspective, and will-change: transform) establishes a
+ * new containing block for `position: fixed` descendants per the CSS Filter
+ * Effects spec. Without the portal, this modal's `inset: 0` resolves against
+ * .page-content's own (scrolled, page-length) box instead of the viewport —
+ * on a long user list, scrolling to a row before opening the modal left it
+ * rendered hundreds of pixels off-screen. A portal sidesteps the whole class
+ * of bug regardless of what a future ancestor's CSS does.
  */
 const TemporaryPasswordModal = ({ user, token, onClose }) => {
     const [sendEmail, setSendEmail] = useState(false);
@@ -56,7 +67,7 @@ const TemporaryPasswordModal = ({ user, token, onClose }) => {
         }
     };
 
-    return (
+    return createPortal(
         <div className="modal-overlay">
             <div className="modal-content">
                 {!result ? (
@@ -127,7 +138,8 @@ const TemporaryPasswordModal = ({ user, token, onClose }) => {
                     </>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 };
 
