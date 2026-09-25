@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import ChangePassword from './pages/ChangePassword';
 import Profile from './pages/Profile';
 import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
@@ -30,6 +31,9 @@ function App() {
             to someone who is mid-way through regaining access. */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        {/* Same reasoning as /login and the recovery routes: no site nav
+            while a forced password change is outstanding. */}
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/support" element={<Support />} />
