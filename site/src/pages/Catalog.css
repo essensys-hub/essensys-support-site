@@ -274,6 +274,20 @@ tbody td {
     color: #9ca3af;
 }
 
+.temp-password-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6d28d9;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-left: 8px;
+}
+
 .device-warning {
     color: #b45309;
     background: #fffbeb;
@@ -475,9 +489,21 @@ tbody td {
 
 .modal-content {
     background: #ffffff;
+    /* Vite's default :root sets color: rgba(255,255,255,.87) for the
+       template's dark background — inherited here otherwise, rendering an
+       unstyled <h3> (every modal titles itself with a bare <h3>) as
+       near-white text on this white card: legible nowhere, not just on a
+       screenshot. Every modal built on this class inherits the fix. */
+    color: #1f2933;
     padding: 24px;
     border-radius: 16px;
     width: min(420px, 90vw);
+    /* Content taller than a short viewport (a phone in landscape, or an
+       iPhone with the cookie banner still showing) must stay reachable by
+       scrolling inside the card rather than clipping off both edges of a
+       centered flex box with nothing to scroll. */
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
     display: flex;
     flex-direction: column;

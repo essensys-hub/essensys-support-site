@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import './Auth.css';
 import logo from '../assets/logosml.png';
 import fondImage from '../assets/fond-inprogress.png';
+import { redirectAfterAuth } from '../lib/authRedirect';
 
 /** OAuth cloud — désactivé temporairement (réactiver quand les providers sont prêts). */
 const OAUTH_PROVIDERS_ENABLED = false;
@@ -51,17 +52,25 @@ const Login = () => {
                 persistAuth(data.token, data.user.role);
                 window.dispatchEvent(new Event('auth-change'));
 
-                if (returnTo.startsWith('http://') || returnTo.startsWith('https://')) {
-                    const target = new URL(returnTo);
-                    target.hash = `token=${encodeURIComponent(data.token)}&role=${encodeURIComponent(data.user.role)}`;
-                    window.location.href = target.toString();
-                } else if (returnTo.startsWith('/')) {
-                    window.location.href = returnTo;
-                } else {
-                    navigate(returnTo);
+                if (data.password_change_required) {
+                    // Carry the original destination through so the forced
+                    // change screen can send the visitor to the same place
+                    // (admin console or portal) once they're done, instead
+                    // of defaulting everyone to /admin.
+                    navigate(`/change-password?return=${encodeURIComponent(returnTo)}`);
+                    return;
                 }
+
+                redirectAfterAuth(returnTo, data.token, data.user.role, navigate);
             } else if (data.error === 'account_forbidden' && data.redirect) {
                 window.location.href = data.redirect;
+            } else if (data.error === 'temporary_password_expired') {
+                // Distinct from a wrong password: the credential the caller
+                // used was correct, it simply outlived its 72h window.
+                setError(
+                    "Ce mot de passe temporaire a expiré. Demandez-en un nouveau à l'administrateur, ou utilisez la réinitialisation par email.",
+                );
+                setSuggestRecovery(true);
             } else {
                 // The server does not say whether the address or the password
                 // was wrong, and neither should we.

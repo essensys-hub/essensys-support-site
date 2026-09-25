@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Catalog.css';
+import TemporaryPasswordModal from '../components/TemporaryPasswordModal';
 
 const normalizeGatewayKey = (value) => (value ? value.replace(/^gw-/, '').toLowerCase() : '');
 
@@ -192,6 +193,7 @@ const UserRowActions = ({
     onEdit,
     onResend,
     onSendPasswordReset,
+    onIssueTemporaryPassword,
     onRemoveArmoire,
     onRemovePortalLink,
     onForbid,
@@ -268,6 +270,14 @@ const UserRowActions = ({
                                             onClick={() => { onCloseMenu(); onSendPasswordReset(); }}
                                         >
                                             Envoyer un lien de réinitialisation
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onIssueTemporaryPassword(); }}
+                                        >
+                                            Définir un mot de passe temporaire…
                                         </button>
                                         {user.linked_gateway_id && (
                                             <button
@@ -362,6 +372,9 @@ const UserManager = ({ token }) => {
     const [resendTemplate, setResendTemplate] = useState('user_welcome');
     const [resendPassword, setResendPassword] = useState('');
     const [openMenuUserId, setOpenMenuUserId] = useState(null);
+
+    // Temporary password
+    const [tempPassUser, setTempPassUser] = useState(null);
 
     // Default form state
     const [newUser, setNewUser] = useState({
@@ -856,6 +869,9 @@ const UserManager = ({ token }) => {
                                             {u.forbidden_at && (
                                                 <span className="device-warning" style={{ marginLeft: '8px' }}>Interdit</span>
                                             )}
+                                            {u.password_change_required_at && (
+                                                <span className="temp-password-badge">MDP temporaire</span>
+                                            )}
                                         </td>
                                         <td>{u.first_name} {u.last_name}</td>
                                         <td>
@@ -898,6 +914,7 @@ const UserManager = ({ token }) => {
                                                     setResendPassword('');
                                                 }}
                                                 onSendPasswordReset={() => handleSendPasswordReset(u)}
+                                                onIssueTemporaryPassword={() => setTempPassUser(u)}
                                                 onRemoveArmoire={() => handleRemoveArmoire(u)}
                                                 onRemovePortalLink={() => handleRemovePortalLink(u)}
                                                 onForbid={() => handleForbidUser(u)}
@@ -1119,6 +1136,25 @@ const UserManager = ({ token }) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {tempPassUser && (
+                <TemporaryPasswordModal
+                    user={tempPassUser}
+                    token={token}
+                    // The list refresh (for the badge) waits until the modal
+                    // closes, not the moment the password is issued: firing
+                    // it immediately raced the still-open modal when the
+                    // target was the admin's own account — issuance locks
+                    // that same session server-side, so the very next
+                    // fetchUsers() came back 409 and the app-wide redirect
+                    // (lib/passwordChangeGuard.js) tore the modal down
+                    // before the password could be read.
+                    onClose={() => {
+                        setTempPassUser(null);
+                        fetchUsers();
+                    }}
+                />
             )}
         </div>
     );

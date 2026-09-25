@@ -108,6 +108,14 @@ const Admin = () => {
                     return;
                 }
             }
+            if (res.status === 409) {
+                // password_change_required: the token is still valid, so this
+                // is not a logout. The global fetch guard (lib/
+                // passwordChangeGuard.js) is already redirecting to
+                // /change-password — do nothing here, and in particular do
+                // not wipe the token via handleLogout below.
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 setStats(data);
