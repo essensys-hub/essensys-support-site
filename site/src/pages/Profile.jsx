@@ -13,16 +13,6 @@ const Profile = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        if (!token) {
-            navigate('/login');
-            return;
-        }
-        fetchProfile();
-        fetchNearby();
-        fetchMyLogs();
-    }, [token, navigate]);
-
     const fetchProfile = async () => {
         try {
             const res = await fetch('/api/profile', {
@@ -36,7 +26,7 @@ const Profile = () => {
             } else {
                 setError('Failed to load profile');
             }
-        } catch (err) {
+        } catch {
             setError('Error loading profile');
         }
     };
@@ -50,7 +40,7 @@ const Profile = () => {
                 const data = await res.json();
                 setNearby(data);
             }
-        } catch (err) {
+        } catch {
             console.error("Failed to fetch nearby devices");
         }
     };
@@ -66,10 +56,20 @@ const Profile = () => {
                 const data = await res.json();
                 setLogs(data);
             }
-        } catch (err) {
+        } catch {
             console.error("Failed to fetch logs");
         }
     };
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        fetchProfile();
+        fetchNearby();
+        fetchMyLogs();
+    }, [token, navigate]);
 
     const handleSave = async () => {
         setMessage('');
@@ -97,7 +97,7 @@ const Profile = () => {
                 const txt = await res.text();
                 setError(`Erreur: ${txt}`);
             }
-        } catch (err) {
+        } catch {
             setError('Erreur de connexion');
         }
     };
@@ -222,7 +222,7 @@ const Profile = () => {
                             } else {
                                 setError('Erreur lors de la mise à jour.');
                             }
-                        } catch (e) { setError('Erreur réseau'); }
+                        } catch { setError('Erreur réseau'); }
                     }} className="auth-btn" style={{ background: '#555' }}>Mettre à jour</button>
                 </div>
 
@@ -250,7 +250,7 @@ const Profile = () => {
                                 } else {
                                     setError('Erreur export');
                                 }
-                            } catch (e) { setError('Erreur réseau'); }
+                            } catch { setError('Erreur réseau'); }
                         }}
                         className="auth-btn"
                         style={{ background: '#006699', flex: 1 }}
@@ -273,7 +273,7 @@ const Profile = () => {
                                     } else {
                                         setError('Erreur suppression');
                                     }
-                                } catch (e) { setError('Erreur réseau'); }
+                                } catch { setError('Erreur réseau'); }
                             }
                         }}
                         className="auth-btn"
