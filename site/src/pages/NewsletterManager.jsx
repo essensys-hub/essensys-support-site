@@ -43,7 +43,7 @@ const NewsletterManager = ({ token }) => {
                 setNewsletters([newNl, ...newsletters]);
                 setSelectedNewsletter(newNl);
             }
-        } catch (err) {
+        } catch {
             setError('Failed to create newsletter');
         } finally {
             setLoading(false);
@@ -69,7 +69,7 @@ const NewsletterManager = ({ token }) => {
                 setMsg('Sauvegardé !');
                 setTimeout(() => setMsg(''), 3000);
             }
-        } catch (err) {
+        } catch {
             setError('Failed to save');
         } finally {
             setLoading(false);
@@ -106,7 +106,7 @@ const NewsletterManager = ({ token }) => {
                     setSelectedNewsletter(saved);
                 }
             }
-        } catch (err) {
+        } catch {
             setError('Failed to update status');
             fetchNewsletters();
         } finally {
@@ -125,7 +125,7 @@ const NewsletterManager = ({ token }) => {
             if (selectedNewsletter && selectedNewsletter.id === id) {
                 setSelectedNewsletter(null);
             }
-        } catch (err) {
+        } catch {
             setError('Failed to delete');
         }
     };
@@ -168,7 +168,7 @@ const NewsletterManager = ({ token }) => {
             } else {
                 setError('Erreur lors de l\'ajout');
             }
-        } catch (err) {
+        } catch {
             setError('Erreur réseau');
         } finally {
             setLoading(false);
@@ -188,7 +188,7 @@ const NewsletterManager = ({ token }) => {
             } else {
                 setError('Impossible de supprimer');
             }
-        } catch (err) {
+        } catch {
             setError('Erreur réseau');
         }
     };

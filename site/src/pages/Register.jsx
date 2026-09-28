@@ -49,7 +49,7 @@ const Register = () => {
                 // Should check content type of error if simple string
                 setError(data.message || 'Registration failed');
             }
-        } catch (err) {
+        } catch {
             setError('Connection error. Please try again.');
         } finally {
             setLoading(false);

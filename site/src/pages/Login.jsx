@@ -52,7 +52,7 @@ const Login = () => {
             } else {
                 setError(data.message || data.error || 'Login failed');
             }
-        } catch (err) {
+        } catch {
             setError('Connection error. Please try again.');
         } finally {
             setLoading(false);

@@ -159,7 +159,7 @@ const UserManager = ({ token }) => {
             } else {
                 setError('Failed to fetch users');
             }
-        } catch (err) {
+        } catch {
             setError('Connection error');
         } finally {
             setLoading(false);
@@ -187,7 +187,7 @@ const UserManager = ({ token }) => {
                 const data = await resP.json();
                 setPortalGateways(Array.isArray(data) ? data : []);
             }
-        } catch (err) {
+        } catch {
             console.error("Failed to fetch devices");
         }
     };
@@ -209,7 +209,7 @@ const UserManager = ({ token }) => {
             } else {
                 alert('Failed to update role');
             }
-        } catch (err) {
+        } catch {
             alert('Error updating role');
         }
     };
@@ -239,7 +239,7 @@ const UserManager = ({ token }) => {
                 const data = await res.json();
                 alert(data.message || 'Failed to create user');
             }
-        } catch (err) {
+        } catch {
             alert('Error creating user');
         }
     };
@@ -300,7 +300,7 @@ const UserManager = ({ token }) => {
             } else {
                 alert('Failed to update links');
             }
-        } catch (err) {
+        } catch {
             alert('Error updating links');
         }
     };

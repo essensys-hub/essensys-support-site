@@ -39,7 +39,7 @@ const EmailTemplates = ({ token }) => {
                 const data = await res.json();
                 setTemplates(Array.isArray(data) ? data : []);
             }
-        } catch (err) {
+        } catch {
             setError('Impossible de charger les modèles');
         }
     };
