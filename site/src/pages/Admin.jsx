@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewsletterManager from './NewsletterManager';
 import EmailTemplates from './EmailTemplates';
@@ -35,7 +35,7 @@ const Admin = () => {
     const [logs, setLogs] = React.useState([]); // Audit Logs
     const [showMachineList, setShowMachineList] = React.useState(false);
     const [error, setError] = React.useState('');
-    const [loading, setLoading] = React.useState(false);
+    const [, setLoading] = React.useState(false);
     const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'newsletters', 'email-templates', 'users', ...
 
     // Gateway Icon

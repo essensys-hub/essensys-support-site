@@ -73,7 +73,7 @@ const SyncCloud = ({ token }) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setProfiles(Array.isArray(data) ? data : []);
-    } catch (e) {
+    } catch {
       setError('Impossible de charger les profils sync.');
       setProfiles([]);
     } finally {

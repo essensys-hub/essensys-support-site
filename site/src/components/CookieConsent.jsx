@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { initNewRelic } from '../observability/newrelic';
 
 const CookieConsent = () => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        const consent = localStorage.getItem('cookieConsent');
-        if (!consent) {
-            setIsVisible(true);
-        }
-    }, []);
+    const [isVisible, setIsVisible] = useState(() => !localStorage.getItem('cookieConsent'));
 
     const handleAccept = () => {
         localStorage.setItem('cookieConsent', 'true');
