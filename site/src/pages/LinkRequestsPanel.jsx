@@ -12,6 +12,8 @@ const statusLabel = (status) => {
             return 'Approuvée';
         case 'rejected':
             return 'Refusée';
+        case 'revoked':
+            return 'Révoquée';
         case 'pending':
             return 'En attente';
         default:
@@ -92,6 +94,11 @@ const LinkRequestsPanel = ({ token }) => {
     }, [token, tab, fetchRequests, fetchPendingCount]);
 
     const review = async (id, status) => {
+        if (status === 'revoked' && !window.confirm(
+            "Révoquer l'accès portail de cet utilisateur ? Il devra refaire une demande de liaison.",
+        )) {
+            return;
+        }
         setActingId(id);
         try {
             const res = await fetch(`/api/portal/admin/link-requests/${id}`, {
@@ -170,6 +177,7 @@ const LinkRequestsPanel = ({ token }) => {
                                         <th>Statut</th>
                                         <th>Validé par</th>
                                         <th>Validé le</th>
+                                        <th>Actions</th>
                                     </>
                                 )}
                                 {tab === 'pending' && <th>Actions</th>}
@@ -199,6 +207,18 @@ const LinkRequestsPanel = ({ token }) => {
                                             </td>
                                             <td>{r.reviewed_by || '—'}</td>
                                             <td className="mono">{formatDateTime(r.reviewed_at)}</td>
+                                            <td>
+                                                {r.status === 'approved' && (
+                                                    <button
+                                                        type="button"
+                                                        className="catalog-button danger"
+                                                        disabled={actingId === r.id}
+                                                        onClick={() => review(r.id, 'revoked')}
+                                                    >
+                                                        Révoquer
+                                                    </button>
+                                                )}
+                                            </td>
                                         </>
                                     )}
                                     {tab === 'pending' && (
@@ -227,7 +247,7 @@ const LinkRequestsPanel = ({ token }) => {
                             ))}
                             {requests.length === 0 && (
                                 <tr>
-                                    <td colSpan={tab === 'history' ? 7 : 5} className="empty-state">
+                                    <td colSpan={tab === 'history' ? 8 : 5} className="empty-state">
                                         {tab === 'pending'
                                             ? 'Aucune demande en attente.'
                                             : 'Aucune demande traitée pour le moment.'}

@@ -663,6 +663,11 @@ tbody td {
     color: #991b1b;
 }
 
+.link-request-status.revoked {
+    background: #e5e7eb;
+    color: #374151;
+}
+
 .link-requests-table tbody td.empty-state {
     text-align: center;
     padding: 24px;
