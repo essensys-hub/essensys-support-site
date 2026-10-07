@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import './Auth.css';
 import logo from '../assets/logosml.png';
 import fondImage from '../assets/fond-inprogress.png';
+import { redirectAfterAuth } from '../lib/authRedirect';
 
 /** OAuth cloud — désactivé temporairement (réactiver quand les providers sont prêts). */
 const OAUTH_PROVIDERS_ENABLED = false;
@@ -23,10 +24,19 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    // Whether to suggest recovery. Only for a rejected credential: a network
+    // failure or a forbidden account is not something a new password fixes.
+    const [suggestRecovery, setSuggestRecovery] = useState(false);
+
+    // Carry whatever was typed, so the recovery page does not ask for it again.
+    const forgotLink = email.trim()
+        ? `/forgot-password?email=${encodeURIComponent(email.trim())}`
+        : '/forgot-password';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuggestRecovery(false);
         setLoading(true);
 
         try {
@@ -42,15 +52,30 @@ const Login = () => {
                 persistAuth(data.token, data.user.role);
                 window.dispatchEvent(new Event('auth-change'));
 
-                if (returnTo.startsWith('/')) {
-                    window.location.href = returnTo;
-                } else {
-                    navigate(returnTo);
+                if (data.password_change_required) {
+                    // Carry the original destination through so the forced
+                    // change screen can send the visitor to the same place
+                    // (admin console or portal) once they're done, instead
+                    // of defaulting everyone to /admin.
+                    navigate(`/change-password?return=${encodeURIComponent(returnTo)}`);
+                    return;
                 }
+
+                redirectAfterAuth(returnTo, data.token, data.user.role, navigate);
             } else if (data.error === 'account_forbidden' && data.redirect) {
                 window.location.href = data.redirect;
+            } else if (data.error === 'temporary_password_expired') {
+                // Distinct from a wrong password: the credential the caller
+                // used was correct, it simply outlived its 72h window.
+                setError(
+                    "Ce mot de passe temporaire a expiré. Demandez-en un nouveau à l'administrateur, ou utilisez la réinitialisation par email.",
+                );
+                setSuggestRecovery(true);
             } else {
-                setError(data.message || data.error || 'Login failed');
+                // The server does not say whether the address or the password
+                // was wrong, and neither should we.
+                setError(data.message || data.error || 'Identifiants invalides');
+                setSuggestRecovery(res.status === 401);
             }
         } catch {
             setError('Connection error. Please try again.');
@@ -75,6 +100,14 @@ const Login = () => {
                         </div>
 
                         {error && <div className="error-msg">{error}</div>}
+                        {suggestRecovery && (
+                            <p className="auth-hint">
+                                Mot de passe oublié ?{' '}
+                                <Link to={forgotLink} className="auth-link">
+                                    Recevoir un lien de réinitialisation
+                                </Link>
+                            </p>
+                        )}
 
                         <form className="auth-form" onSubmit={handleSubmit}>
                             <div className="form-group">
@@ -104,15 +137,20 @@ const Login = () => {
                                 />
                             </div>
 
-                            <label className="auth-remember" htmlFor="rememberMe">
-                                <input
-                                    type="checkbox"
-                                    id="rememberMe"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                />
-                                <span>Se souvenir de moi</span>
-                            </label>
+                            <div className="auth-form-row">
+                                <label className="auth-remember" htmlFor="rememberMe">
+                                    <input
+                                        type="checkbox"
+                                        id="rememberMe"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                    />
+                                    <span>Se souvenir de moi</span>
+                                </label>
+                                <Link to={forgotLink} className="auth-link auth-link-forgot">
+                                    Mot de passe oublié ?
+                                </Link>
+                            </div>
 
                             <button type="submit" className="auth-btn btn-primary" disabled={loading}>
                                 {loading ? 'Connexion...' : 'Se connecter'}

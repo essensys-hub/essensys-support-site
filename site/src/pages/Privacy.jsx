@@ -32,7 +32,10 @@ Conformément au RGPD, vous disposez des droits suivants :
 *   **Droit à la portabilité** : Exporter vos données (disponible dans "Mon Profil").
 
 ## 5. Cookies
-Nous utilisons uniquement des cookies techniques nécessaires au maintien de votre session.
+Nous utilisons des cookies techniques nécessaires au maintien de votre session.
+Sur la page d'inscription, Cloudflare Turnstile peut charger un script tiers
+(\`challenges.cloudflare.com\`) pour vérifier que la demande n'est pas automatisée.
+Voir aussi la bannière de consentement cookies.
 
 ## 6. Contact
 Pour toute demande, vous pouvez nous contacter via le support.

@@ -290,6 +290,11 @@ func (rt *Router) HandleAdminUpdateUserLinks(w http.ResponseWriter, r *http.Requ
         req.MachineID = nil
     }
 
+    if err := gatewayrules.ValidateAdminUserLinks(req.MachineID, req.GatewayID, req.ArmoireID); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
     // Admins can link within authorized scope
     if err := rt.UserStore.UpdateUserLinks(id, req.MachineID, req.GatewayID, req.ArmoireID); err != nil {
         log.Printf("[API] Failed to update user links (Admin): %v", err)

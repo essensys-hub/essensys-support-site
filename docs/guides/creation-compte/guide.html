@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Créer votre compte Essensys</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: #1f2937;
+      line-height: 1.55;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      font-size: 22pt;
+      color: #0f172a;
+      margin: 0 0 6px;
+      line-height: 1.2;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #1e40af;
+      margin: 28px 0 10px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #dbeafe;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 11.5pt;
+      margin: 16px 0 8px;
+      color: #111827;
+      page-break-after: avoid;
+    }
+    p, li { margin: 0 0 8px; }
+    ul, ol { margin: 0 0 12px 18px; padding: 0; }
+    .cover {
+      min-height: 250mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      page-break-after: always;
+    }
+    .cover .logo {
+      font-size: 28pt;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 12px;
+    }
+    .cover .subtitle { font-size: 14pt; color: #4b5563; max-width: 140mm; margin: 0 auto 24px; }
+    .cover .meta { font-size: 10pt; color: #6b7280; margin-top: 40px; }
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0 16px;
+      page-break-inside: avoid;
+    }
+    .info-box strong { color: #1e40af; }
+    .warn-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0 16px;
+      page-break-inside: avoid;
+    }
+    table.data {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 10.5pt;
+      page-break-inside: avoid;
+    }
+    table.data th, table.data td {
+      border: 1px solid #d1d5db;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.data th { background: #f3f4f6; width: 34%; }
+    figure {
+      margin: 14px 0 18px;
+      page-break-inside: avoid;
+      text-align: center;
+    }
+    figure img {
+      max-width: 100%;
+      max-height: 95mm;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    figure.screenshot img { max-height: 110mm; }
+    figcaption {
+      font-size: 9.5pt;
+      color: #6b7280;
+      margin-top: 6px;
+      font-style: italic;
+    }
+    .steps { counter-reset: step; list-style: none; margin-left: 0; padding: 0; }
+    .steps > li {
+      counter-increment: step;
+      margin-bottom: 14px;
+      padding-left: 36px;
+      position: relative;
+      page-break-inside: avoid;
+    }
+    .steps > li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 24px;
+      height: 24px;
+      background: #2563eb;
+      color: white;
+      border-radius: 50%;
+      font-size: 10pt;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 9pt;
+      color: #6b7280;
+      text-align: center;
+    }
+    .page-break { page-break-before: always; }
+    code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; font-size: 10pt; }
+    a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <section class="cover">
+    <div class="logo">mon Essensys</div>
+    <h1>Créer votre compte<br/>et activer le portail domotique</h1>
+    <p class="subtitle">
+      Guide pas à pas pour vous inscrire sur <strong>www.essensys.fr</strong>,
+      nous transmettre les informations de votre armoire, et obtenir l’accès à la télécommande à distance sur <strong>mon.essensys.fr</strong>.
+    </p>
+    <p class="meta">Support Essensys — Juillet 2026<br/>https://www.essensys.fr · portail&nbsp;: https://mon.essensys.fr</p>
+  </section>
+
+  <h2>En bref</h2>
+  <p>Pour piloter votre installation à distance (volets, éclairage, scénarios…), vous devez&nbsp;:</p>
+  <ol>
+    <li><strong>Créer un compte</strong> sur www.essensys.fr</li>
+    <li><strong>Vous connecter</strong> puis ouvrir le <strong>portail domotique</strong> sur mon.essensys.fr</li>
+    <li><strong>Envoyer une demande de liaison</strong> avec le <strong>n° de série</strong> de votre armoire</li>
+    <li><strong>Nous communiquer</strong> dans le message : l’<strong>adresse MAC</strong> de l’armoire et, si possible, la <strong>clé produit</strong></li>
+    <li>Attendre la <strong>validation</strong> par l’équipe Essensys (généralement sous 48&nbsp;h ouvrées)</li>
+  </ol>
+
+  <div class="info-box">
+    <strong>Informations à nous transmettre</strong>
+    <table class="data">
+      <tr><th>N° de série machine</th><td>Sur l’étiquette blanche dans l’armoire (ex.&nbsp;: <code>ESS002VA0102030405</code>)</td></tr>
+      <tr><th>Adresse MAC Ethernet</th><td>Écran <em>Réglage accès à distance</em> de l’armoire (ex.&nbsp;: <code>00:11:22:33:44:55</code>)</td></tr>
+      <tr><th>Clé produit</th><td>Sur la même étiquette (ex.&nbsp;: <code>AB12C-DE345-F6789-01234-56789</code>) — utile pour le support</td></tr>
+      <tr><th>Votre e-mail</th><td>Celui utilisé lors de l’inscription</td></tr>
+      <tr><th>Adresse d’installation</th><td>Ville / code postal (facultatif mais recommandé dans le message)</td></tr>
+    </table>
+  </div>
+
+  <h2>Où trouver ces informations sur votre armoire ?</h2>
+
+  <h3>1. N° de série et clé produit</h3>
+  <p>Ouvrez la porte de l’armoire électrique. Sur l’étiquette blanche Schneider Electric, notez&nbsp;:</p>
+  <ul>
+    <li><strong>N° de série</strong> — identifiant unique de votre machine</li>
+    <li><strong>Clef produit</strong> — code de licence (5 groupes de caractères)</li>
+  </ul>
+  <figure>
+    <img src="screenshots/armoire-serie.png" alt="Étiquette N° de série et Clef produit" />
+    <figcaption>Étiquette à l’intérieur de l’armoire — N° de série et Clef produit</figcaption>
+  </figure>
+
+  <h3>2. Adresse MAC Ethernet</h3>
+  <p>Sur l’écran tactile de l’armoire, accédez au menu <strong>Réglage accès à distance</strong>.
+     En bas de l’écran, l’adresse MAC est affichée après <code>@ MAC</code>.</p>
+  <p>Les voyants <strong>CABLE → DHCP → DNS → SERVEUR</strong> indiquent l’état de la connexion Internet.
+     Si <strong>SERVEUR</strong> est rouge avant validation de votre compte, c’est normal&nbsp;: il passera au vert une fois votre liaison approuvée.</p>
+  <figure>
+    <img src="screenshots/armoire-mac.png" alt="Écran MAC armoire" />
+    <figcaption>Écran «&nbsp;Réglage accès à distance&nbsp;» — adresse MAC en bas de l’écran</figcaption>
+  </figure>
+
+  <div class="page-break"></div>
+
+  <h2>Étape 1 — Créer votre compte</h2>
+  <ol class="steps">
+    <li>
+      Ouvrez votre navigateur et rendez-vous sur<br/>
+      <a href="https://www.essensys.fr/register">https://www.essensys.fr/register</a>
+    </li>
+    <li>
+      Remplissez le formulaire&nbsp;: prénom, nom, e-mail et mot de passe (8 caractères minimum).
+    </li>
+    <li>Cliquez sur <strong>S’inscrire</strong>, puis connectez-vous.</li>
+  </ol>
+  <figure class="screenshot">
+    <img src="screenshots/01-inscription.png" alt="Page d'inscription" />
+    <figcaption>Page d’inscription sur www.essensys.fr</figcaption>
+  </figure>
+
+  <h2>Étape 2 — Se connecter</h2>
+  <p>Allez sur <a href="https://www.essensys.fr/login">https://www.essensys.fr/login</a> et saisissez votre e-mail et mot de passe.</p>
+  <figure class="screenshot">
+    <img src="screenshots/02-connexion.png" alt="Page de connexion" />
+    <figcaption>Page de connexion</figcaption>
+  </figure>
+
+  <h2>Étape 3 — Ouvrir le portail domotique</h2>
+  <p>Une fois connecté, ouvrez&nbsp;:</p>
+  <p><a href="https://mon.essensys.fr">https://mon.essensys.fr</a></p>
+  <p>Si vous n’êtes pas encore connecté, le portail vous invite à vous identifier&nbsp;:</p>
+  <figure class="screenshot">
+    <img src="screenshots/03-portail.png" alt="Portail — connexion requise" />
+    <figcaption>Portail domotique — cliquez sur «&nbsp;Se connecter&nbsp;» si nécessaire</figcaption>
+  </figure>
+
+  <div class="page-break"></div>
+
+  <h2>Étape 4 — Envoyer la demande de liaison</h2>
+  <p>Après connexion, remplissez le formulaire&nbsp;:</p>
+  <ul>
+    <li><strong>N° série machine</strong> — obligatoire (voir étiquette armoire)</li>
+    <li><strong>Message</strong> — recommandé&nbsp;: indiquez la MAC, la clé produit et votre adresse</li>
+  </ul>
+  <figure class="screenshot">
+    <img src="screenshots/04-demande-liaison.png" alt="Formulaire demande de liaison" />
+    <figcaption>Exemple de demande remplie — le n° de série et la MAC facilitent la validation</figcaption>
+  </figure>
+
+  <div class="warn-box">
+    <strong>Exemple de message à copier&nbsp;:</strong><br/>
+    <em>MAC armoire&nbsp;: 00:11:22:33:44:55 — Clé produit&nbsp;: AB12C-DE345-F6789-01234-56789 — Installation&nbsp;: Lyon 69003</em>
+  </div>
+
+  <h2>Étape 5 — Attendre la validation</h2>
+  <p>Après envoi, l’écran affiche <strong>Demande en attente</strong>. Un administrateur Essensys vérifie vos informations et approuve la liaison.</p>
+  <ul>
+    <li>Rechargez la page (<strong>Rafraîchir le statut</strong>) après réception de notre confirmation par e-mail</li>
+    <li>Une fois validé, le voyant <strong>SERVEUR</strong> sur l’armoire doit passer au vert</li>
+    <li>Vous accédez alors aux commandes domotiques depuis le portail</li>
+  </ul>
+
+  <h2>Besoin d’aide ?</h2>
+  <p>Contactez le support Essensys en précisant&nbsp;:</p>
+  <ul>
+    <li>Votre e-mail de compte</li>
+    <li>Le n° de série machine</li>
+    <li>L’adresse MAC</li>
+    <li>Une capture de l’écran «&nbsp;Réglage accès à distance&nbsp;» si le voyant SERVEUR reste rouge après validation</li>
+  </ul>
+
+  <div class="footer">
+    Essensys — www.essensys.fr · portail&nbsp;: mon.essensys.fr — Document généré pour les clients finaux<br/>
+    Politique de confidentialité&nbsp;: https://www.essensys.fr/privacy
+  </div>
+
+</body>
+</html>

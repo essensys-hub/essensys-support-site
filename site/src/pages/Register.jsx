@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
+import useTurnstile, { TURNSTILE_SITE_KEY } from '../hooks/useTurnstile';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -9,13 +10,34 @@ const Register = () => {
         last_name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        website: '', // honeypot
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const {
+        widgetRef,
+        token: turnstileToken,
+        ready: captchaReady,
+        reset: resetTurnstile,
+    } = useTurnstile();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const parseErrorMessage = async (res) => {
+        const text = await res.text();
+        try {
+            const data = JSON.parse(text);
+            if (data.message) return data.message;
+        } catch {
+            /* plain text */
+        }
+        if (res.status === 403) return 'Captcha verification failed. Please try again.';
+        if (res.status === 429) return 'Too many registration attempts. Please try again later.';
+        if (res.status === 409) return 'An account with this email already exists.';
+        return text || 'Registration failed';
     };
 
     const handleSubmit = async (e) => {
@@ -23,7 +45,12 @@ const Register = () => {
         setError('');
 
         if (formData.password !== formData.confirmPassword) {
-            setError("Les mots de passe ne correspondent pas");
+            setError('Les mots de passe ne correspondent pas');
+            return;
+        }
+
+        if (!captchaReady) {
+            setError('Please complete the captcha verification.');
             return;
         }
 
@@ -37,20 +64,22 @@ const Register = () => {
                     first_name: formData.first_name,
                     last_name: formData.last_name,
                     email: formData.email,
-                    password: formData.password
+                    password: formData.password,
+                    turnstile_token: turnstileToken,
+                    website: formData.website,
                 }),
             });
 
             if (res.ok) {
-                // Success
                 navigate('/login');
-            } else {
-                const data = await res.json(); // Usually backend returns generic text or json
-                // Should check content type of error if simple string
-                setError(data.message || 'Registration failed');
+                return;
             }
+
+            setError(await parseErrorMessage(res));
+            resetTurnstile();
         } catch {
             setError('Connection error. Please try again.');
+            resetTurnstile();
         } finally {
             setLoading(false);
         }
@@ -67,6 +96,23 @@ const Register = () => {
                 {error && <div className="error-msg">{error}</div>}
 
                 <form className="auth-form" onSubmit={handleSubmit}>
+                    {/* Honeypot — leave empty */}
+                    <div
+                        aria-hidden="true"
+                        style={{ position: 'absolute', left: '-9999px', top: '-9999px', height: 0, overflow: 'hidden' }}
+                    >
+                        <label htmlFor="website">Website</label>
+                        <input
+                            type="text"
+                            id="website"
+                            name="website"
+                            tabIndex={-1}
+                            autoComplete="off"
+                            value={formData.website}
+                            onChange={handleChange}
+                        />
+                    </div>
+
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <div className="form-group" style={{ flex: 1 }}>
                             <label>Prénom</label>
@@ -132,6 +178,16 @@ const Register = () => {
                             required
                         />
                     </div>
+
+                    {TURNSTILE_SITE_KEY ? (
+                        <div className="form-group" style={{ display: 'flex', justifyContent: 'center' }}>
+                            <div ref={widgetRef} />
+                        </div>
+                    ) : (
+                        <p style={{ fontSize: '0.85rem', color: '#888', margin: '0 0 12px' }}>
+                            Captcha is not configured for this build (set VITE_TURNSTILE_SITE_KEY).
+                        </p>
+                    )}
 
                     <button type="submit" className="auth-btn btn-primary" disabled={loading}>
                         {loading ? 'Inscription...' : "S'inscrire"}

@@ -1,8 +1,8 @@
 # =============================================================================
-# Essensys support-site + portail distant (mon.essensys.fr)
-# Snippet portail : /etc/nginx/snippets/essensys-portal.conf (Ansible portal_nginx ou cloud_nginx)
-# Consolidé : /api/* → :8080 cloud backend ; Legacy : /api/portal|gateway → :8081
-# Certificats : certbot certonly / enable-https-prod.yml
+# Essensys OVH — www.essensys.fr (support + auth) · mon.essensys.fr (portail SPA)
+# API consolidée : /api/* → :8080 (cloud backend)
+# Test : test.essensys.fr — support + /portal/ (snippet essensys-portal.conf)
+# Certificats : certbot / enable-https-prod.yml
 # =============================================================================
 
 # 1. Test (test.essensys.fr) — HTTP
@@ -93,8 +93,7 @@ server {
     }
 }
 
-# 2. Production — HTTP : exception /api/ pour firmware legacy (BP_MQX_ETH, port 80)
-# Le reste du site redirige vers HTTPS. Voir essensys-client.md et setup_ssl.sh.
+# 2. Production — HTTP : /api/ legacy firmware (port 80) + redirect HTTPS
 server {
     listen 80;
     listen [::]:80;
@@ -124,18 +123,67 @@ server {
     }
 }
 
-# 3. Production — HTTPS (support-site SPA + /portal/ + API)
+# 3. Production — HTTPS portail distant (mon.essensys.fr uniquement)
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name mon.essensys.fr www.essensys.fr gateway.essensys.fr essensys.fr;
+    server_name mon.essensys.fr;
 
     ssl_certificate /etc/letsencrypt/live/mon.essensys.fr/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/mon.essensys.fr/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    include /etc/nginx/snippets/essensys-portal.conf;
+    root /opt/essensys/portal-frontend/dist;
+    index index.html index.htm;
+
+    include /etc/nginx/mime.types;
+    charset utf-8;
+    access_log /var/log/nginx/essensys-portal-access.log;
+    error_log /var/log/nginx/essensys-portal-error.log warn;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Ancien chemin /portal/ → racine
+    location = /portal {
+        return 301 /;
+    }
+
+    location ^~ /portal/ {
+        rewrite ^/portal/?(.*)$ /$1 permanent;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "close";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|webp)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+
+# 4. Production — HTTPS site support (www + apex + gateway)
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name www.essensys.fr gateway.essensys.fr essensys.fr;
+
+    ssl_certificate /etc/letsencrypt/live/mon.essensys.fr/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mon.essensys.fr/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     root /opt/essensys/frontend/dist;
     index index.html index.htm;
@@ -147,6 +195,15 @@ server {
 
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Portail distant → mon.essensys.fr
+    location = /portal {
+        return 301 https://mon.essensys.fr/;
+    }
+
+    location ^~ /portal/ {
+        rewrite ^/portal/?(.*)$ https://mon.essensys.fr/$1 permanent;
+    }
 
     location ^~ /docs/ {
         alias /opt/essensys/docs-site/;
@@ -161,7 +218,6 @@ server {
         try_files $uri /index.html;
     }
 
-    # Démo domotique mockée (build essensys-server-frontend → public/demo/dashboard/)
     location ^~ /demo/dashboard/ {
         try_files $uri $uri/ /demo/dashboard/index.html;
     }

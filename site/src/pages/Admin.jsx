@@ -7,6 +7,7 @@ import LinkRequestsPanel from './LinkRequestsPanel';
 import SyncCloud from './SyncCloud';
 import Catalog from './Catalog';
 import './Catalog.css';
+import './Admin.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -106,6 +107,14 @@ const Admin = () => {
                     window.location.href = data.redirect;
                     return;
                 }
+            }
+            if (res.status === 409) {
+                // password_change_required: the token is still valid, so this
+                // is not a logout. The global fetch guard (lib/
+                // passwordChangeGuard.js) is already redirecting to
+                // /change-password — do nothing here, and in particular do
+                // not wipe the token via handleLogout below.
+                return;
             }
             if (res.ok) {
                 const data = await res.json();
@@ -228,56 +237,77 @@ const Admin = () => {
             <h1>Administration</h1>
 
             <div className="admin-dashboard">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="admin-toolbar">
+                    <div className="admin-tabs" role="tablist" aria-label="Sections administration">
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'dashboard'}
+                            className={`admin-tab${activeTab === 'dashboard' ? ' active' : ''}`}
                             onClick={() => setActiveTab('dashboard')}
-                            style={activeTab === 'dashboard' ? activeTabStyle : inactiveTabStyle}
                         >
                             Tableau de Bord
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'newsletters'}
+                            className={`admin-tab${activeTab === 'newsletters' ? ' active' : ''}`}
                             onClick={() => setActiveTab('newsletters')}
-                            style={activeTab === 'newsletters' ? activeTabStyle : inactiveTabStyle}
                         >
                             Newsletters
                         </button>
                         {getStoredRole() === 'admin_global' && (
                             <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === 'email-templates'}
+                                className={`admin-tab${activeTab === 'email-templates' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('email-templates')}
-                                style={activeTab === 'email-templates' ? activeTabStyle : inactiveTabStyle}
                             >
                                 Modèles email
                             </button>
                         )}
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'users'}
+                            className={`admin-tab${activeTab === 'users' ? ' active' : ''}`}
                             onClick={() => setActiveTab('users')}
-                            style={activeTab === 'users' ? activeTabStyle : inactiveTabStyle}
                         >
                             Utilisateurs
                         </button>
                         {getStoredRole() === 'admin_global' && (
                             <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === 'sync-cloud'}
+                                className={`admin-tab${activeTab === 'sync-cloud' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('sync-cloud')}
-                                style={activeTab === 'sync-cloud' ? activeTabStyle : inactiveTabStyle}
                             >
                                 Sync Cloud
                             </button>
                         )}
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'catalog'}
+                            className={`admin-tab${activeTab === 'catalog' ? ' active' : ''}`}
                             onClick={() => setActiveTab('catalog')}
-                            style={activeTab === 'catalog' ? activeTabStyle : inactiveTabStyle}
                         >
                             Catalogue
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'audit'}
+                            className={`admin-tab${activeTab === 'audit' ? ' active' : ''}`}
                             onClick={() => setActiveTab('audit')}
-                            style={activeTab === 'audit' ? activeTabStyle : inactiveTabStyle}
                         >
                             Audit Trail
                         </button>
                     </div>
-                    <button onClick={handleLogout} style={{ padding: '5px 10px', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    <button type="button" onClick={handleLogout} className="admin-logout-btn">
                         Déconnexion
                     </button>
                 </div>
@@ -398,6 +428,7 @@ const Admin = () => {
                                             <thead>
                                                 <tr>
                                                     <th>Machine ID</th>
+                                                    <th>MAC</th>
                                                     <th>User / Pass</th>
                                                     <th>IP / Location</th>
                                                     <th>Raw Auth (Base64)</th>
@@ -408,6 +439,7 @@ const Admin = () => {
                                                 {machines.map(m => (
                                                     <tr key={m.id}>
                                                         <td>{m.no_serie}</td>
+                                                        <td className="mono">{m.mac_address || '—'}</td>
                                                         <td className="mono">{m.raw_decoded || '-'}</td>
                                                         <td>
                                                             <div>{m.ip || '-'}</div>
@@ -420,7 +452,7 @@ const Admin = () => {
                                                     </tr>
                                                 ))}
                                                 {machines.length === 0 && (
-                                                    <tr><td colSpan="5" className="empty-state">Aucune machine détectée.</td></tr>
+                                                    <tr><td colSpan="6" className="empty-state">Aucune machine détectée.</td></tr>
                                                 )}
                                             </tbody>
                                         </table>
@@ -515,25 +547,6 @@ const Admin = () => {
             </div>
         </div>
     );
-};
-
-const activeTabStyle = {
-    padding: '10px 20px',
-    background: '#00C9FF',
-    color: 'black',
-    border: 'none',
-    borderRadius: '4px',
-    fontWeight: 'bold',
-    cursor: 'pointer'
-};
-
-const inactiveTabStyle = {
-    padding: '10px 20px',
-    background: '#333',
-    color: '#ccc',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer'
 };
 
 export default Admin;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Catalog.css';
+import TemporaryPasswordModal from '../components/TemporaryPasswordModal';
 
 const normalizeGatewayKey = (value) => (value ? value.replace(/^gw-/, '').toLowerCase() : '');
 
@@ -8,6 +9,37 @@ const REMOTE_INELIGIBLE_GATEWAY = 'essensys-server';
 const isRemoteEligibleGateway = (gatewayId) => {
     if (!gatewayId) return true;
     return normalizeGatewayKey(gatewayId) !== REMOTE_INELIGIBLE_GATEWAY;
+};
+
+const userHasPortalGateway = (user) => !!(user?.linked_gateway_id);
+
+const LINK_MODE = {
+    ARMOIRE: 'armoire',
+    GATEWAY: 'gateway',
+    SERVER: 'server',
+};
+
+const inferLinkMode = (user) => {
+    if (user?.linked_gateway_id) {
+        return isRemoteEligibleGateway(user.linked_gateway_id)
+            ? LINK_MODE.GATEWAY
+            : LINK_MODE.SERVER;
+    }
+    if (user?.linked_armoire_id || user?.linked_machine_id) {
+        return LINK_MODE.ARMOIRE;
+    }
+    return LINK_MODE.ARMOIRE;
+};
+
+const linkModeLabel = (mode) => {
+    switch (mode) {
+        case LINK_MODE.GATEWAY:
+            return 'Armoire + gateway (portail + local)';
+        case LINK_MODE.SERVER:
+            return 'Serveur legacy (essensys-server)';
+        default:
+            return 'Armoire seule (portail cloud OVH)';
+    }
 };
 
 const findGateway = (gateways, linkedGatewayId) => {
@@ -34,7 +66,7 @@ const findMachineById = (machines, id) => {
     return machines.find((m) => m.id === id) ?? null;
 };
 
-const formatMachineLabel = (m) => `${m.no_serie} · inv. #${m.id} · IP ${m.ip || '—'}`;
+const formatMachineLabel = (m) => `IP ${m.ip || '—'} · ${m.no_serie} · inv. #${m.id}`;
 
 const sortMachinesForPicker = (machines, gatewayStatus) => {
     const gwIp = gatewayStatus?.ip;
@@ -62,45 +94,250 @@ const findArmoireForGateway = (machines, gatewayStatus) => {
 };
 
 const resolveUserDevices = (user, machines, gateways, portalGateways) => {
+    const linkMode = inferLinkMode(user);
     const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
     const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
     const cloudMachineId = portalGw?.machine_id ?? user.linked_machine_id;
     const remoteEligible = isRemoteEligibleGateway(user.linked_gateway_id);
-    const armoire = remoteEligible && user.linked_armoire_id
-        ? findMachineById(machines, user.linked_armoire_id)
-        : remoteEligible
-            ? findArmoireForGateway(machines, gatewayStatus)
-            : null;
+    const armoireId = user.linked_armoire_id ?? (linkMode === LINK_MODE.ARMOIRE ? user.linked_machine_id : null);
+    const armoire = armoireId ? findMachineById(machines, armoireId) : null;
 
     const gatewayLabel = gatewayStatus?.hostname || user.linked_gateway_id;
-    const gatewaySubtitle = [
-        user.linked_gateway_id && user.linked_gateway_id !== gatewayLabel ? user.linked_gateway_id : null,
-        gatewayStatus?.ip,
-    ].filter(Boolean).join(' · ');
-
-    const serverSubtitle = [
-        portalGw?.eth0_mac ? `eth0 ${portalGw.eth0_mac}` : null,
-        portalGw?.eth1_mac ? `eth1 ${portalGw.eth1_mac}` : null,
-    ].filter(Boolean).join(' · ');
 
     return {
+        linkMode,
         gatewayLabel,
-        gatewaySubtitle,
+        gatewayIp: gatewayStatus?.ip,
+        portalGatewayId: portalGw?.gateway_id,
         cloudMachineId,
-        serverSubtitle,
         armoire,
         remoteEligible,
+        hasGateway: !!(user.linked_gateway_id),
+        hasLinks: linkMode === LINK_MODE.ARMOIRE
+            ? !!(armoire || user.linked_machine_id)
+            : !!(user.linked_gateway_id),
     };
 };
 
-const DeviceCell = ({ title, subtitle, fallback }) => {
-    if (!title && !fallback) {
-        return <span className="device-empty">—</span>;
+const UserLinksSummary = ({
+    user,
+    linkMode,
+    gatewayLabel,
+    gatewayIp,
+    portalGatewayId,
+    cloudMachineId,
+    armoire,
+    hasLinks,
+}) => {
+    if (!hasLinks) {
+        return <span className="links-empty">Aucune liaison</span>;
     }
+
     return (
-        <div className="device-cell">
-            <div>{title || fallback}</div>
-            {subtitle && <div className="device-meta">{subtitle}</div>}
+        <div className="user-links-summary">
+            <div className="link-row">
+                <span className="link-tag">Mode</span>
+                <div className="link-body">
+                    <span className="link-primary">{linkModeLabel(linkMode)}</span>
+                </div>
+            </div>
+            {linkMode === LINK_MODE.GATEWAY && (
+                <>
+                    <div className="link-row">
+                        <span className="link-tag">GW</span>
+                        <div className="link-body">
+                            <span className="link-primary">{portalGatewayId || gatewayLabel || user.linked_gateway_id}</span>
+                            {gatewayIp && <span className="link-meta">{gatewayIp}</span>}
+                        </div>
+                    </div>
+                    <div className="link-row">
+                        <span className="link-tag">Cloud</span>
+                        <div className="link-body">
+                            <span className="link-primary">
+                                {cloudMachineId ? `machine #${cloudMachineId}` : 'non renseigné'}
+                            </span>
+                        </div>
+                    </div>
+                </>
+            )}
+            {linkMode === LINK_MODE.SERVER && (
+                <div className="link-row">
+                    <span className="link-tag">Srv</span>
+                    <div className="link-body">
+                        <span className="link-primary">essensys-server</span>
+                        <span className="link-meta">local uniquement</span>
+                    </div>
+                </div>
+            )}
+            <div className="link-row">
+                <span className="link-tag">Armoire</span>
+                <div className="link-body">
+                    {armoire ? (
+                        <>
+                            <span className="link-primary">{armoire.no_serie}</span>
+                            {armoire.ip && <span className="link-meta">IP {armoire.ip}</span>}
+                        </>
+                    ) : (
+                        <span className="link-muted">non renseignée</span>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const UserRowActions = ({
+    user,
+    adminRole,
+    remoteEligible,
+    onEdit,
+    onResend,
+    onSendPasswordReset,
+    onIssueTemporaryPassword,
+    onRemoveArmoire,
+    onRemovePortalLink,
+    onForbid,
+    onUnforbid,
+    onDelete,
+    menuOpen,
+    onToggleMenu,
+    onCloseMenu,
+}) => {
+    const isGlobalAdmin = adminRole === 'admin_global';
+    const canModerate = canModerateUser(user, adminRole);
+
+    return (
+        <div className="user-row-actions">
+            {isGlobalAdmin && (
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="catalog-button primary"
+                    disabled={!!user.forbidden_at}
+                >
+                    Gérer
+                </button>
+            )}
+            {(isGlobalAdmin || canModerate) && (
+                <div className="actions-dropdown">
+                    <button
+                        type="button"
+                        className="catalog-button ghost actions-dropdown-trigger"
+                        aria-expanded={menuOpen}
+                        aria-haspopup="menu"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleMenu();
+                        }}
+                    >
+                        ⋯
+                    </button>
+                    {menuOpen && (
+                        <>
+                            <button
+                                type="button"
+                                className="actions-dropdown-backdrop"
+                                aria-label="Fermer le menu"
+                                onClick={onCloseMenu}
+                            />
+                            <div
+                                className="actions-dropdown-panel"
+                                role="menu"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {isGlobalAdmin && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onEdit(); }}
+                                        >
+                                            Lier appareils…
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onResend(); }}
+                                        >
+                                            Renvoyer email
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onSendPasswordReset(); }}
+                                        >
+                                            Envoyer un lien de réinitialisation
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            disabled={!!user.forbidden_at}
+                                            onClick={() => { onCloseMenu(); onIssueTemporaryPassword(); }}
+                                        >
+                                            Définir un mot de passe temporaire…
+                                        </button>
+                                        {user.linked_gateway_id && (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                className="danger-text"
+                                                disabled={!!user.forbidden_at}
+                                                onClick={() => { onCloseMenu(); onRemovePortalLink(); }}
+                                            >
+                                                Enlever gateway et serveur
+                                            </button>
+                                        )}
+                                        {remoteEligible && (user.linked_armoire_id || (inferLinkMode(user) === LINK_MODE.ARMOIRE && user.linked_machine_id)) && (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                className="danger-text"
+                                                disabled={!!user.forbidden_at}
+                                                onClick={() => { onCloseMenu(); onRemoveArmoire(); }}
+                                            >
+                                                Enlever armoire
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                                {canModerate && (
+                                    <>
+                                        {(isGlobalAdmin) && <div className="actions-dropdown-divider" />}
+                                        {user.forbidden_at ? (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => { onCloseMenu(); onUnforbid(); }}
+                                            >
+                                                Réautoriser
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => { onCloseMenu(); onForbid(); }}
+                                            >
+                                                Interdire
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            className="danger-text"
+                                            onClick={() => { onCloseMenu(); onDelete(); }}
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
@@ -128,11 +365,16 @@ const UserManager = ({ token }) => {
     const [editMachine, setEditMachine] = useState('');
     const [editGateway, setEditGateway] = useState('');
     const [editArmoire, setEditArmoire] = useState('');
+    const [editLinkMode, setEditLinkMode] = useState(LINK_MODE.ARMOIRE);
 
     // Resend email
     const [resendUser, setResendUser] = useState(null);
     const [resendTemplate, setResendTemplate] = useState('user_welcome');
     const [resendPassword, setResendPassword] = useState('');
+    const [openMenuUserId, setOpenMenuUserId] = useState(null);
+
+    // Temporary password
+    const [tempPassUser, setTempPassUser] = useState(null);
 
     // Default form state
     const [newUser, setNewUser] = useState({
@@ -245,13 +487,28 @@ const UserManager = ({ token }) => {
     };
 
     const openEditModal = (user) => {
+        const mode = inferLinkMode(user);
         setEditingUser(user);
+        setEditLinkMode(mode);
         const gatewayStatus = findGateway(gateways, user.linked_gateway_id);
         const portalGw = findPortalGateway(portalGateways, user.linked_gateway_id);
         const detected = findArmoireForGateway(machines, gatewayStatus);
+        const armoireId = user.linked_armoire_id
+            ?? (mode === LINK_MODE.ARMOIRE ? user.linked_machine_id : detected?.id);
         setEditGateway(gatewayStatus?.hostname || user.linked_gateway_id || '');
         setEditMachine(String(portalGw?.machine_id ?? user.linked_machine_id ?? ''));
-        setEditArmoire(String(user.linked_armoire_id ?? detected?.id ?? ''));
+        setEditArmoire(armoireId ? String(armoireId) : '');
+    };
+
+    const handleLinkModeChange = (mode) => {
+        setEditLinkMode(mode);
+        if (mode === LINK_MODE.ARMOIRE) {
+            setEditGateway('');
+            setEditMachine('');
+        } else if (mode === LINK_MODE.SERVER) {
+            setEditGateway('essensys-server');
+            setEditMachine('');
+        }
     };
 
     const handleGatewayChange = (value) => {
@@ -272,36 +529,146 @@ const UserManager = ({ token }) => {
         }
     };
 
+    const putUserLinks = async (userId, body) => {
+        const res = await fetch(`/api/admin/users/${userId}/links`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || 'Échec mise à jour des liaisons');
+        }
+    };
+
     const handleSaveLinks = async () => {
         if (!editingUser) return;
         try {
-            const portalGw = findPortalGateway(portalGateways, editGateway);
-            const gatewayId = portalGw?.gateway_id || editGateway || null;
-            const remoteEligible = isRemoteEligibleGateway(gatewayId || editGateway);
-            const body = {
-                linked_machine_id: remoteEligible && editMachine ? parseInt(editMachine, 10) : null,
-                linked_gateway_id: gatewayId,
-                linked_armoire_id: remoteEligible && editArmoire ? parseInt(editArmoire, 10) : null,
-            };
+            const portalLinkLocked = userHasPortalGateway(editingUser) && editLinkMode === LINK_MODE.GATEWAY;
+            let body;
 
-            const res = await fetch(`/api/admin/users/${editingUser.id}/links`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (res.ok) {
-                alert('Links updated successfully');
-                setEditingUser(null);
-                fetchUsers(); // Refresh
+            if (editLinkMode === LINK_MODE.ARMOIRE) {
+                if (!editArmoire) {
+                    alert('Sélectionnez une armoire (inventaire OVH)');
+                    return;
+                }
+                const armoireId = parseInt(editArmoire, 10);
+                body = {
+                    linked_gateway_id: null,
+                    linked_machine_id: armoireId,
+                    linked_armoire_id: armoireId,
+                };
+            } else if (editLinkMode === LINK_MODE.SERVER) {
+                body = {
+                    linked_gateway_id: 'essensys-server',
+                    linked_machine_id: null,
+                    linked_armoire_id: editArmoire ? parseInt(editArmoire, 10) : null,
+                };
             } else {
-                alert('Failed to update links');
+                const portalGw = findPortalGateway(portalGateways, editGateway);
+                let gatewayId = portalGw?.gateway_id || editGateway || null;
+                let machineId = editMachine ? parseInt(editMachine, 10) : null;
+
+                if (portalLinkLocked) {
+                    gatewayId = editingUser.linked_gateway_id;
+                    if (editingUser.linked_machine_id) {
+                        machineId = editingUser.linked_machine_id;
+                    }
+                } else if (!gatewayId) {
+                    alert('Sélectionnez une gateway CM5');
+                    return;
+                } else if (!machineId) {
+                    alert('Renseignez le serveur cloud (machine_id)');
+                    return;
+                }
+
+                body = {
+                    linked_machine_id: machineId,
+                    linked_gateway_id: gatewayId,
+                    linked_armoire_id: editArmoire ? parseInt(editArmoire, 10) : null,
+                };
             }
-        } catch {
-            alert('Error updating links');
+
+            await putUserLinks(editingUser.id, body);
+            alert('Liaisons enregistrées');
+            setEditingUser(null);
+            fetchUsers();
+        } catch (err) {
+            alert(err.message || 'Error updating links');
+        }
+    };
+
+    const handleRemovePortalLink = async (userFromRow) => {
+        const target = userFromRow || editingUser;
+        if (!target?.linked_gateway_id) return;
+        if (!window.confirm(
+            `Retirer la gateway et le serveur cloud pour ${target.email} ?\n\nLe portail distant sera désactivé pour cet utilisateur.`,
+        )) {
+            return;
+        }
+        try {
+            await putUserLinks(target.id, {
+                linked_gateway_id: null,
+                linked_machine_id: null,
+                linked_armoire_id: null,
+            });
+            alert('Gateway et serveur cloud retirés');
+            setEditGateway('');
+            setEditMachine('');
+            setEditArmoire('');
+            setEditingUser(null);
+            fetchUsers();
+        } catch (err) {
+            alert(err.message || 'Erreur réseau');
+        }
+    };
+
+    const handleRemoveArmoire = async (userFromRow) => {
+        const target = userFromRow || editingUser;
+        if (!target) return;
+        if (!window.confirm(`Retirer l'armoire liée pour ${target.email} ?`)) {
+            return;
+        }
+        try {
+            const mode = userFromRow ? inferLinkMode(target) : editLinkMode;
+            let body;
+
+            if (mode === LINK_MODE.ARMOIRE) {
+                // Armoire seule : machine_id et armoire_id désignent la même ressource cloud.
+                body = {
+                    linked_gateway_id: null,
+                    linked_machine_id: null,
+                    linked_armoire_id: null,
+                };
+            } else {
+                const gatewayKey = userFromRow
+                    ? target.linked_gateway_id
+                    : (editGateway || target.linked_gateway_id);
+                const portalGw = findPortalGateway(portalGateways, gatewayKey);
+                const gatewayId = portalGw?.gateway_id || gatewayKey || null;
+                const machineId = userFromRow
+                    ? target.linked_machine_id
+                    : (editMachine ? parseInt(editMachine, 10) : target.linked_machine_id);
+                body = {
+                    linked_machine_id: machineId || null,
+                    linked_gateway_id: gatewayId,
+                    linked_armoire_id: null,
+                };
+            }
+
+            await putUserLinks(target.id, body);
+            alert('Armoire retirée');
+            setEditArmoire('');
+            setEditMachine('');
+            if (!userFromRow) {
+                setEditingUser(null);
+            }
+            fetchUsers();
+        } catch (err) {
+            alert(err.message || 'Erreur réseau');
         }
     };
 
@@ -327,6 +694,32 @@ const UserManager = ({ token }) => {
                 const text = await res.text();
                 alert(text || 'Échec envoi email');
             }
+        } catch {
+            alert('Erreur réseau');
+        }
+    };
+
+    const handleSendPasswordReset = async (user) => {
+        if (!window.confirm(`Envoyer un lien de réinitialisation de mot de passe à ${user.email} ?`)) {
+            return;
+        }
+        try {
+            const res = await fetch(`/api/admin/users/${user.id}/password-reset`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error === 'account_forbidden'
+                    ? "Ce compte est interdit : levez l'interdiction avant d'envoyer un lien."
+                    : (data.error || 'Échec de la demande'));
+                return;
+            }
+            // The token is issued even when delivery fails, so surface the
+            // reason rather than implying nothing happened.
+            alert(data.email_sent
+                ? `Lien envoyé à ${user.email} (valable jusqu'au ${new Date(data.expires_at).toLocaleString()}).`
+                : `Lien créé mais email non envoyé : ${data.reason || 'raison inconnue'}`);
         } catch {
             alert('Erreur réseau');
         }
@@ -460,22 +853,13 @@ const UserManager = ({ token }) => {
                                     <th>Email</th>
                                     <th>Nom</th>
                                     <th>Rôle</th>
-                                    <th>Gateway</th>
-                                    <th>Serveur</th>
-                                    <th>Armoire</th>
+                                    <th>Liaisons portail</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {users.map((u) => {
-                                    const {
-                                        gatewayLabel,
-                                        gatewaySubtitle,
-                                        cloudMachineId,
-                                        serverSubtitle,
-                                        armoire,
-                                        remoteEligible,
-                                    } = resolveUserDevices(u, machines, gateways, portalGateways);
+                                    const devices = resolveUserDevices(u, machines, gateways, portalGateways);
 
                                     return (
                                     <tr key={u.id}>
@@ -484,6 +868,9 @@ const UserManager = ({ token }) => {
                                             {u.email}
                                             {u.forbidden_at && (
                                                 <span className="device-warning" style={{ marginLeft: '8px' }}>Interdit</span>
+                                            )}
+                                            {u.password_change_required_at && (
+                                                <span className="temp-password-badge">MDP temporaire</span>
                                             )}
                                         </td>
                                         <td>{u.first_name} {u.last_name}</td>
@@ -510,93 +897,37 @@ const UserManager = ({ token }) => {
                                             </select>
                                         </td>
                                         <td>
-                                            <DeviceCell
-                                                title={gatewayLabel}
-                                                subtitle={gatewaySubtitle || undefined}
-                                                fallback={u.linked_gateway_id}
-                                            />
-                                        </td>
-                                        <td>
-                                            {!remoteEligible ? (
-                                                <span className="device-meta">Portail distant N/A</span>
-                                            ) : (
-                                                <DeviceCell
-                                                    title={cloudMachineId ? `ID ${cloudMachineId}` : undefined}
-                                                    subtitle={serverSubtitle || undefined}
-                                                    fallback={u.linked_machine_id ? String(u.linked_machine_id) : undefined}
-                                                />
-                                            )}
-                                        </td>
-                                        <td>
-                                            {!remoteEligible ? (
-                                                <span className="device-meta">— (essensys-server)</span>
-                                            ) : (
-                                                <DeviceCell
-                                                    title={armoire?.no_serie}
-                                                    subtitle={armoire?.ip ? `IP ${armoire.ip}` : undefined}
-                                                    fallback={armoire ? `ID ${armoire.id}` : undefined}
-                                                />
-                                            )}
+                                            <UserLinksSummary user={u} {...devices} />
                                         </td>
                                         <td className="table-actions">
-                                            {adminRole === 'admin_global' && (
-                                                <>
-                                                <button onClick={() => openEditModal(u)} className="catalog-button ghost" disabled={!!u.forbidden_at}>
-                                                    Lier Appareils
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setResendUser(u);
-                                                        setResendTemplate('user_welcome');
-                                                        setResendPassword('');
-                                                    }}
-                                                    className="catalog-button ghost"
-                                                    style={{ marginLeft: '8px' }}
-                                                    disabled={!!u.forbidden_at}
-                                                >
-                                                    Renvoyer email
-                                                </button>
-                                                </>
-                                            )}
-                                            {canModerateUser(u, adminRole) && (
-                                                <>
-                                                    {u.forbidden_at ? (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleUnforbidUser(u)}
-                                                            className="catalog-button ghost"
-                                                            style={{ marginLeft: '8px' }}
-                                                        >
-                                                            Réautoriser
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleForbidUser(u)}
-                                                            className="catalog-button ghost"
-                                                            style={{ marginLeft: '8px' }}
-                                                        >
-                                                            Interdire
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDeleteUser(u)}
-                                                        className="catalog-button ghost"
-                                                        style={{ marginLeft: '8px', color: '#b91c1c' }}
-                                                    >
-                                                        Supprimer
-                                                    </button>
-                                                </>
-                                            )}
+                                            <UserRowActions
+                                                user={u}
+                                                adminRole={adminRole}
+                                                remoteEligible={devices.remoteEligible}
+                                                menuOpen={openMenuUserId === u.id}
+                                                onToggleMenu={() => setOpenMenuUserId(openMenuUserId === u.id ? null : u.id)}
+                                                onCloseMenu={() => setOpenMenuUserId(null)}
+                                                onEdit={() => openEditModal(u)}
+                                                onResend={() => {
+                                                    setResendUser(u);
+                                                    setResendTemplate('user_welcome');
+                                                    setResendPassword('');
+                                                }}
+                                                onSendPasswordReset={() => handleSendPasswordReset(u)}
+                                                onIssueTemporaryPassword={() => setTempPassUser(u)}
+                                                onRemoveArmoire={() => handleRemoveArmoire(u)}
+                                                onRemovePortalLink={() => handleRemovePortalLink(u)}
+                                                onForbid={() => handleForbidUser(u)}
+                                                onUnforbid={() => handleUnforbidUser(u)}
+                                                onDelete={() => handleDeleteUser(u)}
+                                            />
                                         </td>
                                     </tr>
                                     );
                                 })}
                                 {!loading && users.length === 0 && (
                                     <tr>
-                                        <td colSpan="8" className="empty-state">Aucun utilisateur trouvé.</td>
+                                        <td colSpan="6" className="empty-state">Aucun utilisateur trouvé.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -610,7 +941,8 @@ const UserManager = ({ token }) => {
                 const gw = findGateway(gateways, editGateway);
                 const { onGateway, onLan, others } = sortMachinesForPicker(machines, gw);
                 const selectedArmoire = findMachineById(machines, editArmoire ? parseInt(editArmoire, 10) : null);
-                const remoteEligible = isRemoteEligibleGateway(editGateway);
+                const portalLinkLocked = userHasPortalGateway(editingUser) && editLinkMode === LINK_MODE.GATEWAY;
+                const showGatewayFields = editLinkMode === LINK_MODE.GATEWAY;
 
                 return (
                 <div className="modal-overlay">
@@ -618,17 +950,42 @@ const UserManager = ({ token }) => {
                         <h3>Lier Appareils pour {editingUser.email}</h3>
 
                         <p className="device-meta" style={{ marginBottom: '1rem' }}>
-                            Gateway et serveur cloud pilotent le portail distant.
-                            L&apos;armoire (inventaire OVH) sert au repérage admin — choisissez-la dans la liste.
+                            <strong>1. Armoire seule</strong> — portail <a href="https://mon.essensys.fr/">mon.essensys.fr</a>
+                            {' '}(armoire en HTTPS vers OVH, sans CM5).
+                            <br />
+                            <strong>2. Armoire + gateway</strong> — portail cloud + interface locale{' '}
+                            <code>mon.essensys.local/login</code>.
+                            <br />
+                            <strong>3. Serveur legacy</strong> — essensys-server, local uniquement (pas de portail distant).
                         </p>
 
                         <label className="field">
-                            <span>Gateway</span>
+                            <span>Mode de liaison</span>
+                            <select
+                                value={editLinkMode}
+                                onChange={(e) => handleLinkModeChange(e.target.value)}
+                            >
+                                <option value={LINK_MODE.ARMOIRE}>1 — Armoire seule (portail OVH)</option>
+                                <option value={LINK_MODE.GATEWAY}>2 — Armoire + gateway CM5</option>
+                                <option value={LINK_MODE.SERVER}>3 — Serveur legacy (essensys-server)</option>
+                            </select>
+                        </label>
+
+                        {portalLinkLocked && (
+                            <p className="link-hint" style={{ marginBottom: '1rem' }}>
+                                Gateway et serveur cloud verrouillés dans les listes. Utilisez le bouton pour tout retirer.
+                            </p>
+                        )}
+
+                        {showGatewayFields && (
+                        <label className="field">
+                            <span>Gateway CM5</span>
                             <select
                                 value={editGateway}
                                 onChange={(e) => handleGatewayChange(e.target.value)}
+                                disabled={portalLinkLocked}
                             >
-                                <option value="">-- Aucune --</option>
+                                {!portalLinkLocked && <option value="">-- Choisir une gateway --</option>}
                                 {gateways.map((g) => {
                                     const portalGw = findPortalGateway(portalGateways, g.hostname)
                                         ?? findPortalGateway(portalGateways, `gw-${g.hostname}`);
@@ -653,14 +1010,15 @@ const UserManager = ({ token }) => {
                                     ))}
                             </select>
                         </label>
+                        )}
 
-                        {!remoteEligible && editGateway && (
+                        {editLinkMode === LINK_MODE.SERVER && (
                             <p className="device-warning">
-                                essensys-server : pas de portail distant mon.essensys.fr.
-                                Seule la gateway peut être enregistrée (sans armoire ni serveur cloud).
+                                Mode serveur legacy : pas d&apos;accès au portail distant mon.essensys.fr.
                             </p>
                         )}
 
+                        {showGatewayFields && (
                         <label className="field">
                             <span>Serveur cloud (machine_id)</span>
                             <input
@@ -669,19 +1027,22 @@ const UserManager = ({ token }) => {
                                 value={editMachine}
                                 onChange={(e) => setEditMachine(e.target.value)}
                                 placeholder="Ex. 19"
-                                disabled={!remoteEligible}
+                                disabled={portalLinkLocked}
+                                readOnly={portalLinkLocked}
                             />
                         </label>
+                        )}
 
                         <label className="field">
-                            <span>Armoire (inventaire OVH)</span>
+                            <span>Armoire (inventaire OVH){editLinkMode === LINK_MODE.ARMOIRE ? '' : ' — optionnel'}</span>
                             <select
                                 value={editArmoire}
                                 onChange={(e) => setEditArmoire(e.target.value)}
-                                disabled={!remoteEligible}
                             >
                                 <option value="">
-                                    {remoteEligible ? '-- Choisir une armoire --' : '-- Non applicable (essensys-server) --'}
+                                    {editLinkMode === LINK_MODE.ARMOIRE
+                                        ? '-- Choisir une armoire --'
+                                        : '-- Aucune --'}
                                 </option>
                                 {onGateway.length > 0 && (
                                     <optgroup label={`Sur la gateway (${gw?.ip || 'IP'})`}>
@@ -710,6 +1071,30 @@ const UserManager = ({ token }) => {
                                 Armoire sélectionnée : {selectedArmoire.no_serie} · inv. #{selectedArmoire.id}
                                 {selectedArmoire.ip ? ` · IP ${selectedArmoire.ip}` : ''}
                             </p>
+                        )}
+
+                        {portalLinkLocked && (
+                            <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemovePortalLink()}
+                                    className="catalog-button danger"
+                                >
+                                    Enlever gateway et serveur du user
+                                </button>
+                            </div>
+                        )}
+
+                        {(editArmoire || editingUser.linked_armoire_id) && (
+                            <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveArmoire()}
+                                    className="catalog-button danger"
+                                >
+                                    Enlever armoire du user
+                                </button>
+                            </div>
                         )}
 
                         <div className="modal-actions">
@@ -751,6 +1136,25 @@ const UserManager = ({ token }) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {tempPassUser && (
+                <TemporaryPasswordModal
+                    user={tempPassUser}
+                    token={token}
+                    // The list refresh (for the badge) waits until the modal
+                    // closes, not the moment the password is issued: firing
+                    // it immediately raced the still-open modal when the
+                    // target was the admin's own account — issuance locks
+                    // that same session server-side, so the very next
+                    // fetchUsers() came back 409 and the app-wide redirect
+                    // (lib/passwordChangeGuard.js) tore the modal down
+                    // before the password could be read.
+                    onClose={() => {
+                        setTempPassUser(null);
+                        fetchUsers();
+                    }}
+                />
             )}
         </div>
     );

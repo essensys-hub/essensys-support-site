@@ -235,6 +235,15 @@
   cursor: wait;
 }
 
+/* Blocked by form validation rather than by an in-flight request, so it must
+   not borrow the "busy" cursor the plain :disabled rule uses. */
+.auth-btn.btn-primary.is-blocked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 .auth-remember {
   display: flex;
   flex-direction: row;
@@ -252,6 +261,27 @@
   height: 1rem;
   accent-color: var(--auth-cyan, #00c9ff);
   cursor: pointer;
+}
+
+/* Pairs the "remember me" checkbox with the recovery link on one line. Wraps
+   rather than shrinks so the link stays legible on a narrow phone. */
+.auth-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 0.25rem;
+}
+
+.auth-form-row .auth-remember {
+  margin-top: 0;
+}
+
+.auth-link-forgot {
+  margin-left: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .auth-remember label {
@@ -338,6 +368,14 @@
   text-decoration: underline;
 }
 
+.auth-link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
 .error-msg {
   color: #ff8a8a;
   background: rgba(255, 107, 107, 0.12);
@@ -346,6 +384,45 @@
   margin-bottom: 1rem;
   font-size: 0.9rem;
   text-align: center;
+}
+
+.success-msg {
+  color: #7ee7a8;
+  background: rgba(46, 204, 113, 0.12);
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-hint {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0 0 1rem;
+}
+
+.auth-strength {
+  font-size: 0.78rem;
+  margin: 0.35rem 0 0;
+  /* Reserve the line so validation feedback does not shift the form. */
+  min-height: 1rem;
+}
+
+.auth-strength.is-weak {
+  color: #ff8a8a;
+}
+
+.auth-strength.is-ok {
+  color: #7ee7a8;
+}
+
+/* Lets a router Link share the primary button styling. */
+.auth-btn-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {

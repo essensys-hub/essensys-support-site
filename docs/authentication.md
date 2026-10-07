@@ -52,3 +52,19 @@ Apple est plus complexe car il nécessite une clé privée `.p8` et gère les ca
 > [!WARNING]
 > Apple renvoie la réponse d'authentification via une requête **POST**.
 > Le Backend a été configuré pour gérer spécifiquement ce cas (Cookie `SameSite=None`), mais cela peut causer des erreurs 405 si Nginx ou le routeur bloquent les POST sur cette URL.
+
+---
+
+## Email / password registration + Cloudflare Turnstile
+
+Public self-registration (`/register` → `POST /api/auth/register`) requires **Cloudflare Turnstile**
+server-side verification on the consolidated cloud backend.
+
+| Variable | Where |
+|----------|--------|
+| `VITE_TURNSTILE_SITE_KEY` | Support-site Vite build (public) |
+| `TURNSTILE_SECRET_KEY` | cloud-backend `.env` via SOPS `vault_turnstile_secret_key` |
+
+See [turnstile-registration.md](./turnstile-registration.md) for ops, hostnames, CI test keys, and rollback.
+
+Admin User Manager create user does **not** use Turnstile.
