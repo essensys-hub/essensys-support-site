@@ -21,6 +21,18 @@ import NewRelicPageTracker from './observability/NewRelicPageTracker';
 import LinkClickTracker from './observability/LinkClickTracker';
 import './App.css';
 
+const ANDROID_RELEASE_URL = 'https://github.com/essensys-hub/essensys-android-phone-apps/releases/tag/android-v2.0.0';
+const ANDROID_APK_URL = 'https://github.com/essensys-hub/essensys-android-phone-apps/releases/download/android-v2.0.0/essensys-android-2.0.0.apk';
+// Play Protect bloque par défaut une app installée hors Play Store et peu répandue (essensys-android-phone-apps#9).
+const ANDROID_INSTALL_STEPS = [
+  <>Si l'ancienne version (1.0) est installée, <strong>désinstallez-la</strong>.</>,
+  <>Appuyez sur <strong>Télécharger l'APK</strong> depuis votre téléphone Android, puis ouvrez le fichier téléchargé (notification, ou application <strong>Fichiers → Téléchargements</strong>).</>,
+  <>Si Android le demande, <strong>autorisez l'installation depuis cette source</strong> (Chrome ou Fichiers).</>,
+  <>Si <strong>Play Protect</strong> affiche « Application bloquée » : c'est normal pour une application installée hors du Play Store. <strong>N'appuyez pas sur « OK »</strong>, qui annule l'installation : appuyez sur <strong>Plus de détails</strong>, puis sur <strong>Installer quand même</strong>.</>,
+  <>Sur Xiaomi (HyperOS/MIUI), un écran d'analyse de sécurité peut suivre : attendez la fin du compte à rebours, puis confirmez.</>,
+  <>Ouvrez <strong>Mon Essensys</strong> et connectez-vous avec votre compte du portail <strong>mon.essensys.fr</strong>.</>,
+];
+
 function App() {
   return (
     <BrowserRouter>
@@ -62,8 +74,10 @@ function App() {
               <DownloadPage
                 platform="Android"
                 title="Essensys pour Android"
-                instructions="Téléchargez le fichier .apk et autorisez l'installation depuis des sources inconnues."
-                buttonText="En cours de test (Pas encore publié)"
+                downloadUrl={ANDROID_APK_URL}
+                buttonText="Télécharger l'APK (version 2.0.0)"
+                steps={ANDROID_INSTALL_STEPS}
+                note={<>Empreinte SHA-256 et notes de version : <a href={ANDROID_RELEASE_URL} target="_blank" rel="noopener noreferrer">release 2.0.0 sur GitHub</a>.</>}
               />
             }
           />
