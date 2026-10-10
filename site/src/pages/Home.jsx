@@ -1,20 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import iosHome from '../assets/ios-app-home.png';
 import iosLighting from '../assets/ios-app-lighting.png';
 import android1 from '../assets/app_android_001.png';
 import android2 from '../assets/app_android_002.png';
 
 const REPORT_LINKS = {
-    bug: 'https://github.com/essensys-hub/essensys-support-site/issues/new?template=bug_report.yml',
-    incident: 'https://github.com/essensys-hub/essensys-support-site/issues/new?template=incident.yml',
     board: 'https://github.com/orgs/essensys-hub/projects/6',
 };
 
 const readToken = () => localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 
 const Home = () => {
-    // Le signalement est réservé aux utilisateurs Essensys connectés (support-site#6).
+    // Le signalement est réservé aux utilisateurs Essensys connectés (support-site#6) ;
+    // il passe par le formulaire /signaler, sans compte GitHub (support-reports-2026-10-004).
+    const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = React.useState(() => Boolean(readToken()));
 
     React.useEffect(() => {
@@ -155,7 +155,7 @@ const Home = () => {
                     <div className="features report-cards">
                         <div
                             className="feature-card clickable report-card report-card-bug"
-                            onClick={() => window.open(REPORT_LINKS.bug, '_blank', 'noopener,noreferrer')}
+                            onClick={() => navigate('/signaler?type=bug')}
                         >
                             <h3>Bug logiciel</h3>
                             <p>
@@ -166,7 +166,7 @@ const Home = () => {
                         </div>
                         <div
                             className="feature-card clickable report-card report-card-incident"
-                            onClick={() => window.open(REPORT_LINKS.incident, '_blank', 'noopener,noreferrer')}
+                            onClick={() => navigate('/signaler?type=incident')}
                         >
                             <h3>Incident production</h3>
                             <p>
@@ -179,7 +179,7 @@ const Home = () => {
                 ) : (
                     <div className="report-login">
                         <p>Connectez-vous avec votre compte Essensys pour déclarer un bug ou un incident.</p>
-                        <Link to={`/login?return=${encodeURIComponent('/#signaler')}`} className="report-login-btn">
+                        <Link to={`/login?return=${encodeURIComponent('/signaler')}`} className="report-login-btn">
                             Se connecter pour signaler
                         </Link>
                     </div>

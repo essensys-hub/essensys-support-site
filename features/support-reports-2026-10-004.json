@@ -1,0 +1,116 @@
+{
+  "$schema": "./schema/feature.schema.json",
+  "id": "support-reports-2026-10-004",
+  "title": "Signalement de bugs et d'incidents sans compte GitHub — site",
+  "status": "in-progress",
+  "owner": "nrineau",
+  "github": {
+    "issue": "essensys-hub/essensys-feature-lifecycle#15",
+    "project_item": "PVTI_lADODqt0Wc4BavHTzg_1tE8"
+  },
+  "git": {
+    "branch": "feat/support-reports-2026-10-004",
+    "pr_url": null
+  },
+  "openspec": {
+    "change_id": "support-reports-2026-10-004",
+    "path": "../essensys-memory/openspec/changes/support-reports-2026-10-004",
+    "proposal": "../essensys-memory/openspec/changes/support-reports-2026-10-004/proposal.md",
+    "design": "../essensys-memory/openspec/changes/support-reports-2026-10-004/design.md",
+    "tasks": "../essensys-memory/openspec/changes/support-reports-2026-10-004/tasks.md",
+    "specs": [
+      "../essensys-memory/openspec/changes/support-reports-2026-10-004/specs/support-report-submission/spec.md",
+      "../essensys-memory/openspec/changes/support-reports-2026-10-004/specs/support-report-tracking/spec.md"
+    ]
+  },
+  "implementation": {
+    "paths": [
+      "site/src/pages/Report.jsx",
+      "site/src/pages/Report.css",
+      "site/src/components/MyReports.jsx",
+      "site/src/lib/supportReports.js",
+      "site/src/pages/Profile.jsx",
+      "site/src/pages/Home.jsx",
+      "site/src/App.jsx"
+    ],
+    "primary_surface": "react-user"
+  },
+  "userguide": {
+    "pages": [
+      "docs/features/support-reports.md"
+    ],
+    "language": "fr",
+    "i18n_keys": [],
+    "screenshots": [
+      "site/ux-evidence/screenshots/support-report-iphone.png",
+      "site/ux-evidence/screenshots/my-reports-desktop.png"
+    ]
+  },
+  "tests": {
+    "playwright": [
+      "site/e2e/support-reports.spec.js"
+    ],
+    "coverage_must_test": [
+      "avertissement visible au-dessus des champs libres sans défilement horizontal",
+      "refus 422 affiché sous le champ et saisie conservée",
+      "visiteur invité à se connecter sans formulaire",
+      "incident sans lien GitHub dans Mes signalements",
+      "signalement accepté : référence affichée",
+      "limite atteinte : bandeau 429 avec la date du prochain essai",
+      "accueil connecté : la carte Incident ouvre le formulaire Incident"
+    ],
+    "smoke_tags": [
+      "@nr",
+      "@ux"
+    ],
+    "ux_matrix": {
+      "required": true,
+      "devices": [
+        "desktop",
+        "iphone",
+        "ipad"
+      ],
+      "targets": [
+        "support"
+      ],
+      "required_projects": [
+        "support-desktop",
+        "support-iphone",
+        "support-ipad"
+      ],
+      "screenshots_required": true,
+      "visual_regression_required": true,
+      "no_armoire_required": true
+    }
+  },
+  "release": {
+    "changelog_entry": "Formulaire « Signaler un problème » (Bug ou Incident) sans compte GitHub, avertissement adresse postale et mot de passe, rubrique Mes signalements dans le profil.",
+    "target_tag": null,
+    "surfaces": [
+      "essensys-support-site"
+    ],
+    "paths": [
+      "site/src/pages/Report.jsx",
+      "site/src/components/MyReports.jsx"
+    ]
+  },
+  "security": {
+    "sca_tool": "dependabot",
+    "dependabot_alerts_url": null,
+    "last_scan_at": null,
+    "cve_findings": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "secret_scan": {
+      "status": "clean",
+      "tool": "gitleaks",
+      "last_scan_at": null
+    },
+    "muted_findings": [],
+    "threat_model_url": "../essensys-memory/openspec/changes/support-reports-2026-10-004/design.md",
+    "owner_security": "nrineau"
+  }
+}
