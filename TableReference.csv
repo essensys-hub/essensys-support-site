@@ -1,0 +1,151 @@
+;Zone;Piece;Categorie;Keys;Value;description;ACTION
+;Chauffage Zone Nuit;NULL;Chauffage;350;1;Automatique (planning);NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;32;Anticipé;NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;17;Forçage confort;NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;18;Forçage éco;NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;19;Forçage éco+;NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;20;Forçage éco++;NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;21;Forçage hors gel;NULL
+;Chauffage Zone Nuit;NULL;Chauffage;350;16;OFF;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;1;Automatique (planning);NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;32;Anticipé;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;17;Forçage confort;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;18;Forçage éco;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;19;Forçage éco+;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;20;Forçage éco++;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;21;Forçage hors gel;NULL
+;Chauffage Salle de bain 1;NULL;Chauffage;351;16;OFF;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;1;Automatique (planning);NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;32;Anticipé;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;17;Forçage confort;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;18;Forçage éco;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;19;Forçage éco+;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;20;Forçage éco++;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;21;Forçage hors gel;NULL
+;Chauffage Salle de bain 2;NULL;Chauffage;352;16;OFF;NULL
+;Cumulus;NULL;Chauffage;353;0;Automatique (ON) ;NULL
+;Cumulus;NULL;Chauffage;353;1;Suivi HP/HC;NULL
+;Cumulus;NULL;Chauffage;353;2;OFF;NULL
+;Arrosage;NULL;ARROSAGE;363;255;Automatique (planning);NULL
+;Arrosage;NULL;ARROSAGE;363;15;Forçage arrosage 15 minutes;NULL
+;Arrosage;NULL;ARROSAGE;363;30;Forçage arrosage 30 minutes;NULL
+;Arrosage;NULL;ARROSAGE;363;60;Forçage arrosage 1 heure;NULL
+;Arrosage;NULL;ARROSAGE;363;0;OFF;NULL
+;Prises de sécurité;NULL;SECURITE;440;0;securiteprise On;Allumé
+;Prises de sécurité;NULL;SECURITE;440;1;securiteprise Off;Eteindre
+;Volet 1;Salon;Volets roulants et store;617;1;volet1salon Open;Ouvrir
+;Volet 1;Salon;Volets roulants et store;620;1;volet1salon Close;Fermer
+;Volet 2;Salon;Volets roulants et store;617;2;volet2salon Open;Ouvrir
+;Volet 2;Salon;Volets roulants et store;620;2;volet2salon Close;Fermer
+;Chauffage Zone Jour;NULL;Chauffage;349;1;Automatique (planning);NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;32;Anticipé;NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;17;Forçage confort;NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;18;Forçage éco;NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;19;Forçage éco+;NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;20;Forçage éco++;NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;21;Forçage hors gel;NULL
+;Chauffage Zone Jour;NULL;Chauffage;349;16;OFF;NULL
+;Volet 3;Salon;Volets roulants et store;617;4;volet3salon Open;Ouvrir
+;Volet 3;Salon;Volets roulants et store;620;4;volet3salon Close;Fermer
+;Volet 1;Salle à Manger;Volets roulants et store;617;8;volet1salleamanger Open;Ouvrir
+;Volet 1;Salle à Manger;Volets roulants et store;620;8;volet1salleamanger Close;Fermer
+;Volet 2;Salle à Manger;Volets roulants et store;617;16;volet2salleamanger Open;Ouvrir
+;Volet 2;Salle à Manger;Volets roulants et store;620;16;volet2salleamanger Close;Fermer
+;Volet 1;Cuisine;Volets roulants et store;619;1;volet1cuisine Open;Ouvrir
+;Volet 1;Cuisine;Volets roulants et store;622;1;volet1cuisine Close;Fermer
+;Volet 2;Cuisine;Volets roulants et store;619;2;volet2cuisine Open;Ouvrir
+;Volet 2;Cuisine;Volets roulants et store;622;2;volet2cuisine Close;Fermer
+;Volet Salle de Bain 1;NULL;Volets roulants et store;619;4;voletsdb Open;Ouvrir
+;Volet Salle de Bain 1;NULL;Volets roulants et store;622;4;voletsdb Close;Fermer
+;Volet 1;Grande Chambre;Volets roulants et store;618;1;volet1gdchamb Open;Ouvrir
+;Volet 1;Grande Chambre;Volets roulants et store;621;1;volet1gdchamb Close;Fermer
+;Volet 2;Grande Chambre;Volets roulants et store;618;2;volet2gdchamb Open;Ouvrir
+;Volet 2;Grande Chambre;Volets roulants et store;621;2;volet2gdchamb Close;Fermer
+;Volet 1;Petite Chambre 1;Volets roulants et store;618;4;volet1ptchamb Open;Ouvrir
+;Volet 1;Petite Chambre 1;Volets roulants et store;621;4;volet1ptchamb Close;Fermer
+;Volet 2;Petite Chambre 2;Volets roulants et store;618;8;volet2ptchamb Open;Ouvrir
+;Volet 2;Petite Chambre 2;Volets roulants et store;621;8;volet2ptchamb Close;Fermer
+;Volet 3;Petite Chambre 3;Volets roulants et store;618;16;volet3ptchamb Open;Ouvrir
+;Volet 3;Petite Chambre 3;Volets roulants et store;621;16;volet3ptchamb Close;Fermer
+;Volet Bureau;NULL;Volets roulants et store;617;32;voletbureau Open;Ouvrir
+;Volet Bureau;NULL;Volets roulants et store;620;32;voletbureau Close;Fermer
+;Store;NULL;Volets roulants et store;619;8;store Open;Ouvrir
+;Store;NULL;Volets roulants et store;622;8;store Close;Fermer
+;terrasse;NULL;Eclairages - Principaux;616;4;terrasse Open;Allumer
+;terrasse;NULL;Eclairages - Principaux;610;4;terrasse Close;Eteindre
+;entree;NULL;Eclairages - Principaux;611;1;entree Open;Allumer
+;entree;NULL;Eclairages - Principaux;605;1;entree Close;Eteindre
+;escalier;NULL;Eclairages - Principaux;613;1;escalier Open;Allumer
+;escalier;NULL;Eclairages - Principaux;607;1;escalier Close;Eteindre
+;deg1;NULL;Eclairages - Principaux;616;1;deg1 Open;Allumer
+;deg1;NULL;Eclairages - Principaux;610;1;deg1 Close;Eteindre
+;deg2;NULL;Eclairages - Principaux;616;2;deg2 Open;Allumer
+;deg2;NULL;Eclairages - Principaux;610;2;deg2 Close;Eteindre
+;Pièce de service;NULL;Eclairages - Principaux;615;128;pieceserv Open;Allumer
+;Pièce de service;NULL;Eclairages - Principaux;609;128;pieceserv Close;Eteindre
+;Annexe 1;NULL;Eclairages - Principaux;616;8;ann1 Open;Allumer
+;Annexe 1;NULL;Eclairages - Principaux;610;8;ann1 Close;Eteindre
+;Annexe 2;NULL;Eclairages - Principaux;616;16;ann2 Open;Allumer
+;Annexe 2;NULL;Eclairages - Principaux;610;16;ann2 Close;Eteindre
+;Salon;NULL;Eclairages - Principaux;612;128;salon Open;Allumer
+;Salon;NULL;Eclairages - Principaux;606;128;salon Close;Eteindre
+;Salle à Manger;NULL;Eclairages - Principaux;612;64;salleamanger Open;Allumer
+;Salle à Manger;NULL;Eclairages - Principaux;606;64;salleamanger Close;Eteindre
+;Cuisine;NULL;Eclairages - Principaux;615;1;cuisine Open;Allumer
+;Cuisine;NULL;Eclairages - Principaux;609;1;cuisine Close;Eteindre
+;Salle de Bain 1;NULL;Eclairages - Principaux;616;128;sdb1 Open;Allumer
+;Salle de Bain 1;NULL;Eclairages - Principaux;610;128;sdb1 Close;Eteindre
+;Salle de Bain 2;NULL;Eclairages - Principaux;615;8;sdb2 Open;Allumer
+;Salle de Bain 2;NULL;Eclairages - Principaux;609;8;sdb2 Close;Eteindre
+;WC 1;NULL;Eclairages - Principaux;615;32;wc1 Open;Allumer
+;WC 1;NULL;Eclairages - Principaux;609;32;wc1 Close;Eteindre
+;WC 2;NULL;Eclairages - Principaux;615;64;wc2 Open;Allumer
+;WC 2;NULL;Eclairages - Principaux;609;64;wc2 Close;Eteindre
+;Grande Chambre;NULL;Eclairages - Principaux;614;128;gdchamb Open;Allumer
+;Grande Chambre;NULL;Eclairages - Principaux;608;128;gdchamb Close;Eteindre
+;Petite Chambre 1;NULL;Eclairages - Principaux;614;64;ptchamb1 Open;Allumer
+;Petite Chambre 1;NULL;Eclairages - Principaux;608;64;ptchamb1 Close;Eteindre
+;Petite Chambre 2;NULL;Eclairages - Principaux;614;32;ptchamb2 Open;Allumer
+;Petite Chambre 2;NULL;Eclairages - Principaux;608;32;ptchamb2 Close;Eteindre
+;Petite Chambre 3;NULL;Eclairages - Principaux;614;16;ptchamb3 Open;Allumer
+;Petite Chambre 3;NULL;Eclairages - Principaux;608;16;ptchamb3 Close;Eteindre
+;Dressing;NULL;Eclairages - Principaux;611;8;dressing Open;Allumer
+;Dressing;NULL;Eclairages - Principaux;605;8;dressing Close;Eteindre
+;Salon (indirect 1);NULL;Eclairages - Indirects;611;2;isalonind Open;Allumer
+;Salon (indirect 1);NULL;Eclairages - Indirects;605;2;isalonind Close;Eteindre
+;Salon (indirect 2);NULL;Eclairages - Indirects;611;4;isalonind2 Open;Allumer
+;Salon (indirect 2);NULL;Eclairages - Indirects;605;4;isalonind2 Close;Eteindre
+;Cuisine (plans de travail);NULL;Eclairages - Indirects;615;2;icuisine Open;Allumer
+;Cuisine (plans de travail);NULL;Eclairages - Indirects;609;2;icuisine Close;Eteindre
+;Salle de Bain 1 (miroir);NULL;Eclairages - Indirects;615;4;isdb1 Open;Allumer
+;Salle de Bain 1 (miroir);NULL;Eclairages - Indirects;609;4;isdb1 Close;Eteindre
+;Salle de Bain 2 (miroir);NULL;Eclairages - Indirects;615;16;isdb2 Open;Allumer
+;Salle de Bain 2 (miroir);NULL;Eclairages - Indirects;609;16;isdb2 Close;Eteindre
+;Grande Chambre (chevet 1);NULL;Eclairages - Indirects;613;2;igdchamb1 Open;Allumer
+;Grande Chambre (chevet 1);NULL;Eclairages - Indirects;607;2;igdchamb1 Close;Eteindre
+;Grande Chambre (chevet 2);NULL;Eclairages - Indirects;613;4;igdchamb2 Open;Allumer
+;Grande Chambre (chevet 2);NULL;Eclairages - Indirects;607;4;igdchamb2 Close;Eteindre
+;Petite Chambre 1 (chevet 1);NULL;Eclairages - Indirects;613;8;iptchamb1 Open;Allumer
+;Petite Chambre 1 (chevet 1);NULL;Eclairages - Indirects;607;8;iptchamb1 Close;Eteindre
+;Petite Chambre 1 (chevet 2);NULL;Eclairages - Indirects;613;16;iptchamb2 Open;Allumer
+;Petite Chambre 1 (chevet 2);NULL;Eclairages - Indirects;607;16;iptchamb2 Close;Eteindre
+;Petite Chambre 2 (chevet);NULL;Eclairages - Indirects;613;32;iptchamb22 Open;Allumer
+;Petite Chambre 2 (chevet);NULL;Eclairages - Indirects;607;32;iptchamb22 Close;Eteindre
+;Petite Chambre 3 (chevet);NULL;Eclairages - Indirects;613;64;iptchamb3 Open;Allumer
+;Petite Chambre 3 (chevet);NULL;Eclairages - Indirects;607;64;iptchamb3 Close;Eteindre
+;Dressing (placards);NULL;Eclairages - Indirects;611;16;idressing Open;Allumer
+;Dressing (placards);NULL;Eclairages - Indirects;605;16;idressing Close;Eteindre
+;Alarme;NULL;Sécurité;593;1;alarme On;Activer
+;Alarme;NULL;Sécurité;593;2;alarme Off;Désactiver
+;Sécurité;NULL;Sécurité;623;1;securite Couper prises;Couper
+;Sécurité;NULL;Sécurité;623;2;securite Remettre prises;Rétablir
+;Machines;NULL;Sécurité;624;1;machines Couper;Couper
+;Machines;NULL;Sécurité;624;2;machines Remettre;Rétablir
+;Scenario;NULL;Scénarios;590;1;Scenario 1 (Réservé Internet);Déclencher
+;Scenario;NULL;Scénarios;590;2;Scenario 2 (Je sors);Déclencher
+;Scenario;NULL;Scénarios;590;3;Scenario 3 (Je pars en vacances);Déclencher
+;Scenario;NULL;Scénarios;590;4;Scenario 4 (Je rentre);Déclencher
+;Scenario;NULL;Scénarios;590;5;Scenario 5 (Je vais me coucher);Déclencher
+;Scenario;NULL;Scénarios;590;6;Scenario 6 (Je me lève);Déclencher
+;Scenario;NULL;Scénarios;590;7;Scenario 7 (Personnalisé 1);Déclencher
+;Scenario;NULL;Scénarios;590;8;Scenario 8 (Personnalisé 2);Déclencher
