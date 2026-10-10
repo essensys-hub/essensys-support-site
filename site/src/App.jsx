@@ -10,6 +10,7 @@ import ResetPassword from './pages/ResetPassword';
 import ChangePassword from './pages/ChangePassword';
 import Profile from './pages/Profile';
 import Report from './pages/Report';
+import Guide from './pages/Guide';
 import CookieConsent from './components/CookieConsent';
 import DownloadPage from './pages/DownloadPage';
 import RaspberryPi from './pages/RaspberryPi';
@@ -56,6 +57,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/signaler" element={<Report />} />
+          <Route path="/guide" element={<Guide />} />
+          <Route path="/guide/:slug" element={<Guide />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route
             path="ios"

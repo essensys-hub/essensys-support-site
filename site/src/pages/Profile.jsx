@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css'; // Reuse Auth styles for consistency
 import MyReports from '../components/MyReports';
 
@@ -285,6 +285,10 @@ const Profile = () => {
                 </div>
 
                 <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
+
+                <p style={{ textAlign: 'left' }}>
+                    Besoin d'aide pour utiliser le portail ? <Link to="/guide">Guide du portail</Link>
+                </p>
 
                 <MyReports token={token} />
 

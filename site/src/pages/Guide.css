@@ -1,0 +1,105 @@
+.guide-page {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.guide-panel {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: rgba(255, 255, 255, 0.92);
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.guide-primary {
+  display: inline-block;
+  padding: 0.75rem 1.4rem;
+  border-radius: 8px;
+  background: #00C9FF;
+  color: #0F172A;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.guide-intro {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.guide-toc {
+  padding-left: 1.4rem;
+  line-height: 1.5;
+}
+
+.guide-toc li {
+  margin-bottom: 0.75rem;
+}
+
+.guide-toc a {
+  font-weight: 600;
+}
+
+.guide-summary {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.guide-breadcrumb {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.guide-article img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 0.75rem 0;
+}
+
+.guide-article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.guide-article th,
+.guide-article td {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.guide-article blockquote {
+  margin: 1rem 0;
+  padding: 0.6rem 1rem;
+  border-left: 4px solid #00C9FF;
+  background: rgba(0, 201, 255, 0.08);
+}
+
+.guide-article li {
+  margin-bottom: 0.35rem;
+  line-height: 1.55;
+}
+
+.guide-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 640px) {
+  .guide-panel {
+    padding: 1rem;
+  }
+}

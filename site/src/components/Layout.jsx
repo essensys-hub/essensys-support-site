@@ -49,6 +49,7 @@ const Layout = () => {
             <a href={portalHref(adminToken, adminRole)} className="nav-btn-login" onClick={closeMenu} target="_blank" rel="noopener noreferrer">
                 Portail
             </a>
+            <Link to="/guide" className="nav-btn-login" onClick={closeMenu}>Guide</Link>
             <Link to="/profile" className="nav-btn-login" onClick={closeMenu}>Profil</Link>
             {['admin_global', 'admin_local', 'admin'].includes(adminRole) && (
                 <Link to="/admin" className="nav-btn-login" onClick={closeMenu}>Dashboard</Link>

@@ -24,3 +24,5 @@ clients.txt
 
 # Security/test artifacts
 .artifacts/
+site/guide-screenshots/
+site/public/guide-data/
