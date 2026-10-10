@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import iosHome from '../assets/ios-app-home.png';
 import iosLighting from '../assets/ios-app-lighting.png';
 import android1 from '../assets/app_android_001.png';
@@ -10,7 +11,22 @@ const REPORT_LINKS = {
     board: 'https://github.com/orgs/essensys-hub/projects/6',
 };
 
+const readToken = () => localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+
 const Home = () => {
+    // Le signalement est réservé aux utilisateurs Essensys connectés (support-site#6).
+    const [isLoggedIn, setIsLoggedIn] = React.useState(() => Boolean(readToken()));
+
+    React.useEffect(() => {
+        const handleAuthChange = () => setIsLoggedIn(Boolean(readToken()));
+        window.addEventListener('auth-change', handleAuthChange);
+        window.addEventListener('storage', handleAuthChange);
+        return () => {
+            window.removeEventListener('auth-change', handleAuthChange);
+            window.removeEventListener('storage', handleAuthChange);
+        };
+    }, []);
+
     return (
         <div className="page-content home-page">
             <h1>Essensys Domotique</h1>
@@ -132,33 +148,42 @@ const Home = () => {
             <section id="signaler" className="content-section report-section">
                 <h2>Signaler un bug ou un incident</h2>
                 <p className="report-intro">
-                    La communauté maintient Essensys de façon ouverte. Tout le monde peut déclarer un problème :
-                    il sera suivi sur le tableau de bord GitHub et traité par les contributeurs.
+                    Le signalement est réservé aux utilisateurs Essensys. Chaque problème déclaré
+                    est suivi sur le tableau de bord GitHub et traité par les contributeurs.
                 </p>
-                <div className="features report-cards">
-                    <div
-                        className="feature-card clickable report-card report-card-bug"
-                        onClick={() => window.open(REPORT_LINKS.bug, '_blank', 'noopener,noreferrer')}
-                    >
-                        <h3>Bug logiciel</h3>
-                        <p>
-                            Comportement incorrect, régression après mise à jour, défaut reproductible
-                            (backend, interface web, apps, firmware…).
-                        </p>
-                        <span className="report-cta">Créer un signalement bug →</span>
+                {isLoggedIn ? (
+                    <div className="features report-cards">
+                        <div
+                            className="feature-card clickable report-card report-card-bug"
+                            onClick={() => window.open(REPORT_LINKS.bug, '_blank', 'noopener,noreferrer')}
+                        >
+                            <h3>Bug logiciel</h3>
+                            <p>
+                                Comportement incorrect, régression après mise à jour, défaut reproductible
+                                (backend, interface web, apps, firmware…).
+                            </p>
+                            <span className="report-cta">Créer un signalement bug →</span>
+                        </div>
+                        <div
+                            className="feature-card clickable report-card report-card-incident"
+                            onClick={() => window.open(REPORT_LINKS.incident, '_blank', 'noopener,noreferrer')}
+                        >
+                            <h3>Incident production</h3>
+                            <p>
+                                Panne ou dégradation <strong>en cours</strong> sur votre installation
+                                (domotique indisponible, gateway, accès distant…).
+                            </p>
+                            <span className="report-cta">Déclarer un incident →</span>
+                        </div>
                     </div>
-                    <div
-                        className="feature-card clickable report-card report-card-incident"
-                        onClick={() => window.open(REPORT_LINKS.incident, '_blank', 'noopener,noreferrer')}
-                    >
-                        <h3>Incident production</h3>
-                        <p>
-                            Panne ou dégradation <strong>en cours</strong> sur votre installation
-                            (domotique indisponible, gateway, accès distant…).
-                        </p>
-                        <span className="report-cta">Déclarer un incident →</span>
+                ) : (
+                    <div className="report-login">
+                        <p>Connectez-vous avec votre compte Essensys pour déclarer un bug ou un incident.</p>
+                        <Link to={`/login?return=${encodeURIComponent('/#signaler')}`} className="report-login-btn">
+                            Se connecter pour signaler
+                        </Link>
                     </div>
-                </div>
+                )}
                 <p className="report-footnote">
                     Consultez d'abord la{' '}
                     <a href="/support">documentation support</a>
