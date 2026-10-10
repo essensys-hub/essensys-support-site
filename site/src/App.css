@@ -246,3 +246,43 @@
     height: auto;
   }
 }
+
+/* Pages de téléchargement (iOS / Android) */
+.download-area {
+  margin: 1.5rem 0;
+}
+
+.download-btn {
+  display: inline-block;
+  padding: 0.8rem 1.6rem;
+  border-radius: 8px;
+  background: #00C9FF;
+  color: #0F172A;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+}
+
+a.download-btn:hover {
+  background: #33D4FF;
+}
+
+.download-page .instructions {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.install-steps {
+  padding-left: 1.4rem;
+  line-height: 1.6;
+}
+
+.install-steps li {
+  margin-bottom: 0.6rem;
+}
+
+.install-note {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
