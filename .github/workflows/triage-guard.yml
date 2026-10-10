@@ -1,0 +1,16 @@
+name: Triage Guard
+
+# Validation humaine des tickets venus de l'extérieur (report-triage-2026-10-005).
+# Logique : essensys-feature-lifecycle/.github/workflows/triage-guard.yml
+
+on:
+  issues:
+    types: [opened, reopened, labeled, unlabeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  triage:
+    uses: essensys-hub/essensys-feature-lifecycle/.github/workflows/triage-guard.yml@main
