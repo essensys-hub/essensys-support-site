@@ -24,9 +24,22 @@ TESTTHAT_TITLE_PATTERN = re.compile(
     r"""test_that\(\s*(['"])(?P<title>.+?)\1""",
     re.MULTILINE,
 )
+JUNIT_TITLE_PATTERN = re.compile(
+    r"@Test\b[\s\S]{0,300}?\b(?:fun|func|void)\s+`?(?P<title>[A-Za-z_][A-Za-z0-9_ ]*)`?\s*\(",
+)
+# XCTest (Swift/Objective-C) : méthodes `func test…()` sans annotation.
+XCTEST_TITLE_PATTERN = re.compile(r"^\s*(?:@MainActor\s+)?func\s+test_?(?P<title>[A-Za-z0-9_]+)\s*\(", re.MULTILINE)
+# Go : `func TestXxx(t *testing.T)` ; le CamelCase est découpé en mots.
+GO_TEST_TITLE_PATTERN = re.compile(r"^func\s+Test(?P<title>[A-Za-z0-9_]+)\s*\(\s*\w+\s+\*testing\.T\s*\)", re.MULTILINE)
+CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 MANDATORY_UX_DEVICES = {"desktop", "iphone", "ipad"}
 UI_SURFACE_VALUES = {"react-user", "react-admin", "mixed"}
+# Apps natives : la matrice UX web (Playwright desktop/iPhone/iPad) ne s'applique pas ; la preuve est
+# portée par les tests instrumentés (émulateur / simulateur) et les captures du manifest.
+NATIVE_MOBILE_SURFACES = {"android", "ios"}
+# Surfaces sans interface : le nom du dépôt (ex. « user-portal-backend ») ne doit pas faire croire à une UI.
+NON_UI_SURFACES = {"api", "cli-node", "cli-go", "ci", "ops"}
 UI_PATH_HINTS = (
     "src/pages/",
     "src/components/",
@@ -131,6 +144,7 @@ def collect_declared_paths(manifest: dict[str, object]) -> list[str]:
     paths.extend(manifest.get("tests", {}).get("playwright", []))
     paths.extend(manifest.get("tests", {}).get("pytest", []))
     paths.extend(manifest.get("tests", {}).get("testthat", []))
+    paths.extend(manifest.get("tests", {}).get("junit", []))
     paths.extend(manifest.get("release", {}).get("paths", []))
     for key in ("proposal", "design", "tasks"):
         value = manifest.get("openspec", {}).get(key)
@@ -160,7 +174,19 @@ def load_test_titles(paths: Iterable[str]) -> list[str]:
             for match in PYTEST_TITLE_PATTERN.finditer(content)
         )
         titles.extend(match.group("title") for match in TESTTHAT_TITLE_PATTERN.finditer(content))
+        titles.extend(
+            match.group("title").replace("_", " ") for match in JUNIT_TITLE_PATTERN.finditer(content)
+        )
+        titles.extend(
+            match.group("title").replace("_", " ") for match in XCTEST_TITLE_PATTERN.finditer(content)
+        )
+        titles.extend(go_title(match.group("title")) for match in GO_TEST_TITLE_PATTERN.finditer(content))
     return titles
+
+
+def go_title(name: str) -> str:
+    """`NR_backend_3_sixthReportIs429` → `NR backend 3 sixth Report Is 429`."""
+    return CAMEL_BOUNDARY.sub(" ", name).replace("_", " ")
 
 
 
@@ -223,6 +249,8 @@ def string_value(manifest: dict[str, object], *keys: str) -> str | None:
 
 def is_ui_feature(manifest: dict[str, object]) -> bool:
     primary = string_value(manifest, "implementation", "primary_surface")
+    if primary in NATIVE_MOBILE_SURFACES or primary in NON_UI_SURFACES:
+        return False
     if primary in UI_SURFACE_VALUES:
         return True
     text_parts: list[str] = []
@@ -368,6 +396,7 @@ def check_manifest(path: Path, *, mirror_repo: bool = False) -> ManifestResult:
         manifest.get("tests", {}).get("playwright", [])
         + manifest.get("tests", {}).get("pytest", [])
         + manifest.get("tests", {}).get("testthat", [])
+        + manifest.get("tests", {}).get("junit", [])
     )
     titles = load_test_titles(test_paths)
     for requirement in manifest.get("tests", {}).get("coverage_must_test", []):
@@ -389,6 +418,11 @@ def check_manifest(path: Path, *, mirror_repo: bool = False) -> ManifestResult:
         result.warnings.append("Merged feature has no PR URL recorded.")
 
     check_ux_matrix(manifest, result, mirror_repo=mirror_repo)
+    if string_value(manifest, "implementation", "primary_surface") in NATIVE_MOBILE_SURFACES:
+        if not list_value(manifest, "tests", "junit"):
+            result.errors.append("Native mobile feature must declare tests.junit (unit + instrumented tests).")
+        if not list_value(manifest, "userguide", "screenshots"):
+            result.warnings.append("Native mobile feature has no userguide.screenshots (emulator/simulator captures).")
 
     return result
 

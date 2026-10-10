@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Auth.css'; // Reuse Auth styles for consistency
+import MyReports from '../components/MyReports';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -282,6 +283,10 @@ const Profile = () => {
                         Supprimer mon compte
                     </button>
                 </div>
+
+                <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
+
+                <MyReports token={token} />
 
                 <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '20px 0' }} />
 
