@@ -1,0 +1,115 @@
+{
+  "$schema": "./schema/feature.schema.json",
+  "status": "in-progress",
+  "owner": "nrineau",
+  "github": {
+    "issue": "essensys-hub/essensys-feature-lifecycle#26",
+    "project_item": "PVTI_lADODqt0Wc4BavHTzg_48iY"
+  },
+  "git": {
+    "branch": "feat/portal-user-guide-2026-10-006",
+    "pr_url": null
+  },
+  "openspec": {
+    "change_id": "portal-user-guide-2026-10-006",
+    "path": "../essensys-memory/openspec/changes/portal-user-guide-2026-10-006",
+    "proposal": "../essensys-memory/openspec/changes/portal-user-guide-2026-10-006/proposal.md",
+    "design": "../essensys-memory/openspec/changes/portal-user-guide-2026-10-006/design.md",
+    "tasks": "../essensys-memory/openspec/changes/portal-user-guide-2026-10-006/tasks.md",
+    "specs": [
+      "../essensys-memory/openspec/changes/portal-user-guide-2026-10-006/specs/portal-user-guide/spec.md"
+    ]
+  },
+  "security": {
+    "sca_tool": "dependabot",
+    "dependabot_alerts_url": null,
+    "last_scan_at": null,
+    "cve_findings": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "secret_scan": {
+      "status": "clean",
+      "tool": "gitleaks",
+      "last_scan_at": null
+    },
+    "muted_findings": [],
+    "threat_model_url": "../essensys-memory/openspec/changes/portal-user-guide-2026-10-006/design.md",
+    "owner_security": "nrineau"
+  },
+  "id": "portal-user-guide-2026-10-006",
+  "title": "Guide utilisateur du portail — publication sur www.essensys.fr",
+  "implementation": {
+    "paths": [
+      "site/src/pages/Guide.jsx",
+      "site/src/pages/Guide.css",
+      "site/scripts/prepare_guide.py",
+      "site/src/App.jsx",
+      "site/src/components/Layout.jsx",
+      "site/src/pages/Support.jsx",
+      "site/src/pages/Profile.jsx",
+      "site/public/robots.txt",
+      "essensys.nginx"
+    ],
+    "primary_surface": "react-user"
+  },
+  "userguide": {
+    "pages": [
+      "docs/features/portal-user-guide.md"
+    ],
+    "language": "fr",
+    "i18n_keys": [],
+    "screenshots": []
+  },
+  "tests": {
+    "playwright": [
+      "site/e2e/guide.spec.js",
+      "site/e2e/guide-screenshots.spec.js"
+    ],
+    "pytest": [
+      "site/scripts/test_prepare_guide.py"
+    ],
+    "coverage_must_test": [
+      "visiteur invité à se connecter sans charger le guide",
+      "retour sur la page demandée après connexion",
+      "page lisible sans défilement horizontal",
+      "sommaire complet de 13 pages pour un utilisateur connecté",
+      "page inconnue : message et retour au sommaire"
+    ],
+    "smoke_tags": [
+      "@nr",
+      "@ux"
+    ],
+    "ux_matrix": {
+      "required": true,
+      "devices": [
+        "desktop",
+        "iphone",
+        "ipad"
+      ],
+      "targets": [
+        "support"
+      ],
+      "required_projects": [
+        "support-desktop",
+        "support-iphone",
+        "support-ipad"
+      ],
+      "screenshots_required": true,
+      "visual_regression_required": true,
+      "no_armoire_required": true
+    }
+  },
+  "release": {
+    "changelog_entry": "Pages /guide réservées aux utilisateurs connectés, liens depuis le menu, Support et Profil.",
+    "target_tag": null,
+    "surfaces": [
+      "essensys-support-site"
+    ],
+    "paths": [
+      "site/src/pages/Guide.jsx"
+    ]
+  }
+}

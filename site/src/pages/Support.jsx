@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Support.css';
 
 const Support = () => {
@@ -8,6 +9,9 @@ const Support = () => {
                 <h1 className="support-title">Support & Documentation</h1>
                 <p className="support-subtitle">
                     Guides pour installer et maintenir votre système Essensys.
+                </p>
+                <p className="support-subtitle">
+                    Vous utilisez le portail mon.essensys.fr ? <Link to="/guide">Guide du portail</Link> (réservé aux utilisateurs connectés).
                 </p>
 
                 <div className="support-doc-section">

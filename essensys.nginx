@@ -251,6 +251,20 @@ server {
         return 301 /maintenance/;
     }
 
+    # Guide utilisateur du portail (portal-user-guide-2026-10-006) : préparé à chaque déploiement.
+    # ^~ l'emporte sur la règle images « immutable » ci-dessous (les captures gardent le même nom
+    # d'une version à l'autre) ; jamais indexé par les moteurs de recherche.
+    location ^~ /guide-data/ {
+        types {
+            application/json json;
+            text/markdown md;
+            image/png png;
+        }
+        add_header X-Robots-Tag "noindex, nofollow" always;
+        add_header Cache-Control "public, max-age=3600" always;
+        try_files $uri =404;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
