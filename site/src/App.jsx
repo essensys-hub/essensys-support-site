@@ -22,8 +22,8 @@ import NewRelicPageTracker from './observability/NewRelicPageTracker';
 import LinkClickTracker from './observability/LinkClickTracker';
 import './App.css';
 
-const ANDROID_RELEASE_URL = 'https://github.com/essensys-hub/essensys-android-phone-apps/releases/tag/android-v2.1.1';
-const ANDROID_APK_URL = 'https://github.com/essensys-hub/essensys-android-phone-apps/releases/download/android-v2.1.1/essensys-android-2.1.1.apk';
+const ANDROID_RELEASE_URL = 'https://github.com/essensys-hub/essensys-android-phone-apps/releases/tag/android-v2.2.0';
+const ANDROID_APK_URL = 'https://github.com/essensys-hub/essensys-android-phone-apps/releases/download/android-v2.2.0/essensys-android-2.2.0.apk';
 // Play Protect bloque par défaut une app installée hors Play Store et peu répandue (essensys-android-phone-apps#9).
 const ANDROID_INSTALL_STEPS = [
   <>Si l'ancienne version (1.0) est installée, <strong>désinstallez-la</strong>.</>,
@@ -78,9 +78,9 @@ function App() {
                 platform="Android"
                 title="Essensys pour Android"
                 downloadUrl={ANDROID_APK_URL}
-                buttonText="Télécharger l'APK (version 2.1.1)"
+                buttonText="Télécharger l'APK (version 2.2.0)"
                 steps={ANDROID_INSTALL_STEPS}
-                note={<>Empreinte SHA-256 et notes de version : <a href={ANDROID_RELEASE_URL} target="_blank" rel="noopener noreferrer">release 2.1.1 sur GitHub</a>.</>}
+                note={<>Empreinte SHA-256 et notes de version : <a href={ANDROID_RELEASE_URL} target="_blank" rel="noopener noreferrer">release 2.2.0 sur GitHub</a>.</>}
               />
             }
           />
