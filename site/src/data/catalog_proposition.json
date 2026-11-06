@@ -87,11 +87,35 @@
                 },
                 {
                     "name": "Temps d'extinction",
-                    "description": "Définit le temps avant extinction automatique des lampes (en minutes). 0 = pas d'extinction.",
+                    "description": "Définit le temps avant extinction automatique d'une lumière (en minutes). Six lumières sont réglables ; la valeur écrite à la clé est un octet de 0 à 255 minutes, 0 = jamais (le boîtier applique minutes x 60 x 0,994 secondes). L'écran de l'armoire ne propose que 15 min, 30 min, 1 h et Jamais ; réglable aussi depuis le menu Temporisations des portails et applications (administrateur).",
                     "values": [
                         {
-                            "label": "Durée (1-255 minutes)",
-                            "value": "1...255"
+                            "label": "Dressing (clé 521)",
+                            "value": "521"
+                        },
+                        {
+                            "label": "WC 1 (clé 555)",
+                            "value": "555"
+                        },
+                        {
+                            "label": "WC 2 (clé 556)",
+                            "value": "556"
+                        },
+                        {
+                            "label": "Service (buanderie) (clé 557)",
+                            "value": "557"
+                        },
+                        {
+                            "label": "Annexe 1 (clé 561)",
+                            "value": "561"
+                        },
+                        {
+                            "label": "Annexe 2 (clé 562)",
+                            "value": "562"
+                        },
+                        {
+                            "label": "Durée (0-255 minutes, 0 = jamais)",
+                            "value": "0...255"
                         }
                     ]
                 },
