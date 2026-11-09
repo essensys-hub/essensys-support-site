@@ -10,7 +10,7 @@ test.describe('Page Android', () => {
         await page.addInitScript(() => localStorage.setItem('cookieConsent', 'false'));
         await page.goto('/android');
         await expect(page.getByTestId('download-link')).toHaveAttribute('href',
-            'https://github.com/essensys-hub/essensys-android-phone-apps/releases/download/android-v2.9.0/essensys-android-2.9.0.apk');
+            'https://github.com/essensys-hub/essensys-android-phone-apps/releases/download/android-v2.9.1/essensys-android-2.9.1.apk');
         const steps = page.locator('.install-steps');
         await expect(steps).toContainText('Play Protect');
         await expect(steps).toContainText('Plus de détails');
