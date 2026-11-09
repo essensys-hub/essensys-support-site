@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demande de liaison — aperçu</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f3f4f6; margin: 0; padding: 40px; }
+  </style>
+</head>
+<body>
+  <header style="margin-bottom: 24px;">
+    <strong style="font-size: 1.25rem;">Essensys Portail</strong>
+  </header>
+  <main style="max-width: 640px;">
+    <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1); padding: 24px;">
+      <h2 style="margin: 0 0 12px; font-size: 1.25rem;">Accès portail domotique</h2>
+      <p style="color: #4b5563; margin: 0 0 20px;">
+        Demandez à un administrateur de lier votre armoire Essensys à votre compte.
+      </p>
+      <form>
+        <label style="display: block; margin-bottom: 16px;">
+          <span style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 4px;">N° série machine</span>
+          <input type="text" value="ESS002VA0102030405" readonly
+            style="width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px;" />
+        </label>
+        <label style="display: block; margin-bottom: 16px;">
+          <span style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 4px;">Message (optionnel)</span>
+          <textarea readonly rows="3"
+            style="width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px;">MAC armoire : 00:11:22:33:44:55 — Clé produit : AB12C-DE345-F6789-01234-56789 — Lyon 69003</textarea>
+        </label>
+        <button type="button"
+          style="background: #2563eb; color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 500;">
+          Envoyer la demande
+        </button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
